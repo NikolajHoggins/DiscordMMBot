@@ -1,19 +1,34 @@
 {
-  "name": "breachersbot",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NikolajHoggins/BreachersBot.git"
-  },
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/NikolajHoggins/BreachersBot/issues"
-  },
-  "homepage": "https://github.com/NikolajHoggins/BreachersBot#readme"
+    "name": "breachersbot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "npx nodemon",
+        "build": "rimraf ./build && tsc",
+        "start": "npm run build && node build/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/NikolajHoggins/BreachersBot.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/NikolajHoggins/BreachersBot/issues"
+    },
+    "homepage": "https://github.com/NikolajHoggins/BreachersBot#readme",
+    "devDependencies": {
+        "@types/node": "^18.11.18",
+        "nodemon": "^2.0.20",
+        "rimraf": "^4.0.4",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.4"
+    },
+    "dependencies": {
+        "discord.js": "^14.7.1",
+        "dotenv": "^16.0.3",
+        "mongoose": "^6.8.3"
+    }
 }
