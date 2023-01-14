@@ -1,6 +1,7 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
+import { ready } from '../services/queue.service';
 
 export const Ready: Command = {
     name: 'ready',
@@ -9,15 +10,10 @@ export const Ready: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         //Fetch user from database
         const { user } = interaction;
-        const player = await playerService.create({
-            discordId: user.id,
-            rating: 1000,
-            name: user.username,
-        });
-        // const player = await playerService.get(interaction.user.id);
-        console.log(player);
+        const player = await playerService.findOrCreate(user);
+        ready(player);
 
-        const content = 'Nothing happened.. maybe finish command nerd dev!';
+        const content = `${user.username} readied up!`;
 
         await interaction.followUp({
             ephemeral: true,

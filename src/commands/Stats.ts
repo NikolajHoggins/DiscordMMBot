@@ -9,20 +9,11 @@ export const Stats: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         //Fetch user from database
         const { user } = interaction;
-        let player = await playerService.get(user.id);
-        if (!player) {
-            console.log('player not found, creating');
-            player = await playerService.create({
-                discordId: user.id,
-                rating: 1000,
-                name: user.username,
-            });
-        }
+        const player = await playerService.findOrCreate(user);
 
         // const player = await playerService.get(interaction.user.id);
-        console.log(player);
 
-        const content = 'Nothing happened.. maybe finish command nerd dev!';
+        const content = `User ${player.name} has a rating of ${player.rating}`;
 
         await interaction.followUp({
             ephemeral: true,
