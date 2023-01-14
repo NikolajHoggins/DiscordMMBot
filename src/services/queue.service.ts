@@ -31,7 +31,7 @@ export const ready = ({
 };
 export const unReady = async ({ discordId }: { discordId: string }): Promise<void> => {
     const queueSpot = await getSpot(discordId);
-    console.log('spot', queueSpot);
+
     if (queueSpot) {
         await Queue.deleteOne({ discordId });
     }
