@@ -32,13 +32,14 @@ export const Ready: Command = {
             interaction.user.send('queue commands only available in #queue');
             return;
         }
-        const option = interaction.options.get('time');
-        const isNumber = typeof option?.value == 'number';
-        console.log(typeof option?.value);
-        const readyTime = isNumber ? (option.value as number) : 30;
-
+        //fetch player from database
         const { user } = interaction;
         const player = await playerService.findOrCreate(user);
+
+        const option = interaction.options.get('time');
+        const isNumber = typeof option?.value == 'number';
+        const readyTime = isNumber ? (option.value as number) : 30;
+
         ready({ player, time: readyTime });
 
         const content = `You have been set to be ready for a match for ${readyTime} minutes.`;

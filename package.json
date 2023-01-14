@@ -21,6 +21,7 @@
     "homepage": "https://github.com/NikolajHoggins/BreachersBot#readme",
     "devDependencies": {
         "@types/node": "^18.11.18",
+        "@types/node-cron": "^3.0.7",
         "nodemon": "^2.0.20",
         "rimraf": "^4.0.4",
         "ts-node": "^10.9.1",
@@ -29,6 +30,7 @@
     "dependencies": {
         "discord.js": "^14.7.1",
         "dotenv": "^16.0.3",
-        "mongoose": "^6.8.3"
+        "mongoose": "^6.8.3",
+        "node-cron": "^3.0.2"
     }
 }
