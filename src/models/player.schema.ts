@@ -4,14 +4,14 @@ import { Schema, model, connect } from 'mongoose';
 export interface IPlayer {
     discordId: string;
     name: string;
-    rating: number;
+    rating: string;
 }
 
 // 2. Create a Schema corresponding to the document interface.
 const playerSchema = new Schema<IPlayer>({
     discordId: { type: String, required: true },
     name: { type: String, required: true },
-    rating: { type: Number, required: true },
+    rating: { type: String, required: true },
 });
 
 const Player = model<IPlayer>('Player', playerSchema);

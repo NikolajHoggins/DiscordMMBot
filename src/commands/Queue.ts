@@ -11,7 +11,7 @@ export const QueueCommand: Command = {
         const queuePlayers = await Queue.find();
 
         let content = 'Currently looking for a game: ';
-        queuePlayers.forEach((queue, i) => {
+        queuePlayers.forEach(queue => {
             content = `${content} ${queue.name},`;
         });
 
