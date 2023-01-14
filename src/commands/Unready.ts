@@ -1,5 +1,6 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
+import { updateStatus } from '../crons/updateQueue';
 import * as playerService from '../services/player.service';
 import { unReady } from '../services/queue.service';
 
@@ -12,7 +13,8 @@ export const Unready: Command = {
         const { user } = interaction;
         const player = await playerService.findOrCreate(user);
         await unReady({ discordId: player.discordId });
-        // const player = await playerService.get(interaction.user.id);
+
+        updateStatus(client);
 
         const content = `You are no longer ready`;
 

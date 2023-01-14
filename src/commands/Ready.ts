@@ -7,6 +7,7 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
+import { updateStatus } from '../crons/updateQueue';
 import * as playerService from '../services/player.service';
 import { ready } from '../services/queue.service';
 
@@ -41,7 +42,7 @@ export const Ready: Command = {
         const readyTime = isNumber ? (option.value as number) : 30;
 
         ready({ player, time: readyTime });
-
+        updateStatus(client);
         const content = `You have been set to be ready for a match for ${readyTime} minutes.`;
 
         await interaction.followUp({

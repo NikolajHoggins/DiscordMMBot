@@ -1,7 +1,7 @@
 import { Client } from 'discord.js';
 
 import * as dotenv from 'dotenv';
-import updateQueue from './crons/updateQueue';
+import initStatusCron from './crons/updateQueue';
 import interactionCreate from './listeners/interactionCreate';
 import ready from './listeners/ready';
 import { connectToDatabase } from './services/database.service';
@@ -18,4 +18,4 @@ connectToDatabase();
 client.login(process.env.BOT_TOKEN);
 
 //Register cronjobs
-updateQueue(client);
+initStatusCron(client);
