@@ -1,4 +1,3 @@
-import { match } from 'assert';
 import {
     Client,
     Guild,
@@ -7,6 +6,7 @@ import {
     TextChannel,
     User,
 } from 'discord.js';
+import { updateStatus } from '../crons/updateQueue';
 import Match from '../models/match.schema';
 import Player, { IPlayer } from '../models/player.schema';
 import Queue, { IQueue } from '../models/queue.schema';
@@ -50,6 +50,17 @@ const setPermissions = async ({
     });
 };
 
+const removePlayersFromQueue = async (queuePlayers: IQueue[]): Promise<void> => {
+    return new Promise(async resolve => {
+        for (const i in queuePlayers) {
+            const player = queuePlayers[i];
+            await Queue.deleteOne({ discordId: player.discordId });
+        }
+
+        resolve();
+    });
+};
+
 export const tryStart = (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         if (!process.env.SERVER_ID || !process.env.MATCH_CATEGORY) return;
@@ -57,6 +68,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queue = await Queue.find().sort({ signup_time: -1 });
 
         const count = 2;
+
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
 
@@ -66,27 +78,17 @@ export const tryStart = (client: Client): Promise<void> => {
 
             const newNumber = await getNewMatchNumber();
 
-            const newMatch = new Match({
-                match_number: newNumber,
-                start: Date.now(),
-                playerIds: queuePlayers.map(p => p.discordId),
-            });
-            console.log(newMatch);
-
-            await newMatch.save();
-
             const everyone = await guild.roles.fetch(process.env.SERVER_ID);
 
             if (!everyone) return;
 
             const newRole = await setPermissions({
                 guild,
-                matchNumber: newMatch.match_number,
+                matchNumber: newNumber,
                 queuePlayers,
             });
-
             const matchChannel = await guild.channels.create({
-                name: `Match-${newMatch.match_number}`,
+                name: `Match-${newNumber}`,
                 permissionOverwrites: [
                     {
                         id: everyone.id,
@@ -99,21 +101,18 @@ export const tryStart = (client: Client): Promise<void> => {
                 ],
                 parent: process.env.MATCH_CATEGORY,
             });
-            // for (const i in queue) {
-            //     console.log('permissions for ', i);
-            //     await matchChannel.permissionOverwrites.set([
-            //         {
-            //             id: queue[i].discordId,
-            //             allow: PermissionsBitField.Flags.ViewChannel,
-            //         },
-            //     ]);
-            // }
-            // const playerPermissions = queue.map(q => ({
-            //     id: q.discordId,
-            //     allow: PermissionsBitField.Flags.ViewChannel,
-            // }));
 
-            // matchChannel.permissionOverwrites();
+            const newMatch = new Match({
+                match_number: newNumber,
+                start: Date.now(),
+                playerIds: queuePlayers.map(p => p.discordId),
+                threadId: matchChannel.id,
+            });
+            await newMatch.save();
+
+            //Remove players from queue
+            await removePlayersFromQueue(queuePlayers);
+            await updateStatus(client);
         }
 
         resolve();
