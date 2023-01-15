@@ -4,6 +4,7 @@ import { Schema, model, connect } from 'mongoose';
 export interface IQueue {
     discordId: string;
     expires: number;
+    signup_time: number;
     name: string;
 }
 
@@ -11,6 +12,7 @@ export interface IQueue {
 const queueSchema = new Schema<IQueue>({
     discordId: { type: String, required: true },
     expires: { type: Number, required: true },
+    signup_time: { type: Number, required: true },
     name: { type: String, required: true },
 });
 

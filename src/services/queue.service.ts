@@ -21,6 +21,7 @@ export const ready = ({
         const newSpot = new Queue({
             discordId: player.discordId,
             expires: Date.now() + ONE_MINUTE * time,
+            signup_time: Date.now(),
             name: player.name,
         });
 

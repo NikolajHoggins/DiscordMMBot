@@ -1,4 +1,4 @@
-import { Client, TextChannel } from 'discord.js';
+import { Client, Guild, TextChannel } from 'discord.js';
 import { Commands } from '../Commands';
 
 export default (client: Client): void => {
