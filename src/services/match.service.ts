@@ -1,7 +1,15 @@
-import { Client, PermissionOverwrites, PermissionsBitField, TextChannel, User } from 'discord.js';
+import { match } from 'assert';
+import {
+    Client,
+    Guild,
+    PermissionOverwrites,
+    PermissionsBitField,
+    TextChannel,
+    User,
+} from 'discord.js';
 import Match from '../models/match.schema';
 import Player, { IPlayer } from '../models/player.schema';
-import Queue from '../models/queue.schema';
+import Queue, { IQueue } from '../models/queue.schema';
 
 const sendStartingMessage = async ({ client, count }: { client: Client; count: number }) => {
     if (!process.env.QUEUE_CHANNEL) return;
@@ -19,13 +27,36 @@ const getNewMatchNumber = async (): Promise<number> => {
     });
 };
 
+const setPermissions = async ({
+    guild,
+    matchNumber,
+    queuePlayers,
+}: {
+    guild: Guild;
+    matchNumber: number;
+    queuePlayers: IQueue[];
+}): Promise<string> => {
+    return new Promise(async (resolve, reject) => {
+        // create new role
+        const role = await guild.roles.create({ name: `match-${matchNumber}` });
+
+        for (const i in queuePlayers) {
+            const p = queuePlayers[i];
+            const member = await guild.members.fetch(p.discordId);
+            await member.roles.add(role);
+        }
+
+        resolve(role.id);
+    });
+};
+
 export const tryStart = (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         if (!process.env.SERVER_ID || !process.env.MATCH_CATEGORY) return;
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 1;
+        const count = 2;
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
 
@@ -47,12 +78,24 @@ export const tryStart = (client: Client): Promise<void> => {
             const everyone = await guild.roles.fetch(process.env.SERVER_ID);
 
             if (!everyone) return;
-            console.log(everyone.id);
+
+            const newRole = await setPermissions({
+                guild,
+                matchNumber: newMatch.match_number,
+                queuePlayers,
+            });
 
             const matchChannel = await guild.channels.create({
                 name: `Match-${newMatch.match_number}`,
                 permissionOverwrites: [
-                    { id: everyone.id, deny: PermissionsBitField.Flags.ReadMessageHistory },
+                    {
+                        id: everyone.id,
+                        deny: [PermissionsBitField.Flags.ViewChannel],
+                    },
+                    {
+                        id: newRole,
+                        allow: [PermissionsBitField.Flags.ViewChannel],
+                    },
                 ],
                 parent: process.env.MATCH_CATEGORY,
             });
