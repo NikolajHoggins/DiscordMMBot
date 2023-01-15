@@ -1,22 +1,8 @@
-import {
-    Client,
-    Guild,
-    PermissionOverwrites,
-    PermissionsBitField,
-    TextChannel,
-    User,
-} from 'discord.js';
+import { Client, Guild, PermissionsBitField, ReactionEmoji, Role } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
+import { sendMessage } from '../helpers/messages';
 import Match from '../models/match.schema';
-import Player, { IPlayer } from '../models/player.schema';
 import Queue, { IQueue } from '../models/queue.schema';
-
-const sendStartingMessage = async ({ client, count }: { client: Client; count: number }) => {
-    if (!process.env.QUEUE_CHANNEL) return;
-
-    const channel = await client.channels.fetch(process.env.QUEUE_CHANNEL).then(resp => resp);
-    (channel as TextChannel).send(count + ' players in queue - Game is starting');
-};
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async (resolve, reject) => {
@@ -61,18 +47,59 @@ const removePlayersFromQueue = async (queuePlayers: IQueue[]): Promise<void> => 
     });
 };
 
+const createChannel = ({
+    guild,
+    everyoneRole,
+    matchNumber,
+    queuePlayers,
+}: {
+    guild: Guild;
+    everyoneRole: Role;
+    matchNumber: number;
+    queuePlayers: IQueue[];
+}): Promise<string> => {
+    return new Promise(async (resolve, reject) => {
+        const newRole = await setPermissions({
+            guild,
+            matchNumber,
+            queuePlayers,
+        });
+        const matchChannel = await guild.channels.create({
+            name: `Match-${matchNumber}`,
+            permissionOverwrites: [
+                {
+                    id: everyoneRole.id,
+                    deny: [PermissionsBitField.Flags.ViewChannel],
+                },
+                {
+                    id: newRole,
+                    allow: [PermissionsBitField.Flags.ViewChannel],
+                },
+            ],
+            parent: process.env.MATCH_CATEGORY,
+        });
+
+        resolve(matchChannel.id);
+    });
+};
+
 export const tryStart = (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {
-        if (!process.env.SERVER_ID || !process.env.MATCH_CATEGORY) return;
+        if (!process.env.SERVER_ID || !process.env.MATCH_CATEGORY || !process.env.QUEUE_CHANNEL)
+            return;
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 2;
+        const count = 1;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
 
-            sendStartingMessage({ client, count });
+            await sendMessage({
+                channelId: process.env.QUEUE_CHANNEL,
+                messageContent: count + ' players in queue - Game is starting',
+                client,
+            });
 
             const guild = await client.guilds.fetch(process.env.SERVER_ID);
 
@@ -82,55 +109,33 @@ export const tryStart = (client: Client): Promise<void> => {
 
             if (!everyone) return;
 
-            const newRole = await setPermissions({
+            const channelId = await createChannel({
                 guild,
-                matchNumber: newNumber,
+                everyoneRole: everyone,
                 queuePlayers,
-            });
-            const matchChannel = await guild.channels.create({
-                name: `Match-${newNumber}`,
-                permissionOverwrites: [
-                    {
-                        id: everyone.id,
-                        deny: [PermissionsBitField.Flags.ViewChannel],
-                    },
-                    {
-                        id: newRole,
-                        allow: [PermissionsBitField.Flags.ViewChannel],
-                    },
-                ],
-                parent: process.env.MATCH_CATEGORY,
+                matchNumber: newNumber,
             });
 
             const newMatch = new Match({
                 match_number: newNumber,
                 start: Date.now(),
                 playerIds: queuePlayers.map(p => p.discordId),
-                threadId: matchChannel.id,
+                threadId: channelId,
             });
             await newMatch.save();
 
             //Remove players from queue
             await removePlayersFromQueue(queuePlayers);
             await updateStatus(client);
+
+            const readyMessage = await sendMessage({
+                channelId,
+                messageContent: 'Game has been found, you have 5 minutes to ready up',
+                client,
+            });
+            await readyMessage.react('✅');
         }
 
         resolve();
-    });
-};
-
-export const get = (discordId: string): Promise<IPlayer> => {
-    return new Promise(async (resolve, reject) => {
-        const player = (await Player.findOne({ discordId })) as IPlayer;
-        resolve(player);
-    });
-};
-
-export const create = (data: IPlayer): Promise<IPlayer> => {
-    return new Promise(async (resolve, reject) => {
-        const player = new Player(data);
-        await player.save();
-
-        resolve(player);
     });
 };
