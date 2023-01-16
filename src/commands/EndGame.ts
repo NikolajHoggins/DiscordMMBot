@@ -27,11 +27,8 @@ export const EndGame: Command = {
 
         //delete role
         const guild = await getGuild(client);
-        const role = await guild?.roles.delete(match.roleId);
-
-        // guild?.roles.delete(\);
-
-        console.log(match);
+        await guild?.roles.delete(match.roleId);
+        await guild?.channels.delete(match.channelId);
 
         const content = match ? 'Deleting' : 'Not in match thread';
         await interaction.followUp({

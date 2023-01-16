@@ -215,6 +215,8 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
             client,
         });
 
+        //Create vc for each team
+
         resolve();
     });
 };
