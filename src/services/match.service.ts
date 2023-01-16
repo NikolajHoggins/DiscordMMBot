@@ -1,7 +1,7 @@
 import { Client, Guild, PermissionsBitField, ReactionEmoji, Role, User } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { sendMessage } from '../helpers/messages';
-import Match from '../models/match.schema';
+import Match, { IMatch } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -57,7 +57,7 @@ const createChannel = ({
     everyoneRole: Role;
     matchNumber: number;
     queuePlayers: IQueue[];
-}): Promise<string> => {
+}): Promise<{ channelId: string; roleId: string }> => {
     return new Promise(async (resolve, reject) => {
         const newRole = await setPermissions({
             guild,
@@ -79,7 +79,7 @@ const createChannel = ({
             parent: process.env.MATCH_CATEGORY,
         });
 
-        resolve(matchChannel.id);
+        resolve({ channelId: matchChannel.id, roleId: newRole });
     });
 };
 
@@ -178,7 +178,7 @@ export const tryStart = (client: Client): Promise<void> => {
 
             if (!everyone) return;
 
-            const channelId = await createChannel({
+            const { channelId, roleId } = await createChannel({
                 guild,
                 everyoneRole: everyone,
                 queuePlayers,
@@ -189,7 +189,8 @@ export const tryStart = (client: Client): Promise<void> => {
                 match_number: newNumber,
                 start: Date.now(),
                 playerIds: queuePlayers.map(p => p.discordId),
-                threadId: channelId,
+                channelId: channelId,
+                roleId: roleId,
             });
             await newMatch.save();
 
@@ -200,5 +201,11 @@ export const tryStart = (client: Client): Promise<void> => {
         }
 
         resolve();
+    });
+};
+
+export const findByChannelId = async (channelId: string): Promise<IMatch | null> => {
+    return new Promise(async resolve => {
+        resolve(await Match.findOne({ channelId: channelId }));
     });
 };
