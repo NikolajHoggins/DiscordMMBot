@@ -52,3 +52,14 @@ export const get = (): Promise<IQueue[]> => {
         Queue.find().then(resp => resolve(resp));
     });
 };
+
+export const removePlayersFromQueue = async (queuePlayers: IQueue[]): Promise<void> => {
+    return new Promise(async resolve => {
+        for (const i in queuePlayers) {
+            const player = queuePlayers[i];
+            await Queue.deleteOne({ discordId: player.discordId });
+        }
+
+        resolve();
+    });
+};

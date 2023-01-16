@@ -1,17 +1,11 @@
-import {
-    Client,
-    Guild,
-    PermissionsBitField,
-    ReactionEmoji,
-    Role,
-    User,
-    UserFlags,
-} from 'discord.js';
+import { Client, Guild, PermissionsBitField, Role, User } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { sendMessage } from '../helpers/messages';
 import Match, { IMatch } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { shuffle } from 'lodash';
+import { removePlayersFromQueue } from './queue.service';
+import { getGuild } from '../helpers/guild';
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async (resolve, reject) => {
@@ -42,17 +36,6 @@ const setPermissions = async ({
         }
 
         resolve(role.id);
-    });
-};
-
-const removePlayersFromQueue = async (queuePlayers: IQueue[]): Promise<void> => {
-    return new Promise(async resolve => {
-        for (const i in queuePlayers) {
-            const player = queuePlayers[i];
-            await Queue.deleteOne({ discordId: player.discordId });
-        }
-
-        resolve();
     });
 };
 
@@ -160,7 +143,8 @@ export const tryStart = (client: Client): Promise<void> => {
                 client,
             });
 
-            const guild = await client.guilds.fetch(process.env.SERVER_ID);
+            const guild = await getGuild(client);
+            if (!guild) return;
 
             const newNumber = await getNewMatchNumber();
 
