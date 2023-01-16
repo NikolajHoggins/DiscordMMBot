@@ -93,14 +93,19 @@ const sendReadyMessage = async ({
     queuePlayers: IQueue[];
 }): Promise<void> => {
     return new Promise(async () => {
+        const timeToReadyInMs = 30000;
+        const warning = timeToReadyInMs - 10000;
         const readyMessage = await sendMessage({
             channelId,
-            messageContent: 'Game has been found, you have 5 minutes to ready up',
+            messageContent: `Game has been found, you have ${
+                timeToReadyInMs / 1000
+            } seconds to ready up. Once clicked, you cannot unready`,
             client,
         });
 
         let q = queuePlayers.map(q => q.discordId);
         readyMessage.react('✅');
+
         //     .then(async msg => {
 
         //     await msg.awaitReactions({});
@@ -108,6 +113,17 @@ const sendReadyMessage = async ({
         //     const collector = msg.createReactionCollector({ filter, time: 15_000 });
         //     collector.on('collect', r => console.log(`Collected ${r.emoji.name}`));
         //     collector.on('end', collected => console.log(`Collected ${collected.size} items`));
+        setTimeout(() => {
+            q.forEach(id => {
+                sendMessage({
+                    channelId,
+                    messageContent: `<@${id}> you have ${
+                        (timeToReadyInMs - warning) / 1000
+                    } seconds to ready up`,
+                    client,
+                });
+            });
+        }, warning);
         const filter = (reaction: any, user: User) => {
             console.log(
                 user.id,
@@ -119,7 +135,7 @@ const sendReadyMessage = async ({
             if (q.length <= 0) {
                 sendMessage({
                     channelId,
-                    messageContent: 'GAME IS STARTING',
+                    messageContent: 'All players ready, game is starting',
                     client,
                 });
             }
@@ -127,7 +143,7 @@ const sendReadyMessage = async ({
             return false;
         };
         readyMessage
-            .awaitReactions({ filter, time: 15_000 })
+            .awaitReactions({ filter, time: timeToReadyInMs })
             .then(collected => {
                 console.log(`Collected ${collected.size} reactions`);
             })
@@ -143,7 +159,7 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 2;
+        const count = 1;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
