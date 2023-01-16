@@ -1,8 +1,17 @@
-import { Client, Guild, PermissionsBitField, ReactionEmoji, Role, User } from 'discord.js';
+import {
+    Client,
+    Guild,
+    PermissionsBitField,
+    ReactionEmoji,
+    Role,
+    User,
+    UserFlags,
+} from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { sendMessage } from '../helpers/messages';
 import Match, { IMatch } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
+import { shuffle } from 'lodash';
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async (resolve, reject) => {
@@ -87,10 +96,12 @@ const sendReadyMessage = async ({
     channelId,
     client,
     queuePlayers,
+    match,
 }: {
     channelId: string;
     client: Client;
     queuePlayers: IQueue[];
+    match: IMatch;
 }): Promise<void> => {
     return new Promise(async () => {
         const timeToReadyInMs = 30000;
@@ -106,13 +117,6 @@ const sendReadyMessage = async ({
         let q = queuePlayers.map(q => q.discordId);
         readyMessage.react('✅');
 
-        //     .then(async msg => {
-
-        //     await msg.awaitReactions({});
-        //     const filter = () => true;
-        //     const collector = msg.createReactionCollector({ filter, time: 15_000 });
-        //     collector.on('collect', r => console.log(`Collected ${r.emoji.name}`));
-        //     collector.on('end', collected => console.log(`Collected ${collected.size} items`));
         setTimeout(() => {
             q.forEach(id => {
                 sendMessage({
@@ -125,30 +129,15 @@ const sendReadyMessage = async ({
             });
         }, warning);
         const filter = (reaction: any, user: User) => {
-            console.log(
-                user.id,
-                queuePlayers.map(q => q.discordId)
-            );
-
             q = q.filter(id => id !== user.id);
 
             if (q.length <= 0) {
-                sendMessage({
-                    channelId,
-                    messageContent: 'All players ready, game is starting',
-                    client,
-                });
+                startGame(client, match);
             }
             if (queuePlayers.find(q => q.discordId === user.id)) return true;
             return false;
         };
-        readyMessage
-            .awaitReactions({ filter, time: timeToReadyInMs })
-            .then(collected => {
-                console.log(`Collected ${collected.size} reactions`);
-            })
-            .catch(console.error);
-        // });
+        readyMessage.awaitReactions({ filter, time: timeToReadyInMs });
     });
 };
 
@@ -159,7 +148,7 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 1;
+        const count = 2;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -197,8 +186,34 @@ export const tryStart = (client: Client): Promise<void> => {
             //Remove players from queue
             await removePlayersFromQueue(queuePlayers);
             await updateStatus(client);
-            await sendReadyMessage({ client, channelId, queuePlayers });
+            await sendReadyMessage({ client, channelId, queuePlayers, match: newMatch });
         }
+
+        resolve();
+    });
+};
+export const startGame = (client: Client, match: IMatch): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+        if (!match) return;
+        const players = shuffle(match.playerIds);
+        const teamOne = players.slice(0, players.length / 2);
+        const teamTwo = players.slice(players.length / 2, players.length);
+
+        await sendMessage({
+            channelId: match.channelId,
+            messageContent: 'All players ready, game is starting',
+            client,
+        });
+        await sendMessage({
+            channelId: match.channelId,
+            messageContent: `Team one: ${teamOne.map(p => `<@${p}>,`)}`,
+            client,
+        });
+        await sendMessage({
+            channelId: match.channelId,
+            messageContent: `Team two: ${teamTwo.map(p => `<@${p}>,`)}`,
+            client,
+        });
 
         resolve();
     });

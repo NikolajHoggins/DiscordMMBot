@@ -20,6 +20,7 @@
     },
     "homepage": "https://github.com/NikolajHoggins/BreachersBot#readme",
     "devDependencies": {
+        "@types/lodash": "^4.14.191",
         "@types/node": "^18.11.18",
         "@types/node-cron": "^3.0.7",
         "nodemon": "^2.0.20",
