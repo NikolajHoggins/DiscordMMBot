@@ -1,4 +1,4 @@
-import { Client, Guild, PermissionsBitField, ReactionEmoji, Role } from 'discord.js';
+import { Client, Guild, PermissionsBitField, ReactionEmoji, Role, User } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { sendMessage } from '../helpers/messages';
 import Match from '../models/match.schema';
@@ -83,6 +83,59 @@ const createChannel = ({
     });
 };
 
+const sendReadyMessage = async ({
+    channelId,
+    client,
+    queuePlayers,
+}: {
+    channelId: string;
+    client: Client;
+    queuePlayers: IQueue[];
+}): Promise<void> => {
+    return new Promise(async () => {
+        const readyMessage = await sendMessage({
+            channelId,
+            messageContent: 'Game has been found, you have 5 minutes to ready up',
+            client,
+        });
+
+        let q = queuePlayers.map(q => q.discordId);
+        readyMessage.react('✅');
+        //     .then(async msg => {
+
+        //     await msg.awaitReactions({});
+        //     const filter = () => true;
+        //     const collector = msg.createReactionCollector({ filter, time: 15_000 });
+        //     collector.on('collect', r => console.log(`Collected ${r.emoji.name}`));
+        //     collector.on('end', collected => console.log(`Collected ${collected.size} items`));
+        const filter = (reaction: any, user: User) => {
+            console.log(
+                user.id,
+                queuePlayers.map(q => q.discordId)
+            );
+
+            q = q.filter(id => id !== user.id);
+
+            if (q.length <= 0) {
+                sendMessage({
+                    channelId,
+                    messageContent: 'GAME IS STARTING',
+                    client,
+                });
+            }
+            if (queuePlayers.find(q => q.discordId === user.id)) return true;
+            return false;
+        };
+        readyMessage
+            .awaitReactions({ filter, time: 15_000 })
+            .then(collected => {
+                console.log(`Collected ${collected.size} reactions`);
+            })
+            .catch(console.error);
+        // });
+    });
+};
+
 export const tryStart = (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         if (!process.env.SERVER_ID || !process.env.MATCH_CATEGORY || !process.env.QUEUE_CHANNEL)
@@ -90,7 +143,7 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 1;
+        const count = 2;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -127,13 +180,7 @@ export const tryStart = (client: Client): Promise<void> => {
             //Remove players from queue
             await removePlayersFromQueue(queuePlayers);
             await updateStatus(client);
-
-            const readyMessage = await sendMessage({
-                channelId,
-                messageContent: 'Game has been found, you have 5 minutes to ready up',
-                client,
-            });
-            await readyMessage.react('✅');
+            await sendReadyMessage({ client, channelId, queuePlayers });
         }
 
         resolve();

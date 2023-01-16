@@ -30,6 +30,7 @@
     "dependencies": {
         "discord.js": "^14.7.1",
         "dotenv": "^16.0.3",
+        "lodash": "^4.17.21",
         "mongoose": "^6.8.3",
         "node-cron": "^3.0.2"
     }
