@@ -5,11 +5,15 @@ export const sendMessage = async ({
     messageContent,
     client,
 }: {
-    channelId: string;
+    channelId?: string;
     client: Client;
     messageContent: string | any;
-}): Promise<Message> => {
+}): Promise<Message | null> => {
     return new Promise(async resolve => {
+        if (!channelId) {
+            resolve(null);
+            return;
+        }
         const channel = await client.channels.fetch(channelId).then(resp => resp);
         const message = await (channel as TextChannel).send(messageContent);
         resolve(message);

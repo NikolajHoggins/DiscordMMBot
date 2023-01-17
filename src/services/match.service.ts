@@ -104,6 +104,7 @@ const sendReadyMessage = async ({
             } seconds to ready up. Once clicked, you cannot unready`,
             client,
         });
+        if (!readyMessage) return;
 
         let q = queuePlayers.map(q => q.discordId);
         readyMessage.react('✅');
@@ -129,7 +130,26 @@ const sendReadyMessage = async ({
             if (queuePlayers.find(q => q.discordId === user.id)) return true;
             return false;
         };
-        readyMessage.awaitReactions({ filter, time: timeToReadyInMs });
+        readyMessage.awaitReactions({ filter, time: timeToReadyInMs }).then(() => {
+            sendMessage({
+                channelId,
+                messageContent: `${q.map(
+                    player => `<@${player}>,`
+                )} failed to accept the match, ending game`,
+                client,
+            });
+
+            sendMessage({
+                channelId: process.env.QUEUE_CHANNEL,
+                messageContent: `${q.map(player => `<@${player}>,`)} failed to accept match ${
+                    match.match_number
+                }`,
+                client,
+            });
+            setTimeout(() => {
+                end({ matchNumber: match.match_number, client });
+            }, 5000);
+        });
     });
 };
 
@@ -221,6 +241,8 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
             messageContent: { embeds: [teamsEmbed, matchStats] },
             client,
         });
+
+        if (!message) return;
 
         message.react('🇦');
         message.react('🇧');

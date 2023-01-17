@@ -20,7 +20,7 @@ export const EndGame: Command = {
         //Fetch user from database
 
         //fetch player from database
-        const { user, channelId } = interaction;
+        const { channelId } = interaction;
 
         //find match with channelId
         const match = await matchService.findByChannelId(channelId);
