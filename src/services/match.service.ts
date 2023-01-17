@@ -8,6 +8,7 @@ import { getGuild } from '../helpers/guild';
 import { createTeams } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
 import { createTeamsEmbed } from '../helpers/embed';
+const DEBUG_MODE = false;
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async (resolve, reject) => {
@@ -162,16 +163,18 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 10;
+        const count = DEBUG_MODE ? 1 : 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
 
-            await sendMessage({
-                channelId: process.env.QUEUE_CHANNEL,
-                messageContent: count + ' players in queue - Game is starting',
-                client,
-            });
+            if (!DEBUG_MODE) {
+                await sendMessage({
+                    channelId: process.env.QUEUE_CHANNEL,
+                    messageContent: count + ' players in queue - Game is starting',
+                    client,
+                });
+            }
 
             const guild = await getGuild(client);
             if (!guild) return;

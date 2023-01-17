@@ -9,6 +9,7 @@ import {
 import { Command } from '../Command';
 import { updateStatus } from '../crons/updateQueue';
 import { getGuild } from '../helpers/guild';
+import { botLog } from '../helpers/messages';
 
 import * as matchService from '../services/match.service';
 
@@ -42,6 +43,7 @@ export const EndGame: Command = {
 
         const content = match ? 'Deleting' : 'Not in match thread';
 
+        botLog({ messageContent: `<@${user.id}> Ended match ${match?.match_number}`, client });
         await interaction.followUp({
             ephemeral: true,
             content,
