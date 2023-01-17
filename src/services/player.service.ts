@@ -9,7 +9,13 @@ export const findOrCreate = (user: User): Promise<IPlayer> => {
             return;
         }
 
-        const newPlayer = new Player({ discordId: user.id, name: user.username, rating: 1000 });
+        const newPlayer = new Player({
+            discordId: user.id,
+            name: user.username,
+            rating: 1000,
+            wins: 0,
+            losses: 0,
+        });
         await newPlayer.save();
 
         resolve(newPlayer);
@@ -29,5 +35,25 @@ export const create = (data: IPlayer): Promise<IPlayer> => {
         await player.save();
 
         resolve(player);
+    });
+};
+
+export const addWinLoose = async ({
+    playerId,
+    won,
+}: {
+    playerId: string;
+    won: boolean;
+}): Promise<void> => {
+    return new Promise(async resolve => {
+        const player = await get(playerId);
+
+        if (!player) return;
+
+        await Player.updateOne(
+            { discordId: playerId },
+            won ? { wins: player.wins + 1 } : { losses: player.losses + 1 }
+        );
+        resolve();
     });
 };

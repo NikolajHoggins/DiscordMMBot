@@ -1,12 +1,13 @@
 import { Client, Events, MessageReaction } from 'discord.js';
 import { sendMessage } from '../helpers/messages';
-import { findByChannelId } from '../services/match.service';
+import * as matchService from '../services/match.service';
+import { addWinLoose } from '../services/player.service';
 
 const handleMatchScore = async (reaction: MessageReaction, user: any, client: Client) => {
     if (!reaction.emoji.name) return;
     //channelid
     const channelId = reaction.message.channelId;
-    const match = await findByChannelId(channelId);
+    const match = await matchService.findByChannelId(channelId);
     if (!match) return;
     const { teamA, teamB } = match;
     const players = [...teamA, ...teamB];
@@ -14,17 +15,33 @@ const handleMatchScore = async (reaction: MessageReaction, user: any, client: Cl
         reaction.users.remove(user.id);
     }
 
-    const teamNames = (emoji: string) => {
-        if (emoji === '🇦') return 'Team A';
-        if (emoji === '🇧') return 'Team B';
+    const teams = {
+        a: teamA,
+        b: teamB,
     };
-
     if (reaction.count > players.length / 2) {
+        const winner = reaction.emoji.name === '🇦' ? 'a' : 'b';
         sendMessage({
             channelId,
-            messageContent: `${teamNames(reaction.emoji.name)} wins`,
+            messageContent: `Team ${winner.toUpperCase()} wins`,
             client,
         });
+        //Set winner on Match
+        matchService.setWinner({ matchNumber: match.match_number, winner: winner });
+
+        //loop through winner team and append 1 win
+        for (const i in players) {
+            const player = players[i];
+
+            const won = teams[winner].includes(player);
+
+            await addWinLoose({ playerId: player, won: won });
+        }
+
+        //delete match
+        setTimeout(() => {
+            matchService.end({ matchNumber: match.match_number, client });
+        }, 10000);
     }
 };
 

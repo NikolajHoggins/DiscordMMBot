@@ -200,7 +200,11 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
             .setTitle('Teams')
             .setColor('#C69B6D')
             .addFields(
-                { name: 'Team A', value: `${teamB.map(p => `<@${p}>\n`)}`, inline: true },
+                {
+                    name: 'Team A',
+                    value: `${teamA.length > 0 ? teamA.map(p => `<@${p}>\n`) : 'player'}`,
+                    inline: true,
+                },
                 { name: 'Team B', value: `${teamB.map(p => `<@${p}>\n`)}`, inline: true }
             );
 
@@ -228,5 +232,31 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
 export const findByChannelId = async (channelId: string): Promise<IMatch | null> => {
     return new Promise(async resolve => {
         resolve(await Match.findOne({ channelId: channelId }));
+    });
+};
+
+export const setWinner = async ({
+    matchNumber,
+    winner,
+}: {
+    matchNumber: number;
+    winner: 'a' | 'b';
+}): Promise<void> => {
+    return new Promise(async resolve => {
+        const match = await Match.find({ match_number: matchNumber });
+        if (match) await Match.updateOne({ match_number: matchNumber }, { winner });
+
+        resolve();
+    });
+};
+
+export const end = async ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
+    return new Promise(async resolve => {
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match) return;
+        const guild = await getGuild(client);
+        await guild?.roles.delete(match.roleId);
+
+        await guild?.channels.delete(match.channelId);
     });
 };

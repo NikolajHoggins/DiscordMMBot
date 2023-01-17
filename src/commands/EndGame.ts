@@ -9,7 +9,8 @@ import {
 import { Command } from '../Command';
 import { updateStatus } from '../crons/updateQueue';
 import { getGuild } from '../helpers/guild';
-import { findByChannelId } from '../services/match.service';
+
+import * as matchService from '../services/match.service';
 
 export const EndGame: Command = {
     name: 'end_game',
@@ -22,17 +23,14 @@ export const EndGame: Command = {
         const { user, channelId } = interaction;
 
         //find match with channelId
-        const match = await findByChannelId(channelId);
+        const match = await matchService.findByChannelId(channelId);
         if (!match) return;
-
-        //delete role
-        const guild = await getGuild(client);
-        await guild?.roles.delete(match.roleId);
         const content = match ? 'Deleting' : 'Not in match thread';
+
         await interaction.followUp({
             ephemeral: true,
             content,
         });
-        await guild?.channels.delete(match.channelId);
+        await matchService.end({ matchNumber: match.match_number, client });
     },
 };
