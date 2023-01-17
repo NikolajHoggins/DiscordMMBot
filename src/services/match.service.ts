@@ -3,9 +3,9 @@ import { updateStatus } from '../crons/updateQueue';
 import { sendMessage } from '../helpers/messages';
 import Match, { IMatch } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
-import { shuffle } from 'lodash';
 import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
+import { createTeams } from '../helpers/players';
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async (resolve, reject) => {
@@ -67,6 +67,14 @@ const createChannel = ({
                     id: newRole,
                     allow: [PermissionsBitField.Flags.ViewChannel],
                 },
+                ...(process.env.MOD_ROLE_ID
+                    ? [
+                          {
+                              id: process.env.MOD_ROLE_ID,
+                              allow: [PermissionsBitField.Flags.ViewChannel],
+                          },
+                      ]
+                    : []),
             ],
             parent: process.env.MATCH_CATEGORY,
         });
@@ -159,12 +167,13 @@ export const tryStart = (client: Client): Promise<void> => {
                 matchNumber: newNumber,
             });
 
+            const teams = createTeams(queuePlayers);
             const newMatch = new Match({
                 match_number: newNumber,
                 start: Date.now(),
-                playerIds: queuePlayers.map(p => p.discordId),
                 channelId: channelId,
                 roleId: roleId,
+                ...teams,
             });
             await newMatch.save();
 
@@ -180,10 +189,7 @@ export const tryStart = (client: Client): Promise<void> => {
 export const startGame = (client: Client, match: IMatch): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         if (!match) return;
-        const players = shuffle(match.playerIds);
-        const teamA = players.slice(0, players.length / 2);
-        const teamB = players.slice(players.length / 2, players.length);
-
+        const { teamA, teamB } = match;
         await sendMessage({
             channelId: match.channelId,
             messageContent: 'All players ready, game is starting',

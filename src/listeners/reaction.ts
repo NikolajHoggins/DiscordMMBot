@@ -8,8 +8,8 @@ const handleMatchScore = async (reaction: MessageReaction, user: any, client: Cl
     const channelId = reaction.message.channelId;
     const match = await findByChannelId(channelId);
     if (!match) return;
-
-    const players = match.playerIds;
+    const { teamA, teamB } = match;
+    const players = [...teamA, ...teamB];
     if (!players.includes(user.id)) {
         reaction.users.remove(user.id);
     }
