@@ -20,17 +20,33 @@ export const EndGame: Command = {
         //Fetch user from database
 
         //fetch player from database
-        const { channelId } = interaction;
+        const { user, channelId } = interaction;
 
+        if (!process.env.MOD_ROLE_ID || !process.env.SERVER_ID) return;
+        const guild = await getGuild(client);
+        const member = await guild?.members.fetch(user.id);
+
+        const everyone = await guild?.roles.fetch(process.env.SERVER_ID);
+
+        if (!member) return;
+
+        const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
+        if (!isMod) {
+            await interaction.followUp({
+                ephemeral: true,
+                content: 'no perms',
+            });
+        }
         //find match with channelId
         const match = await matchService.findByChannelId(channelId);
-        if (!match) return;
+
         const content = match ? 'Deleting' : 'Not in match thread';
 
         await interaction.followUp({
             ephemeral: true,
             content,
         });
+        if (!match) return;
         await matchService.end({ matchNumber: match.match_number, client });
     },
 };

@@ -160,7 +160,7 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 1;
+        const count = 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
