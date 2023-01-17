@@ -1,6 +1,7 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
-import { ceil } from 'lodash';
+import { ceil, toInteger } from 'lodash';
 import { Command } from '../Command';
+import { updateLeaderboard } from '../helpers/leaderboard';
 import Player from '../models/player.schema';
 
 export const Top: Command = {
@@ -13,10 +14,12 @@ export const Top: Command = {
 
         let content = '```';
         topPlayers.forEach((player, i) => {
-            const winRate = ceil((player.wins / (player.wins + player.losses)) * 100);
+            const winRate = toInteger(
+                ((player.wins / (player.wins + player.losses)) * 100).toFixed(0)
+            );
 
             content = `${content}
-[${i + 1}] - ${player.name} - ${player.wins} wins - ${isNaN(winRate) ? '0' : winRate}% winrate`;
+[${i + 1}] - ${player.name} - ${player.wins} wins - ${winRate}%`;
         });
 
         content = content + '```';

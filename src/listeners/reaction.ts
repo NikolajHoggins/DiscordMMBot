@@ -1,4 +1,5 @@
 import { Client, Events, MessageReaction } from 'discord.js';
+import { updateLeaderboard } from '../helpers/leaderboard';
 import { sendMessage } from '../helpers/messages';
 import * as matchService from '../services/match.service';
 import { addWinLoose } from '../services/player.service';
@@ -42,6 +43,7 @@ const handleMatchScore = async (reaction: MessageReaction, user: any, client: Cl
         setTimeout(() => {
             matchService.end({ matchNumber: match.match_number, client });
             //update loaderboard
+            updateLeaderboard({ client });
         }, 10000);
     }
 };
