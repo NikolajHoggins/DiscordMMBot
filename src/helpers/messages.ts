@@ -7,7 +7,7 @@ export const sendMessage = async ({
 }: {
     channelId: string;
     client: Client;
-    messageContent: string;
+    messageContent: string | any;
 }): Promise<Message> => {
     return new Promise(async resolve => {
         const channel = await client.channels.fetch(channelId).then(resp => resp);

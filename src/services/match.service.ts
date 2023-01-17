@@ -1,4 +1,4 @@
-import { Client, Guild, PermissionsBitField, Role, User } from 'discord.js';
+import { Client, EmbedBuilder, Guild, PermissionsBitField, Role, User } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { sendMessage } from '../helpers/messages';
 import Match, { IMatch } from '../models/match.schema';
@@ -132,7 +132,7 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 1;
+        const count = 2;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -181,22 +181,25 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         if (!match) return;
         const players = shuffle(match.playerIds);
-        const teamOne = players.slice(0, players.length / 2);
-        const teamTwo = players.slice(players.length / 2, players.length);
+        const teamA = players.slice(0, players.length / 2);
+        const teamB = players.slice(players.length / 2, players.length);
 
         await sendMessage({
             channelId: match.channelId,
             messageContent: 'All players ready, game is starting',
             client,
         });
+
+        const teamsEmbed = new EmbedBuilder()
+            .setTitle('Teams')
+            .setColor('#C69B6D')
+            .addFields(
+                { name: 'Team A', value: `${teamA.map(p => `<@${p}>\n`)}`, inline: true },
+                { name: 'Team B', value: `${teamB.map(p => `<@${p}>\n`)}`, inline: true }
+            );
         await sendMessage({
             channelId: match.channelId,
-            messageContent: `Team one: ${teamOne.map(p => `<@${p}>,`)}`,
-            client,
-        });
-        await sendMessage({
-            channelId: match.channelId,
-            messageContent: `Team two: ${teamTwo.map(p => `<@${p}>,`)}`,
+            messageContent: { embeds: [teamsEmbed] },
             client,
         });
 
