@@ -4,7 +4,6 @@ import { EndGame } from './commands/EndGame';
 import { Hello } from './commands/Hello';
 import { QueueCommand } from './commands/Queue';
 import { Ready } from './commands/Ready';
-import { Sex } from './commands/Sex';
 import { Stats } from './commands/Stats';
 import { Top } from './commands/Top';
 import { Unready } from './commands/Unready';
@@ -15,7 +14,6 @@ export const Commands: Command[] = [
     Ready,
     Top,
     QueueCommand,
-    Sex,
     Unready,
     EndGame,
 ];

@@ -31,7 +31,10 @@ export const Ready: Command = {
             interaction.channelId !== TESTING_CHANNEL &&
             interaction.channelId !== process.env.QUEUE_CHANNEL
         ) {
-            interaction.user.send('queue commands only available in #queue');
+            await interaction.followUp({
+                ephemeral: true,
+                content: 'Keep queue commands in queue',
+            });
             return;
         }
         //fetch player from database
