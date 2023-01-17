@@ -19,3 +19,18 @@ export const sendMessage = async ({
         resolve(message);
     });
 };
+
+export const botLog = async ({
+    messageContent,
+    client,
+}: {
+    messageContent: string | any;
+    client: Client;
+}): Promise<void> => {
+    return new Promise(resolve => {
+        if (process.env.LOG_CHANNEL) {
+            sendMessage({ channelId: process.env.LOG_CHANNEL, messageContent, client });
+        }
+        resolve();
+    });
+};

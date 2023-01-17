@@ -17,8 +17,6 @@ export const EndGame: Command = {
     description: 'Force end game lobby',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
-        //Fetch user from database
-
         //fetch player from database
         const { user, channelId } = interaction;
 
@@ -26,7 +24,8 @@ export const EndGame: Command = {
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
 
-        const everyone = await guild?.roles.fetch(process.env.SERVER_ID);
+        //Fetch everyone for it to be in cache
+        await guild?.roles.fetch(process.env.SERVER_ID);
 
         if (!member) return;
 
@@ -36,6 +35,7 @@ export const EndGame: Command = {
                 ephemeral: true,
                 content: 'no perms',
             });
+            return;
         }
         //find match with channelId
         const match = await matchService.findByChannelId(channelId);

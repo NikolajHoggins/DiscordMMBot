@@ -6,6 +6,8 @@ import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
 import { createTeams } from '../helpers/players';
+import { logMatch } from '../helpers/logs';
+import { createTeamsEmbed } from '../helpers/embed';
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async (resolve, reject) => {
@@ -196,6 +198,7 @@ export const tryStart = (client: Client): Promise<void> => {
                 ...teams,
             });
             await newMatch.save();
+            logMatch({ match: newMatch, client });
 
             //Remove players from queue
             await removePlayersFromQueue(queuePlayers);
@@ -216,17 +219,7 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
             client,
         });
 
-        const teamsEmbed = new EmbedBuilder()
-            .setTitle('Teams')
-            .setColor('#C69B6D')
-            .addFields(
-                {
-                    name: 'Team A',
-                    value: `${teamA.length > 0 ? teamA.map(p => `<@${p}>\n`) : 'player'}`,
-                    inline: true,
-                },
-                { name: 'Team B', value: `${teamB.map(p => `<@${p}>\n`)}`, inline: true }
-            );
+        const teamsEmbed = createTeamsEmbed({ teamA, teamB });
 
         const matchStats = new EmbedBuilder()
             .setTitle('Submit score')
