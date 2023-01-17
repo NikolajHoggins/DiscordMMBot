@@ -41,6 +41,7 @@ const handleMatchScore = async (reaction: MessageReaction, user: any, client: Cl
         //delete match
         setTimeout(() => {
             matchService.end({ matchNumber: match.match_number, client });
+            //update loaderboard
         }, 10000);
     }
 };

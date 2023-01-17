@@ -9,7 +9,7 @@ export const Top: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
         //Fetch user from database
-        const topPlayers = await Player.find().sort({ win: -1 }).limit(10);
+        const topPlayers = await Player.find().sort({ wins: -1 }).limit(10);
 
         let content = '```';
         topPlayers.forEach((player, i) => {
