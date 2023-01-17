@@ -132,7 +132,7 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: -1 });
 
-        const count = 2;
+        const count = 1;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -194,16 +194,26 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
             .setTitle('Teams')
             .setColor('#C69B6D')
             .addFields(
-                { name: 'Team A', value: `${teamA.map(p => `<@${p}>\n`)}`, inline: true },
+                { name: 'Team A', value: `${teamB.map(p => `<@${p}>\n`)}`, inline: true },
                 { name: 'Team B', value: `${teamB.map(p => `<@${p}>\n`)}`, inline: true }
             );
-        await sendMessage({
+
+        const matchStats = new EmbedBuilder()
+            .setTitle('Submit score')
+            .setDescription('Submit scores here when game is over')
+            .addFields(
+                { name: 'Vote Team A', value: '🇦', inline: true },
+                { name: 'Vote Team B', value: '🇧', inline: true }
+            );
+
+        const message = await sendMessage({
             channelId: match.channelId,
-            messageContent: { embeds: [teamsEmbed] },
+            messageContent: { embeds: [teamsEmbed, matchStats] },
             client,
         });
 
-        //Create vc for each team
+        message.react('🇦');
+        message.react('🇧');
 
         resolve();
     });
