@@ -58,9 +58,11 @@ const handlePingRoleReaction = async (reaction: MessageReaction, user: any, clie
 
     if (reaction.emoji.name === '✅') {
         sender.roles.add(pingRole);
+        sender.send('Added ping to play role');
     }
     if (reaction.emoji.name === '❌') {
         sender.roles.remove(pingRole);
+        sender.send('Removed ping to play role');
     }
 
     reaction.users.remove(user.id);
