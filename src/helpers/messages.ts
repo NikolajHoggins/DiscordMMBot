@@ -11,6 +11,8 @@ export const sendMessage = async ({
 }): Promise<Message | null> => {
     return new Promise(async resolve => {
         if (!channelId) {
+            throw new Error('No channel id for message ' + messageContent);
+
             resolve(null);
             return;
         }

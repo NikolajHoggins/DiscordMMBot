@@ -1,4 +1,5 @@
-import { Client, Events, MessageReaction } from 'discord.js';
+import { Client, Events, MessageReaction, User } from 'discord.js';
+import { getGuild } from '../helpers/guild.js';
 import { updateLeaderboard } from '../helpers/leaderboard';
 import { sendMessage } from '../helpers/messages';
 import * as matchService from '../services/match.service';
@@ -48,6 +49,23 @@ const handleMatchScore = async (reaction: MessageReaction, user: any, client: Cl
     }
 };
 
+const handlePingRoleReaction = async (reaction: MessageReaction, user: any, client: Client) => {
+    if (!process.env.PING_TO_PLAY_ROLE_ID) return;
+
+    const pingRole = await reaction.message.guild?.roles.fetch(process.env.PING_TO_PLAY_ROLE_ID);
+    const sender = await reaction.message.guild?.members.fetch(user.id);
+    if (!pingRole || !sender) return;
+
+    if (reaction.emoji.name === '✅') {
+        sender.roles.add(pingRole);
+    }
+    if (reaction.emoji.name === '❌') {
+        sender.roles.remove(pingRole);
+    }
+
+    reaction.users.remove(user.id);
+};
+
 export default (client: Client): void => {
     client.on(Events.MessageReactionAdd, async (reaction, user) => {
         if (!client.user || !client.application || user.bot) {
@@ -57,6 +75,9 @@ export default (client: Client): void => {
 
         if (['🇧', '🇦'].includes(reaction.emoji.name))
             handleMatchScore(reaction as MessageReaction, user, client);
+
+        if (reaction.message.id === process.env.PING_MESSAGE)
+            handlePingRoleReaction(reaction as MessageReaction, user, client);
         return;
     });
 };
