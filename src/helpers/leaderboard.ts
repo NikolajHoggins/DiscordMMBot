@@ -34,11 +34,11 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 client,
             });
         }
-        const topPlayers = await Player.find().sort({ wins: -1 }).limit(20);
+        const topPlayers = await Player.find().sort({ rating: -1 }).limit(20);
         let content = '```';
-        content = content + `| Rank |     Name     | Wins | Games Played | Win Rate % |`;
+        content = content + `| Rank |     Name     | Rating | Wins | Games Played | Win Rate % |`;
         content = `${content}
-+------+--------------+------+--------------+------------+`;
++------+--------------+--------+------+--------------+------------+`;
         const nameSlotLength = 14;
 
         for (const i in topPlayers) {
@@ -54,6 +54,7 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 ' ',
                 whitespace
             )}${nameLength % 2 === 0 ? '' : ' '}`;
+            const prettyRating = getPretty({ value: p.rating.toString(), slotLength: 8 });
             const prettyWins = getPretty({ value: wins.toString(), slotLength: 6 });
             const prettyPlayed = getPretty({
                 value: (wins + losses).toString(),
@@ -64,7 +65,7 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 slotLength: 12,
             });
             content = `${content}
-|  ${i}   |${prettyName}|${prettyWins}|${prettyPlayed}|${prettyWinRate}|`;
+|  ${i}   |${prettyName}|${prettyRating}|${prettyWins}|${prettyPlayed}|${prettyWinRate}|`;
         }
         content = content + '```';
 
