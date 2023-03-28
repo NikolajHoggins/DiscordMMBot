@@ -8,7 +8,9 @@ import { getGuild } from '../helpers/guild';
 import { createTeams } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
 import { createTeamsEmbed } from '../helpers/embed';
-const DEBUG_MODE = false;
+import { getChannelId } from './system.service';
+import { CategoriesType, ChannelsType } from '../types/channel';
+const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async (resolve, reject) => {
@@ -59,6 +61,7 @@ const createChannel = ({
             matchNumber,
             queuePlayers,
         });
+        const matchCategoryId = await getChannelId(CategoriesType.matches);
         const matchChannel = await guild.channels.create({
             name: `Match-${matchNumber}`,
             permissionOverwrites: [
@@ -79,7 +82,7 @@ const createChannel = ({
                       ]
                     : []),
             ],
-            parent: process.env.MATCH_CATEGORY,
+            parent: matchCategoryId,
         });
 
         resolve({ channelId: matchChannel.id, roleId: newRole });
@@ -158,32 +161,32 @@ const sendReadyMessage = async ({
 
 export const tryStart = (client: Client): Promise<void> => {
     return new Promise(async (resolve, reject) => {
-        if (!process.env.SERVER_ID || !process.env.MATCH_CATEGORY || !process.env.QUEUE_CHANNEL)
-            return;
+        if (!process.env.SERVER_ID) return;
+
+        const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: -1 });
-
         const count = DEBUG_MODE ? 1 : 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
 
-            if (!DEBUG_MODE) {
+            if (!DEBUG_MODE || true) {
                 await sendMessage({
-                    channelId: process.env.QUEUE_CHANNEL,
+                    channelId: queueChannelId,
                     messageContent: count + ' players in queue - Game is starting',
                     client,
                 });
             }
 
             const guild = await getGuild(client);
-            if (!guild) return;
+            if (!guild) throw new Error("Couldn't find guild");
 
             const newNumber = await getNewMatchNumber();
 
             const everyone = await guild.roles.fetch(process.env.SERVER_ID);
 
-            if (!everyone) return;
+            if (!everyone) throw new Error("Couldn't find everyone role");
 
             const { channelId, roleId } = await createChannel({
                 guild,

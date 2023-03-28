@@ -1,4 +1,6 @@
 import { Client, Message, TextChannel } from 'discord.js';
+import { getChannelId } from '../services/system.service';
+import { ChannelsType } from '../types/channel';
 
 export const sendMessage = async ({
     channelId,
@@ -12,9 +14,6 @@ export const sendMessage = async ({
     return new Promise(async resolve => {
         if (!channelId) {
             throw new Error('No channel id for message ' + messageContent);
-
-            resolve(null);
-            return;
         }
         const channel = await client.channels.fetch(channelId).then(resp => resp);
         const message = await (channel as TextChannel).send(messageContent);
@@ -29,10 +28,10 @@ export const botLog = async ({
     messageContent: string | any;
     client: Client;
 }): Promise<void> => {
-    return new Promise(resolve => {
-        if (process.env.LOG_CHANNEL) {
-            sendMessage({ channelId: process.env.LOG_CHANNEL, messageContent, client });
-        }
+    return new Promise(async resolve => {
+        const logChannelId = await getChannelId(ChannelsType['bot-log']);
+        sendMessage({ channelId: logChannelId, messageContent, client });
+
         resolve();
     });
 };

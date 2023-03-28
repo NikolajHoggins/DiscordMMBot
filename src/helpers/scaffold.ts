@@ -1,7 +1,7 @@
-import { Client, TextChannel } from 'discord.js';
+import { Client, TextChannel, ChannelType as DiscordChannelType } from 'discord.js';
 import { ISystem } from '../models/system.schema.js';
 import { getConfig, updateConfig } from '../services/system.service';
-import { ChannelsType, ChannelType } from '../types/channel';
+import { CategoriesType, ChannelsType, ChannelType } from '../types/channel';
 import { getGuild } from './guild';
 import { sendMessage } from './messages';
 const createChannels = async (client: Client): Promise<ChannelType[]> => {
@@ -25,21 +25,31 @@ const createChannels = async (client: Client): Promise<ChannelType[]> => {
     return channels;
 };
 
-const createChannel = async (client: Client, name: string): Promise<ChannelType> => {
+const createChannel = async (
+    client: Client,
+    name: string,
+    category?: boolean
+): Promise<ChannelType> => {
     const guild = await getGuild(client);
     if (!guild) throw new Error('no guild found');
 
     const channel = await guild.channels.create({
         name: name,
+        type: category ? DiscordChannelType.GuildCategory : DiscordChannelType.GuildText,
     });
     return { name: name, id: channel.id };
 };
 
-const cacheChannel = async (config: ISystem, name: string, client: Client): Promise<boolean> => {
+const cacheChannel = async (
+    config: ISystem,
+    name: string,
+    client: Client,
+    isCategory?: boolean
+): Promise<boolean> => {
     return new Promise(async (resolve, reject) => {
         const channel = config.channels.find(t => t.name === name);
         if (!channel) {
-            const newChannel = await createChannel(client, name);
+            const newChannel = await createChannel(client, name, isCategory);
             const oldConfig = await getConfig();
             const newChannels = [...oldConfig.channels, newChannel];
             await updateConfig({ id: oldConfig._id, body: { channels: newChannels } });
@@ -58,7 +68,7 @@ const cacheChannel = async (config: ISystem, name: string, client: Client): Prom
 
             let newChannels = oldConfig.channels.filter(t => t.name !== channel.name);
 
-            const newChannel = await createChannel(client, name);
+            const newChannel = await createChannel(client, name, isCategory);
 
             // add new channel to the existing channels on config
             newChannels = [...newChannels, newChannel];
@@ -127,6 +137,15 @@ const scaffold = async (client: Client) => {
         Object.keys(ChannelsType).map(key => {
             return new Promise(async (resolve, reject) => {
                 await cacheChannel(config, key, client);
+                resolve(null);
+            });
+        })
+    );
+
+    await Promise.all(
+        Object.keys(CategoriesType).map(key => {
+            return new Promise(async (resolve, reject) => {
+                await cacheChannel(config, key, client, true);
                 resolve(null);
             });
         })
