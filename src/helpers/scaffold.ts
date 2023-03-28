@@ -3,6 +3,7 @@ import { ISystem } from '../models/system.schema.js';
 import { getConfig, updateConfig } from '../services/system.service';
 import { ChannelsType, ChannelType } from '../types/channel';
 import { getGuild } from './guild';
+import { sendMessage } from './messages';
 const createChannels = async (client: Client): Promise<ChannelType[]> => {
     const guild = await getGuild(client);
 
@@ -67,6 +68,53 @@ const cacheChannel = async (config: ISystem, name: string, client: Client): Prom
         resolve(true);
     });
 };
+const addPingToPlayMessage = async ({
+    config,
+    guild,
+    client,
+}: {
+    config: ISystem;
+    guild: any;
+    client: Client;
+}) => {
+    const roleChannel = config.channels.find(t => t.name === ChannelsType.role);
+    if (!roleChannel) throw new Error('no role channel found');
+
+    const pingToPlayMessage = await sendMessage({
+        channelId: roleChannel.id,
+        messageContent: 'React to get ping to play role',
+        client,
+    });
+    if (!pingToPlayMessage) throw new Error("Couldn't send ping to play message");
+
+    pingToPlayMessage.react('✅');
+    pingToPlayMessage.react('❌');
+};
+
+const cacheReactionRoleMessages = async ({
+    config,
+    guild,
+    client,
+}: {
+    config: ISystem;
+    guild: any;
+    client: Client;
+}) => {
+    //Find and fetch all reaction role messages
+    const roleChannel = config.channels.find(t => t.name === ChannelsType.role);
+
+    if (!roleChannel) throw new Error('no role channel found');
+
+    const channel = (await guild.channels.fetch(roleChannel.id)) as TextChannel;
+    if (!channel) throw new Error('role channel not found');
+
+    const messages = await channel.messages.fetch();
+
+    const pingToPlayMessage = messages.filter(m => m.content.includes('ping to play'));
+    if (pingToPlayMessage.size === 0) {
+        await addPingToPlayMessage({ config, guild, client });
+    }
+};
 
 const scaffold = async (client: Client) => {
     const guild = await getGuild(client);
@@ -84,15 +132,7 @@ const scaffold = async (client: Client) => {
         })
     );
 
-    //Find and fetch all reaction role messages
-    const roleChannel = config.channels.find(t => t.name === ChannelsType.role);
-
-    if (!roleChannel) throw new Error('no role channel found');
-
-    const channel = (await guild.channels.fetch(roleChannel.id)) as TextChannel;
-    if (!channel) throw new Error('role channel not found');
-
-    const messages = await channel.messages.fetch();
+    await cacheReactionRoleMessages({ config, guild, client });
 };
 
 export default scaffold;

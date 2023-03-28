@@ -53,7 +53,7 @@ const handleMatchScore = async (reaction: MessageReaction, user: any, client: Cl
 const handlePingRoleReaction = async (reaction: MessageReaction, user: any, client: Client) => {
     if (!process.env.PING_TO_PLAY_ROLE_ID) return;
 
-    const pingRole = await reaction.message.guild?.roles.fetch(process.env.PING_TO_PLAY_ROLE_ID);
+    const pingRole = await reaction.message.guild?.roles.fetch(process.env.PING_TO_PLAY_ROLE_ID); //@TODO make roles with scaffolding instead of hardcoding
     const sender = await reaction.message.guild?.members.fetch(user.id);
     if (!pingRole || !sender) return;
 
