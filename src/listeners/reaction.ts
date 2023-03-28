@@ -82,7 +82,7 @@ export default (client: Client): void => {
         //get role channel id from config
         const config = await getConfig();
         if (!config) throw new Error("Couldn't get config");
-        const roleChannelId = config.channels.find(c => c.name === ChannelsType.role)?.id;
+        const roleChannelId = config.channels.find(c => c.name === ChannelsType.roles)?.id;
         if (!roleChannelId) throw new Error("Couldn't get role channel id");
 
         if (reaction.message.channelId === roleChannelId)

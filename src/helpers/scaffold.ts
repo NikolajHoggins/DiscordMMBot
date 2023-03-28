@@ -77,7 +77,7 @@ const addPingToPlayMessage = async ({
     guild: any;
     client: Client;
 }) => {
-    const roleChannel = config.channels.find(t => t.name === ChannelsType.role);
+    const roleChannel = config.channels.find(t => t.name === ChannelsType.roles);
     if (!roleChannel) throw new Error('no role channel found');
 
     const pingToPlayMessage = await sendMessage({
@@ -101,7 +101,7 @@ const cacheReactionRoleMessages = async ({
     client: Client;
 }) => {
     //Find and fetch all reaction role messages
-    const roleChannel = config.channels.find(t => t.name === ChannelsType.role);
+    const roleChannel = config.channels.find(t => t.name === ChannelsType.roles);
 
     if (!roleChannel) throw new Error('no role channel found');
 

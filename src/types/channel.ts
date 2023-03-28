@@ -1,6 +1,6 @@
 export const ChannelsType = {
-    queue: 'queue',
-    role: 'role',
+    'ranked-queue': 'ranked-queue',
+    roles: 'roles',
 };
 
 export type ChannelsType = typeof ChannelsType[keyof typeof ChannelsType];

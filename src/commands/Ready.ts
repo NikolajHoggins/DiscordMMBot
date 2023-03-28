@@ -11,6 +11,8 @@ import { updateStatus } from '../crons/updateQueue';
 import { tryStart } from '../services/match.service';
 import * as playerService from '../services/player.service';
 import { ready } from '../services/queue.service';
+import { getConfig } from '../services/system.service';
+import { ChannelsType } from '../types/channel';
 
 export const Ready: Command = {
     name: 'ready',
@@ -25,11 +27,13 @@ export const Ready: Command = {
     ],
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
-        //Fetch user from database
+        const config = await getConfig();
+
         const TESTING_CHANNEL = '1063592233779073105';
         if (
             interaction.channelId !== TESTING_CHANNEL &&
-            interaction.channelId !== process.env.QUEUE_CHANNEL
+            interaction.channelId !==
+                config.channels.filter((c: any) => c.name === ChannelsType['ranked-queue'])[0].id
         ) {
             await interaction.followUp({
                 ephemeral: true,
