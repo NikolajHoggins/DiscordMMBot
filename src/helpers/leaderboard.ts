@@ -43,19 +43,26 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
 
         for (const i in topPlayers) {
             const p = topPlayers[i];
+            const { history } = p;
             const nameLength = Math.min(p.name.length, 10);
             const whitespace = (nameSlotLength - nameLength) / 2;
-            const winRate = toInteger(((p.wins / (p.wins + p.losses)) * 100).toFixed(1));
+            const wins = history.filter(match => match.result === 'win').length;
+            const losses = history.filter(match => match.result === 'loss').length;
+            const winRate = ceil((wins / (wins + losses)) * 100);
+
             const prettyName = `${repeat(' ', whitespace)}${p.name.slice(0, 10)}${repeat(
                 ' ',
                 whitespace
             )}${nameLength % 2 === 0 ? '' : ' '}`;
-            const prettyWins = getPretty({ value: p.wins.toString(), slotLength: 6 });
+            const prettyWins = getPretty({ value: wins.toString(), slotLength: 6 });
             const prettyPlayed = getPretty({
-                value: (p.wins + p.losses).toString(),
+                value: (wins + losses).toString(),
                 slotLength: 14,
             });
-            const prettyWinRate = getPretty({ value: `${winRate}%`, slotLength: 12 });
+            const prettyWinRate = getPretty({
+                value: `${!isNaN(winRate) ? winRate : 0}%`,
+                slotLength: 12,
+            });
             content = `${content}
 |  ${i}   |${prettyName}|${prettyWins}|${prettyPlayed}|${prettyWinRate}|`;
         }

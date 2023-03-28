@@ -38,11 +38,13 @@ export const create = (data: IPlayer): Promise<IPlayer> => {
     });
 };
 
-export const addWinLoose = async ({
+export const addWinLoss = async ({
     playerId,
+    matchNumber,
     won,
 }: {
     playerId: string;
+    matchNumber: number;
     won: boolean;
 }): Promise<void> => {
     return new Promise(async resolve => {
@@ -52,8 +54,18 @@ export const addWinLoose = async ({
 
         await Player.updateOne(
             { discordId: playerId },
-            won ? { wins: player.wins + 1 } : { losses: player.losses + 1 }
+            { history: [...player.history, { matchNumber, result: won ? 'win' : 'loss' }] }
         );
         resolve();
     });
+};
+
+export const idsToObjects = (players: string[]): Promise<IPlayer>[] => {
+    return players.map(
+        p =>
+            new Promise(async resolve => {
+                const player = (await Player.findOne({ discordId: p })) as IPlayer;
+                resolve(player);
+            })
+    );
 };

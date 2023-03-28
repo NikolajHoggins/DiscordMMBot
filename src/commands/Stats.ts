@@ -10,10 +10,14 @@ export const Stats: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const player = await playerService.findOrCreate(user);
+        const { history } = player;
+        const wins = history.filter(match => match.result === 'win').length;
+        const matches = history.length;
+        const losses = matches - wins;
+        const winRate = ceil((wins / (wins + losses)) * 100);
 
-        const winRate = ceil((player.wins / (player.wins + player.losses)) * 100);
-        const content = `User ${player.name} has ${player.wins} wins and ${player.losses} losses. ${
-            isNaN(winRate) ? '0' : winRate
+        const content = `User ${player.name} has ${wins} wins and ${losses} losses. ${
+            !isNaN(winRate) ? winRate : 0
         }% winrate`;
 
         await interaction.followUp({

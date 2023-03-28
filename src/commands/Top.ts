@@ -13,12 +13,13 @@ export const Top: Command = {
 
         let content = '```';
         topPlayers.forEach((player, i) => {
-            const winRate = toInteger(
-                ((player.wins / (player.wins + player.losses)) * 100).toFixed(0)
-            );
+            const { history } = player;
+            const wins = history.filter(match => match.result === 'win').length;
+            const losses = history.filter(match => match.result === 'loss').length;
+            const winRate = ceil((wins / (wins + losses)) * 100);
 
             content = `${content}
-[${i + 1}] - ${player.name} - ${player.wins} wins - ${winRate}%`;
+[${i + 1}] - ${player.name} - ${wins} wins - ${!isNaN(winRate) ? winRate : 0}%`;
         });
 
         content = content + '```';

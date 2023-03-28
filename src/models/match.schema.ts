@@ -8,7 +8,7 @@ export interface IMatch {
     roleId: string;
     teamA: string[];
     teamB: string[];
-    winner?: 'a' | 'b';
+    winner?: 'teamA' | 'teamB';
 }
 
 // 2. Create a Schema corresponding to the document interface.

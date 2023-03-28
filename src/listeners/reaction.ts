@@ -2,7 +2,7 @@ import { Client, Events, MessageReaction, User } from 'discord.js';
 import { updateLeaderboard } from '../helpers/leaderboard';
 import { sendMessage } from '../helpers/messages';
 import * as matchService from '../services/match.service';
-import { addWinLoose } from '../services/player.service';
+import { addWinLoss } from '../services/player.service';
 import { getConfig } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 
@@ -18,15 +18,15 @@ const handleMatchScore = async (reaction: MessageReaction, user: any, client: Cl
         reaction.users.remove(user.id);
     }
 
-    const teams = {
-        a: teamA,
-        b: teamB,
-    };
     if (reaction.count > players.length / 2) {
-        const winner = reaction.emoji.name === '🇦' ? 'a' : 'b';
+        const winner = reaction.emoji.name === '🇦' ? 'teamA' : 'teamB';
+        const prettyName = {
+            teamA: 'Team A',
+            teamB: 'Team B',
+        };
         sendMessage({
             channelId,
-            messageContent: `Team ${winner.toUpperCase()} wins`,
+            messageContent: `${prettyName[winner]} wins`,
             client,
         });
         //Set winner on Match
@@ -36,9 +36,9 @@ const handleMatchScore = async (reaction: MessageReaction, user: any, client: Cl
         for (const i in players) {
             const player = players[i];
 
-            const won = teams[winner].includes(player);
+            const won = match[winner].includes(player);
 
-            await addWinLoose({ playerId: player, won: won });
+            await addWinLoss({ playerId: player, won: won, matchNumber: match.match_number });
         }
 
         //delete match

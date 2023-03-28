@@ -31,7 +31,6 @@ const setPermissions = async ({
     queuePlayers: IQueue[];
 }): Promise<string> => {
     return new Promise(async (resolve, reject) => {
-        // create new role
         const role = await guild.roles.create({ name: `match-${matchNumber}` });
 
         for (const i in queuePlayers) {
@@ -263,7 +262,7 @@ export const setWinner = async ({
     winner,
 }: {
     matchNumber: number;
-    winner: 'a' | 'b';
+    winner: IMatch['winner'];
 }): Promise<void> => {
     return new Promise(async resolve => {
         const match = await Match.find({ match_number: matchNumber });
