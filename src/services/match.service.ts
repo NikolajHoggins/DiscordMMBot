@@ -103,6 +103,7 @@ const sendReadyMessage = async ({
     return new Promise(async () => {
         const timeToReadyInMs = 30000;
         const warning = timeToReadyInMs - 10000;
+        const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
         const readyMessage = await sendMessage({
             channelId,
             messageContent: `Game has been found, you have ${
@@ -137,6 +138,7 @@ const sendReadyMessage = async ({
             return false;
         };
         readyMessage.awaitReactions({ filter, time: timeToReadyInMs }).then(() => {
+            if (q.length <= 0) return;
             sendMessage({
                 channelId,
                 messageContent: `${q.map(
@@ -146,7 +148,7 @@ const sendReadyMessage = async ({
             });
 
             sendMessage({
-                channelId: process.env.QUEUE_CHANNEL,
+                channelId: queueChannelId,
                 messageContent: `${q.map(player => `<@${player}>,`)} failed to accept match ${
                     match.match_number
                 }`,

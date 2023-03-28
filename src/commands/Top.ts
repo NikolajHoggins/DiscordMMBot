@@ -1,7 +1,6 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { ceil, toInteger } from 'lodash';
 import { Command } from '../Command';
-import { updateLeaderboard } from '../helpers/leaderboard';
 import Player from '../models/player.schema';
 
 export const Top: Command = {

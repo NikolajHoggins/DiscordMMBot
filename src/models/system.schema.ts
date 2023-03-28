@@ -1,5 +1,5 @@
 import { Schema, model, connect, ObjectId } from 'mongoose';
-import { ChannelsType, ChannelType } from '../types/channel.js';
+import { ChannelType } from '../types/channel';
 
 // 1. Create an interface representing a document in MongoDB.
 export interface ISystem {

@@ -2,6 +2,7 @@ export const ChannelsType = {
     'ranked-queue': 'ranked-queue',
     roles: 'roles',
     'bot-log': 'bot-log',
+    leaderboard: 'leaderboard',
 };
 
 export type ChannelsType = typeof ChannelsType[keyof typeof ChannelsType];

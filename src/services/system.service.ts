@@ -1,7 +1,6 @@
-import { omit } from 'lodash';
 import { ObjectId } from 'mongoose';
 import System, { ISystem } from '../models/system.schema';
-import { ChannelsType } from '../types/channel.js';
+import { ChannelsType } from '../types/channel';
 
 const ONE_MINUTE = 60000;
 

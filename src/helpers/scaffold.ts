@@ -4,26 +4,6 @@ import { getConfig, updateConfig } from '../services/system.service';
 import { CategoriesType, ChannelsType, ChannelType } from '../types/channel';
 import { getGuild } from './guild';
 import { sendMessage } from './messages';
-const createChannels = async (client: Client): Promise<ChannelType[]> => {
-    const guild = await getGuild(client);
-
-    if (!guild) throw new Error('no guild found');
-
-    let channels: ChannelType[] = [];
-    await Promise.all(
-        Object.keys(ChannelsType).map(async t => {
-            return new Promise(async resolve => {
-                const channel = await guild.channels.create({
-                    name: t,
-                });
-                channels.push({ name: t, id: channel.id });
-                resolve(null);
-            });
-        })
-    );
-
-    return channels;
-};
 
 const createChannel = async (
     client: Client,

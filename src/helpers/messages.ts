@@ -10,13 +10,15 @@ export const sendMessage = async ({
     channelId?: string;
     client: Client;
     messageContent: string | any;
-}): Promise<Message | null> => {
+}): Promise<Message> => {
     return new Promise(async resolve => {
         if (!channelId) {
             throw new Error('No channel id for message ' + messageContent);
         }
         const channel = await client.channels.fetch(channelId).then(resp => resp);
         const message = await (channel as TextChannel).send(messageContent);
+        if (!message) throw new Error("Couldn't send message");
+
         resolve(message);
     });
 };
