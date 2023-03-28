@@ -1,4 +1,4 @@
-import { Client } from 'discord.js';
+import { Client, TextChannel } from 'discord.js';
 import { ISystem } from '../models/system.schema.js';
 import { getConfig, updateConfig } from '../services/system.service';
 import { ChannelsType, ChannelType } from '../types/channel';
@@ -64,10 +64,14 @@ const cacheChannel = async (config: ISystem, name: string, client: Client): Prom
             // update config
             await updateConfig({ id: oldConfig._id, body: { channels: newChannels } });
         }
+        resolve(true);
     });
 };
 
 const scaffold = async (client: Client) => {
+    const guild = await getGuild(client);
+    if (!guild) throw new Error('no guild found');
+
     const config = await getConfig();
 
     //Loop through channelTypes and fetch channels
@@ -79,6 +83,16 @@ const scaffold = async (client: Client) => {
             });
         })
     );
+
+    //Find and fetch all reaction role messages
+    const roleChannel = config.channels.find(t => t.name === ChannelsType.role);
+
+    if (!roleChannel) throw new Error('no role channel found');
+
+    const channel = (await guild.channels.fetch(roleChannel.id)) as TextChannel;
+    if (!channel) throw new Error('role channel not found');
+
+    const messages = await channel.messages.fetch();
 };
 
 export default scaffold;

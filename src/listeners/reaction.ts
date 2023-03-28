@@ -1,9 +1,10 @@
 import { Client, Events, MessageReaction, User } from 'discord.js';
-import { getGuild } from '../helpers/guild.js';
 import { updateLeaderboard } from '../helpers/leaderboard';
 import { sendMessage } from '../helpers/messages';
 import * as matchService from '../services/match.service';
 import { addWinLoose } from '../services/player.service';
+import { getConfig } from '../services/system.service';
+import { ChannelsType } from '../types/channel';
 
 const handleMatchScore = async (reaction: MessageReaction, user: any, client: Client) => {
     if (!reaction.emoji.name) return;
@@ -78,7 +79,13 @@ export default (client: Client): void => {
         if (['🇧', '🇦'].includes(reaction.emoji.name))
             handleMatchScore(reaction as MessageReaction, user, client);
 
-        if (reaction.message.id === process.env.PING_MESSAGE)
+        //get role channel id from config
+        const config = await getConfig();
+        if (!config) throw new Error("Couldn't get config");
+        const roleChannelId = config.channels.find(c => c.name === ChannelsType.role)?.id;
+        if (!roleChannelId) throw new Error("Couldn't get role channel id");
+
+        if (reaction.message.channelId === roleChannelId)
             handlePingRoleReaction(reaction as MessageReaction, user, client);
         return;
     });
