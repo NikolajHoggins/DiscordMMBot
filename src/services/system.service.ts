@@ -26,7 +26,7 @@ export const setPingCooldown = () => {
     });
 };
 
-const getConfig = (): Promise<ISystem> => {
+export const getConfig = (): Promise<ISystem> => {
     return new Promise(async (resolve, reject) => {
         const config = await System.findOne();
         if (!config) {
@@ -41,7 +41,13 @@ const getConfig = (): Promise<ISystem> => {
     });
 };
 
-const updateConfig = ({ id, body }: { id: ObjectId; body: Partial<ISystem> }): Promise<boolean> => {
+export const updateConfig = ({
+    id,
+    body,
+}: {
+    id: ObjectId;
+    body: Partial<ISystem>;
+}): Promise<boolean> => {
     return new Promise(async (resolve, reject) => {
         await System.updateOne({ _id: id }, body);
         resolve(true);

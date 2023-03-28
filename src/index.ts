@@ -9,6 +9,8 @@ import { connectToDatabase } from './services/database.service';
 console.log('Bot is starting...');
 dotenv.config();
 
+if (!process.env.BOT_TOKEN) throw new Error('No bot token');
+
 const client = new Client({
     intents: [IntentsBitField.Flags.GuildMessageReactions],
 });
