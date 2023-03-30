@@ -9,7 +9,7 @@ import { createTeams } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
-import { updateLeaderboard } from '../helpers/leaderboard.js';
+import { updateLeaderboard } from '../helpers/leaderboard';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
