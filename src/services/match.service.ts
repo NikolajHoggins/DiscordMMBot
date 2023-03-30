@@ -10,6 +10,8 @@ import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
+import { addWinLoss } from './player.service';
+import { createTeamsEmbed } from '../helpers/embed';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -230,6 +232,13 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
             messageContent: 'All players ready, game is starting',
             client,
         });
+        const teamsEmbed = createTeamsEmbed({ teamA: match.teamA, teamB: match.teamB });
+
+        await sendMessage({
+            channelId: match.channelId,
+            messageContent: { embeds: [teamsEmbed] },
+            client,
+        });
 
         resolve();
     });
@@ -261,6 +270,26 @@ export const setScore = async ({
 
         //if both scores are set, end match
         if (match.teamARounds && match.teamBRounds) {
+            if (match.teamARounds !== 11 && match.teamBRounds !== 11) return;
+
+            const winner = match.teamARounds > match.teamBRounds ? 'teamA' : 'teamB';
+            const loser = match.teamARounds < match.teamBRounds ? 'teamA' : 'teamB';
+
+            sendMessage({ channelId: match.channelId, messageContent: winner + ' wins!', client });
+
+            const winnerMap = match[winner].map(async p => {
+                return new Promise(async resolve => {
+                    addWinLoss({ playerId: p, matchNumber: match.match_number, won: true });
+                    resolve(null);
+                });
+            });
+            const loserMap = match[loser].map(async p => {
+                return new Promise(async resolve => {
+                    addWinLoss({ playerId: p, matchNumber: match.match_number, won: false });
+                    resolve(null);
+                });
+            });
+            await Promise.all([...winnerMap, ...loserMap]);
             setTimeout(() => {
                 updateLeaderboard({ client });
 
