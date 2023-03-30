@@ -54,7 +54,10 @@ export const addWinLoss = async ({
 
         await Player.updateOne(
             { discordId: playerId },
-            { history: [...player.history, { matchNumber, result: won ? 'win' : 'loss' }] }
+            {
+                history: [...player.history, { matchNumber, result: won ? 'win' : 'loss' }],
+                rating: player.rating + (won ? 10 : -10),
+            }
         );
         resolve();
     });

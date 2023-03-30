@@ -294,7 +294,7 @@ export const setScore = async ({
                 updateLeaderboard({ client });
 
                 end({ matchNumber, client: client });
-            }, 500);
+            }, 5000);
         }
     });
 };
