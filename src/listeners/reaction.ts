@@ -1,56 +1,8 @@
-import { Client, Events, MessageReaction, User } from 'discord.js';
-import { updateLeaderboard } from '../helpers/leaderboard';
-import { sendMessage } from '../helpers/messages';
-import * as matchService from '../services/match.service';
-import { addWinLoss } from '../services/player.service';
+import { Client, Events, MessageReaction } from 'discord.js';
 import { getConfig } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 
-const handleMatchScore = async (reaction: MessageReaction, user: any, client: Client) => {
-    if (!reaction.emoji.name) return;
-    //channelid
-    const channelId = reaction.message.channelId;
-    const match = await matchService.findByChannelId(channelId);
-    if (!match) return;
-    const { teamA, teamB } = match;
-    const players = [...teamA, ...teamB];
-    if (!players.includes(user.id)) {
-        reaction.users.remove(user.id);
-    }
-
-    if (reaction.count > players.length / 2) {
-        const winner = reaction.emoji.name === '🇦' ? 'teamA' : 'teamB';
-        const prettyName = {
-            teamA: 'Team A',
-            teamB: 'Team B',
-        };
-        sendMessage({
-            channelId,
-            messageContent: `${prettyName[winner]} wins`,
-            client,
-        });
-        //Set winner on Match
-        matchService.setWinner({ matchNumber: match.match_number, winner: winner });
-
-        //loop through winner team and append 1 win
-        for (const i in players) {
-            const player = players[i];
-
-            const won = match[winner].includes(player);
-
-            await addWinLoss({ playerId: player, won: won, matchNumber: match.match_number });
-        }
-
-        //delete match
-        setTimeout(() => {
-            matchService.end({ matchNumber: match.match_number, client });
-            //update loaderboard
-            updateLeaderboard({ client });
-        }, 10000);
-    }
-};
-
-const handlePingRoleReaction = async (reaction: MessageReaction, user: any, client: Client) => {
+const handlePingRoleReaction = async (reaction: MessageReaction, user: any) => {
     if (!process.env.PING_TO_PLAY_ROLE_ID) return;
 
     const pingRole = await reaction.message.guild?.roles.fetch(process.env.PING_TO_PLAY_ROLE_ID); //@TODO make roles with scaffolding instead of hardcoding
@@ -76,9 +28,6 @@ export default (client: Client): void => {
         }
         if (!reaction.emoji.name) return;
 
-        if (['🇧', '🇦'].includes(reaction.emoji.name))
-            handleMatchScore(reaction as MessageReaction, user, client);
-
         //get role channel id from config
         const config = await getConfig();
         if (!config) throw new Error("Couldn't get config");
@@ -86,7 +35,7 @@ export default (client: Client): void => {
         if (!roleChannelId) throw new Error("Couldn't get role channel id");
 
         if (reaction.message.channelId === roleChannelId)
-            handlePingRoleReaction(reaction as MessageReaction, user, client);
+            handlePingRoleReaction(reaction as MessageReaction, user);
         return;
     });
 };

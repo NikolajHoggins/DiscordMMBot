@@ -7,9 +7,9 @@ import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
 import { createTeams } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
-import { createTeamsEmbed } from '../helpers/embed';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
+import { updateLeaderboard } from '../helpers/leaderboard.js';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -167,7 +167,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: -1 });
-        const count = DEBUG_MODE ? 1 : 10;
+        const count = DEBUG_MODE ? 2 : 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -201,6 +201,7 @@ export const tryStart = (client: Client): Promise<void> => {
                 match_number: newNumber,
                 start: Date.now(),
                 channelId: channelId,
+                status: 'pending',
                 roleId: roleId,
                 ...teams,
             });
@@ -219,33 +220,16 @@ export const tryStart = (client: Client): Promise<void> => {
 export const startGame = (client: Client, match: IMatch): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         if (!match) return;
-        const { teamA, teamB } = match;
+        const dbMatch = await Match.findOne({ match_number: match.match_number });
+        if (!dbMatch) throw new Error('No match found');
+        dbMatch.status = 'started';
+        await dbMatch.save();
+
         await sendMessage({
             channelId: match.channelId,
             messageContent: 'All players ready, game is starting',
             client,
         });
-
-        const teamsEmbed = createTeamsEmbed({ teamA, teamB });
-
-        const matchStats = new EmbedBuilder()
-            .setTitle('Submit score')
-            .setDescription('Submit scores here when game is over')
-            .addFields(
-                { name: 'Vote Team A', value: '🇦', inline: true },
-                { name: 'Vote Team B', value: '🇧', inline: true }
-            );
-
-        const message = await sendMessage({
-            channelId: match.channelId,
-            messageContent: { embeds: [teamsEmbed, matchStats] },
-            client,
-        });
-
-        if (!message) return;
-
-        message.react('🇦');
-        message.react('🇧');
 
         resolve();
     });
@@ -257,18 +241,32 @@ export const findByChannelId = async (channelId: string): Promise<IMatch | null>
     });
 };
 
-export const setWinner = async ({
+export const setScore = async ({
     matchNumber,
-    winner,
+    team,
+    score,
+    client,
 }: {
     matchNumber: number;
-    winner: IMatch['winner'];
-}): Promise<void> => {
+    team: 'teamA' | 'teamB';
+    score: number;
+    client: Client;
+}) => {
     return new Promise(async resolve => {
-        const match = await Match.find({ match_number: matchNumber });
-        if (match) await Match.updateOne({ match_number: matchNumber }, { winner });
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match) throw new Error("Couldn't find match");
+        const index = team === 'teamA' ? 'teamARounds' : 'teamBRounds';
+        match[index] = score;
+        match.save();
 
-        resolve();
+        //if both scores are set, end match
+        if (match.teamARounds && match.teamBRounds) {
+            setTimeout(() => {
+                updateLeaderboard({ client });
+
+                end({ matchNumber, client: client });
+            }, 500);
+        }
     });
 };
 
@@ -276,6 +274,8 @@ export const end = async ({ matchNumber, client }: { matchNumber: number; client
     return new Promise(async resolve => {
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) return;
+        match.status = 'ended';
+        await match.save();
         const guild = await getGuild(client);
         await guild?.roles.delete(match.roleId);
 

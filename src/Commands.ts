@@ -5,6 +5,7 @@ import { PingPlayers } from './commands/PingPlayers';
 import { QueueCommand } from './commands/Queue';
 import { Ready } from './commands/Ready';
 import { Stats } from './commands/Stats';
+import { SubmitScore } from './commands/SubmitScore';
 import { Top } from './commands/Top';
 import { Unready } from './commands/Unready';
 export const Commands: Command[] = [
@@ -16,4 +17,5 @@ export const Commands: Command[] = [
     Unready,
     EndGame,
     PingPlayers,
+    SubmitScore,
 ];
