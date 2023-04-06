@@ -1,6 +1,10 @@
 import { Client, Message, TextChannel } from 'discord.js';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
+export const PRETTY_TEAM_NAMES = {
+    teamA: 'Team A',
+    teamB: 'Team B',
+};
 
 export const sendMessage = async ({
     channelId,

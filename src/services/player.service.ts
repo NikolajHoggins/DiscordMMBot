@@ -41,10 +41,12 @@ export const create = (data: IPlayer): Promise<IPlayer> => {
 export const addWinLoss = async ({
     playerId,
     matchNumber,
+    ratingChange,
     won,
 }: {
     playerId: string;
     matchNumber: number;
+    ratingChange: number;
     won: boolean;
 }): Promise<void> => {
     return new Promise(async resolve => {
@@ -55,8 +57,11 @@ export const addWinLoss = async ({
         await Player.updateOne(
             { discordId: playerId },
             {
-                history: [...player.history, { matchNumber, result: won ? 'win' : 'loss' }],
-                rating: player.rating + (won ? 10 : -10),
+                history: [
+                    ...player.history,
+                    { matchNumber, result: won ? 'win' : 'loss', change: ratingChange },
+                ],
+                rating: player.rating + Math.round(ratingChange * 100) / 100,
             }
         );
         resolve();

@@ -1,6 +1,6 @@
 import { Client, EmbedBuilder, Guild, PermissionsBitField, Role, User } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
-import { sendMessage } from '../helpers/messages';
+import { PRETTY_TEAM_NAMES, sendMessage } from '../helpers/messages';
 import Match, { IMatch } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
@@ -12,6 +12,7 @@ import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
 import { addWinLoss } from './player.service';
 import { createTeamsEmbed } from '../helpers/embed';
+import { calculateEloChanges } from '../helpers/elo.js';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -273,28 +274,20 @@ export const setScore = async ({
             if (match.teamARounds !== 11 && match.teamBRounds !== 11) return;
 
             const winner = match.teamARounds > match.teamBRounds ? 'teamA' : 'teamB';
-            const loser = match.teamARounds < match.teamBRounds ? 'teamA' : 'teamB';
 
-            sendMessage({ channelId: match.channelId, messageContent: winner + ' wins!', client });
+            sendMessage({
+                channelId: match.channelId,
+                messageContent: PRETTY_TEAM_NAMES[winner] + ' wins!',
+                client,
+            });
 
-            const winnerMap = match[winner].map(async p => {
-                return new Promise(async resolve => {
-                    addWinLoss({ playerId: p, matchNumber: match.match_number, won: true });
-                    resolve(null);
-                });
-            });
-            const loserMap = match[loser].map(async p => {
-                return new Promise(async resolve => {
-                    addWinLoss({ playerId: p, matchNumber: match.match_number, won: false });
-                    resolve(null);
-                });
-            });
-            await Promise.all([...winnerMap, ...loserMap]);
             setTimeout(() => {
+                console.log('here');
                 updateLeaderboard({ client });
+                calculateEloChanges(match);
 
                 end({ matchNumber, client: client });
-            }, 5000);
+            }, 3000);
         }
     });
 };

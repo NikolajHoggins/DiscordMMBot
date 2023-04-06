@@ -54,7 +54,10 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 ' ',
                 whitespace
             )}${nameLength % 2 === 0 ? '' : ' '}`;
-            const prettyRating = getPretty({ value: p.rating.toString(), slotLength: 8 });
+            const prettyRating = getPretty({
+                value: Math.floor(p.rating).toString(),
+                slotLength: 8,
+            });
             const prettyWins = getPretty({ value: wins.toString(), slotLength: 6 });
             const prettyPlayed = getPretty({
                 value: (wins + losses).toString(),
