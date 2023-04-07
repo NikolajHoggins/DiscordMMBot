@@ -58,15 +58,7 @@ const cacheChannel = async (
         resolve(true);
     });
 };
-const addPingToPlayMessage = async ({
-    config,
-    guild,
-    client,
-}: {
-    config: ISystem;
-    guild: any;
-    client: Client;
-}) => {
+const addPingToPlayMessage = async ({ config, client }: { config: ISystem; client: Client }) => {
     const roleChannel = config.channels.find(t => t.name === ChannelsType.roles);
     if (!roleChannel) throw new Error('no role channel found');
 
@@ -102,7 +94,7 @@ const cacheReactionRoleMessages = async ({
 
     const pingToPlayMessage = messages.filter(m => m.content.includes('ping to play'));
     if (pingToPlayMessage.size === 0) {
-        await addPingToPlayMessage({ config, guild, client });
+        await addPingToPlayMessage({ config, client });
     }
 };
 
