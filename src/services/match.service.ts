@@ -198,7 +198,30 @@ export const tryStart = (client: Client): Promise<void> => {
         resolve();
     });
 };
-const createSideVotingChannel = ({ client, match }: { client: Client; match: IMatch }) => {};
+const createSideVotingChannel = async ({ client, match }: { client: Client; match: IMatch }) => {
+    return new Promise(async (resolve, reject) => {
+        const matchCategoryId = await getChannelId(CategoriesType.matches);
+
+        await createChannel({
+            client,
+            name: `Team A Match-${match.match_number}`,
+            parentId: matchCategoryId,
+            allowedIds: match.teamA,
+        });
+    });
+};
+const createMapVotingChannel = async ({ client, match }: { client: Client; match: IMatch }) => {
+    return new Promise(async (resolve, reject) => {
+        const matchCategoryId = await getChannelId(CategoriesType.matches);
+
+        await createChannel({
+            client,
+            name: `Team B Match-${match.match_number}`,
+            parentId: matchCategoryId,
+            allowedIds: match.teamB,
+        });
+    });
+};
 
 const createVotingChannels = ({
     client,
@@ -210,9 +233,9 @@ const createVotingChannels = ({
     return new Promise(async (resolve, reject) => {
         if (!match) return;
 
-        // Create team a channel with side voting
-        await createSideVotingChannel({ client, match });
-        // Create team b channel with map voting
+        const sidePromise = createSideVotingChannel({ client, match });
+        const mapPromise = createMapVotingChannel({ client, match });
+        await Promise.all([sidePromise, mapPromise]);
     });
 };
 
@@ -284,7 +307,6 @@ export const setScore = async ({
             });
 
             setTimeout(() => {
-                console.log('here');
                 updateLeaderboard({ client });
                 calculateEloChanges(match);
 
