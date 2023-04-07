@@ -10,9 +10,9 @@ import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
-import { addWinLoss } from './player.service';
 import { createTeamsEmbed } from '../helpers/embed';
 import { calculateEloChanges } from '../helpers/elo.js';
+import { deleteChannel, createChannel } from '../helpers/channel.js';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -46,45 +46,28 @@ const setPermissions = async ({
     });
 };
 
-const createChannel = ({
-    guild,
-    everyoneRole,
+const createMatchChannel = ({
+    client,
     matchNumber,
     queuePlayers,
 }: {
-    guild: Guild;
-    everyoneRole: Role;
+    client: Client;
     matchNumber: number;
     queuePlayers: IQueue[];
 }): Promise<{ channelId: string; roleId: string }> => {
     return new Promise(async (resolve, reject) => {
+        const guild = await getGuild(client);
         const newRole = await setPermissions({
             guild,
             matchNumber,
             queuePlayers,
         });
         const matchCategoryId = await getChannelId(CategoriesType.matches);
-        const matchChannel = await guild.channels.create({
+        const matchChannel = await createChannel({
+            client,
             name: `Match-${matchNumber}`,
-            permissionOverwrites: [
-                {
-                    id: everyoneRole.id,
-                    deny: [PermissionsBitField.Flags.ViewChannel],
-                },
-                {
-                    id: newRole,
-                    allow: [PermissionsBitField.Flags.ViewChannel],
-                },
-                ...(process.env.MOD_ROLE_ID
-                    ? [
-                          {
-                              id: process.env.MOD_ROLE_ID,
-                              allow: [PermissionsBitField.Flags.ViewChannel],
-                          },
-                      ]
-                    : []),
-            ],
-            parent: matchCategoryId,
+            parentId: matchCategoryId,
+            allowedIds: [newRole],
         });
 
         resolve({ channelId: matchChannel.id, roleId: newRole });
@@ -188,13 +171,8 @@ export const tryStart = (client: Client): Promise<void> => {
 
             const newNumber = await getNewMatchNumber();
 
-            const everyone = await guild.roles.fetch(process.env.SERVER_ID);
-
-            if (!everyone) throw new Error("Couldn't find everyone role");
-
-            const { channelId, roleId } = await createChannel({
-                guild,
-                everyoneRole: everyone,
+            const { channelId, roleId } = await createMatchChannel({
+                client,
                 queuePlayers,
                 matchNumber: newNumber,
             });
@@ -220,9 +198,33 @@ export const tryStart = (client: Client): Promise<void> => {
         resolve();
     });
 };
+const createSideVotingChannel = ({ client, match }: { client: Client; match: IMatch }) => {};
+
+const createVotingChannels = ({
+    client,
+    match,
+}: {
+    client: Client;
+    match: IMatch;
+}): Promise<void> => {
+    return new Promise(async (resolve, reject) => {
+        if (!match) return;
+
+        // Create team a channel with side voting
+        await createSideVotingChannel({ client, match });
+        // Create team b channel with map voting
+    });
+};
+
 export const startGame = (client: Client, match: IMatch): Promise<void> => {
     return new Promise(async (resolve, reject) => {
         if (!match) return;
+
+        //Delete match ready up channel
+        await deleteChannel({ client, channelId: match.channelId });
+
+        await createVotingChannels({ client, match });
+
         const dbMatch = await Match.findOne({ match_number: match.match_number });
         if (!dbMatch) throw new Error('No match found');
         dbMatch.status = 'started';

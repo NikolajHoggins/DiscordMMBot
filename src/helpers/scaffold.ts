@@ -2,7 +2,7 @@ import { Client, TextChannel, ChannelType as DiscordChannelType } from 'discord.
 import { ISystem } from '../models/system.schema.js';
 import { getConfig, updateConfig } from '../services/system.service';
 import { CategoriesType, ChannelsType, ChannelType } from '../types/channel';
-import { getGuild } from './guild';
+import { getEveryoneRole, getGuild } from './guild';
 import { sendMessage } from './messages';
 
 const createChannel = async (
@@ -109,6 +109,7 @@ const cacheReactionRoleMessages = async ({
 const scaffold = async (client: Client) => {
     const guild = await getGuild(client);
     if (!guild) throw new Error('no guild found');
+    await getEveryoneRole(client);
 
     const config = await getConfig();
 
