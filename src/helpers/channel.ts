@@ -1,4 +1,4 @@
-import { Channel, Client, PermissionsBitField } from 'discord.js';
+import { Channel, ChannelType, Client, PermissionsBitField } from 'discord.js';
 import { getEveryoneRole, getGuild } from './guild.js';
 
 export const createChannel = ({
@@ -6,11 +6,13 @@ export const createChannel = ({
     name,
     parentId,
     allowedIds,
+    type = ChannelType.GuildText,
 }: {
     client: Client;
     name: string;
     allowedIds: string[];
     parentId?: string;
+    type?: ChannelType.GuildText | ChannelType.GuildVoice;
 }): Promise<Channel> => {
     return new Promise(async resolve => {
         const guild = await getGuild(client);
@@ -19,6 +21,7 @@ export const createChannel = ({
 
         const channel = await guild.channels.create({
             name: name,
+            type: type,
             permissionOverwrites: [
                 {
                     id: everyoneRole.id,

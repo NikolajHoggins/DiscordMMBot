@@ -1,4 +1,12 @@
-import { Client, EmbedBuilder, Guild, PermissionsBitField, Role, User } from 'discord.js';
+import {
+    ChannelType,
+    Client,
+    EmbedBuilder,
+    Guild,
+    PermissionsBitField,
+    Role,
+    User,
+} from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { PRETTY_TEAM_NAMES, sendMessage } from '../helpers/messages';
 import Match, { IMatch } from '../models/match.schema';
@@ -43,6 +51,26 @@ const setPermissions = async ({
         }
 
         resolve(role.id);
+    });
+};
+const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
+    return new Promise(async (resolve, reject) => {
+        const matchCategoryId = await getChannelId(CategoriesType.matches);
+        await createChannel({
+            client,
+            name: `Team A VC`,
+            parentId: matchCategoryId,
+            type: ChannelType.GuildVoice,
+            allowedIds: match.teamA,
+        });
+        await createChannel({
+            client,
+            name: `Team B VC`,
+            parentId: matchCategoryId,
+            type: ChannelType.GuildVoice,
+            allowedIds: match.teamB,
+        });
+        resolve(true);
     });
 };
 
@@ -187,6 +215,9 @@ export const tryStart = (client: Client): Promise<void> => {
                 ...teams,
             });
             await newMatch.save();
+
+            await createVCs({ client, match: newMatch });
+
             logMatch({ match: newMatch, client });
 
             //Remove players from queue
