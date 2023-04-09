@@ -48,20 +48,30 @@ const setPermissions = async ({
 const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
-        await createChannel({
+        const teamAVC = await createChannel({
             client,
             name: `Team A VC`,
             parentId: matchCategoryId,
             type: ChannelType.GuildVoice,
             allowedIds: match.teamA,
         });
-        await createChannel({
+        const teamBVC = await createChannel({
             client,
             name: `Team B VC`,
             parentId: matchCategoryId,
             type: ChannelType.GuildVoice,
             allowedIds: match.teamB,
         });
+
+        await Match.updateOne(
+            { match_number: match.match_number },
+            {
+                $set: {
+                    channels: { ...match.channels, teamAVoice: teamAVC.id, teamBVoice: teamBVC.id },
+                },
+            }
+        );
+
         resolve(true);
     });
 };
@@ -299,29 +309,34 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
         //Delete match ready up channel
         if (match.channels.ready) {
             await deleteChannel({ client, channelId: match.channels.ready });
+            //Remove ready channel from database match
+            await Match.updateOne(
+                { match_number: match.match_number },
+                { $unset: { 'channels.ready': '' } }
+            );
         }
 
         await createVotingChannels({ client, match });
 
-        const dbMatch = await Match.findOne({ match_number: match.match_number });
-        if (!dbMatch) throw new Error('No match found');
-        dbMatch.status = 'started';
-        await dbMatch.save();
+        // const dbMatch = await Match.findOne({ match_number: match.match_number });
+        // if (!dbMatch) throw new Error('No match found');
+        // dbMatch.status = 'started';
+        // await dbMatch.save();
 
-        await sendMessage({
-            channelId: match.channels.ready,
-            messageContent: 'All players ready, game is starting',
-            client,
-        });
-        const teamsEmbed = createTeamsEmbed({ teamA: match.teamA, teamB: match.teamB });
+        // await sendMessage({
+        //     channelId: match.channels.ready,
+        //     messageContent: 'All players ready, game is starting',
+        //     client,
+        // });
+        // const teamsEmbed = createTeamsEmbed({ teamA: match.teamA, teamB: match.teamB });
 
-        await sendMessage({
-            channelId: match.channels.ready,
-            messageContent: { embeds: [teamsEmbed] },
-            client,
-        });
+        // await sendMessage({
+        //     channelId: match.channels.ready,
+        //     messageContent: { embeds: [teamsEmbed] },
+        //     client,
+        // });
 
-        resolve();
+        // resolve();
     });
 };
 
