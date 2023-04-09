@@ -265,7 +265,7 @@ const createSideVotingChannel = async ({
             allowedIds: match.teamA,
         });
 
-        const sideMessage = { content: 'Pick a side', components: [row] };
+        const sideMessage = { content: 'Pick a side to start on', components: [row] };
         await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
 
         resolve(teamAChannel.id);
