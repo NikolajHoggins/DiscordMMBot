@@ -366,7 +366,16 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
 
 export const findByChannelId = async (channelId: string): Promise<IMatch | null> => {
     return new Promise(async resolve => {
-        resolve(await Match.findOne({ channelId: channelId }));
+        resolve(
+            await Match.findOne({
+                $or: [
+                    { 'channels.teamAVoice': channelId },
+                    { 'channels.teamBVoice': channelId },
+                    { 'channels.teamA': channelId },
+                    { 'channels.teamB': channelId },
+                ],
+            })
+        );
     });
 };
 
