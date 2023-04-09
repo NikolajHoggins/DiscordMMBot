@@ -369,6 +369,7 @@ export const findByChannelId = async (channelId: string): Promise<IMatch | null>
         resolve(
             await Match.findOne({
                 $or: [
+                    { 'channels.ready': channelId },
                     { 'channels.teamAVoice': channelId },
                     { 'channels.teamBVoice': channelId },
                     { 'channels.teamA': channelId },
