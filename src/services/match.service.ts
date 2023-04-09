@@ -1,4 +1,12 @@
-import { ChannelType, Client, Guild, User } from 'discord.js';
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    ChannelType,
+    Client,
+    Guild,
+    User,
+} from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { PRETTY_TEAM_NAMES, sendMessage } from '../helpers/messages';
 import Match, { IMatch, MatchChannels } from '../models/match.schema';
@@ -241,6 +249,19 @@ const createSideVotingChannel = async ({
 }): Promise<string> => {
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('colonist')
+                    .setLabel('Colonist')
+                    .setStyle(ButtonStyle.Primary)
+            )
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('reyab')
+                    .setLabel('Reyab')
+                    .setStyle(ButtonStyle.Primary)
+            );
 
         const teamAChannel = await createChannel({
             client,
@@ -248,6 +269,9 @@ const createSideVotingChannel = async ({
             parentId: matchCategoryId,
             allowedIds: match.teamA,
         });
+
+        const sideMessage = { content: 'Pick a side', components: [row] };
+        await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
 
         resolve(teamAChannel.id);
     });
@@ -336,7 +360,7 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
         //     client,
         // });
 
-        // resolve();
+        resolve();
     });
 };
 
