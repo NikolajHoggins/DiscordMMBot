@@ -1,15 +1,7 @@
-import {
-    ChannelType,
-    Client,
-    EmbedBuilder,
-    Guild,
-    PermissionsBitField,
-    Role,
-    User,
-} from 'discord.js';
+import { ChannelType, Client, Guild, User } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { PRETTY_TEAM_NAMES, sendMessage } from '../helpers/messages';
-import Match, { IMatch } from '../models/match.schema';
+import Match, { IMatch, MatchChannels } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
@@ -24,7 +16,7 @@ import { deleteChannel, createChannel } from '../helpers/channel.js';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
         const latest = await Match.find()
             .sort({ match_number: -1 })
             .then(matches => matches[0]);
@@ -41,7 +33,7 @@ const setPermissions = async ({
     matchNumber: number;
     queuePlayers: IQueue[];
 }): Promise<string> => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
         const role = await guild.roles.create({ name: `match-${matchNumber}` });
 
         for (const i in queuePlayers) {
@@ -54,7 +46,7 @@ const setPermissions = async ({
     });
 };
 const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
         await createChannel({
             client,
@@ -83,7 +75,7 @@ const createMatchChannel = ({
     matchNumber: number;
     queuePlayers: IQueue[];
 }): Promise<{ channelId: string; roleId: string }> => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
         const guild = await getGuild(client);
         const newRole = await setPermissions({
             guild,
@@ -174,13 +166,13 @@ const sendReadyMessage = async ({
 };
 
 export const tryStart = (client: Client): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
         if (!process.env.SERVER_ID) return;
 
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: -1 });
-        const count = DEBUG_MODE ? 2 : 10;
+        const count = DEBUG_MODE ? 1 : 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -208,7 +200,9 @@ export const tryStart = (client: Client): Promise<void> => {
             const newMatch = new Match({
                 match_number: newNumber,
                 start: Date.now(),
-                channelId: channelId,
+                channels: {
+                    ready: channelId,
+                },
                 status: 'pending',
                 roleId: roleId,
                 ...teams,
@@ -228,28 +222,44 @@ export const tryStart = (client: Client): Promise<void> => {
         resolve();
     });
 };
-const createSideVotingChannel = async ({ client, match }: { client: Client; match: IMatch }) => {
-    return new Promise(async (resolve, reject) => {
+const createSideVotingChannel = async ({
+    client,
+    match,
+}: {
+    client: Client;
+    match: IMatch;
+}): Promise<string> => {
+    return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
 
-        await createChannel({
+        const teamAChannel = await createChannel({
             client,
             name: `Team A Match-${match.match_number}`,
             parentId: matchCategoryId,
             allowedIds: match.teamA,
         });
+
+        resolve(teamAChannel.id);
     });
 };
-const createMapVotingChannel = async ({ client, match }: { client: Client; match: IMatch }) => {
-    return new Promise(async (resolve, reject) => {
+const createMapVotingChannel = async ({
+    client,
+    match,
+}: {
+    client: Client;
+    match: IMatch;
+}): Promise<string> => {
+    return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
 
-        await createChannel({
+        const teamBChannel = await createChannel({
             client,
             name: `Team B Match-${match.match_number}`,
             parentId: matchCategoryId,
             allowedIds: match.teamB,
         });
+
+        resolve(teamBChannel.id);
     });
 };
 
@@ -260,21 +270,36 @@ const createVotingChannels = ({
     client: Client;
     match: IMatch;
 }): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
         if (!match) return;
 
-        const sidePromise = createSideVotingChannel({ client, match });
-        const mapPromise = createMapVotingChannel({ client, match });
-        await Promise.all([sidePromise, mapPromise]);
+        const teamAChannel = await createSideVotingChannel({ client, match });
+        const teamBChannel = await createMapVotingChannel({ client, match });
+
+        const dbMatch = await Match.findOne({ match_number: match.match_number });
+        if (!dbMatch) throw new Error('No match found');
+
+        await Match.updateOne(
+            { match_number: match.match_number },
+            {
+                $set: {
+                    channels: { ...dbMatch.channels, teamA: teamAChannel, teamB: teamBChannel },
+                },
+            }
+        );
+
+        resolve();
     });
 };
 
 export const startGame = (client: Client, match: IMatch): Promise<void> => {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async resolve => {
         if (!match) return;
 
         //Delete match ready up channel
-        await deleteChannel({ client, channelId: match.channelId });
+        if (match.channels.ready) {
+            await deleteChannel({ client, channelId: match.channels.ready });
+        }
 
         await createVotingChannels({ client, match });
 
@@ -284,14 +309,14 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
         await dbMatch.save();
 
         await sendMessage({
-            channelId: match.channelId,
+            channelId: match.channels.ready,
             messageContent: 'All players ready, game is starting',
             client,
         });
         const teamsEmbed = createTeamsEmbed({ teamA: match.teamA, teamB: match.teamB });
 
         await sendMessage({
-            channelId: match.channelId,
+            channelId: match.channels.ready,
             messageContent: { embeds: [teamsEmbed] },
             client,
         });
@@ -331,7 +356,7 @@ export const setScore = async ({
             const winner = match.teamARounds > match.teamBRounds ? 'teamA' : 'teamB';
 
             sendMessage({
-                channelId: match.channelId,
+                channelId: match.channels.matchChannel,
                 messageContent: PRETTY_TEAM_NAMES[winner] + ' wins!',
                 client,
             });
@@ -355,6 +380,20 @@ export const end = async ({ matchNumber, client }: { matchNumber: number; client
         const guild = await getGuild(client);
         await guild?.roles.delete(match.roleId);
 
-        await guild?.channels.delete(match.channelId);
+        await Promise.all(
+            Object.keys(match.channels).map(
+                (key: string) =>
+                    new Promise(async resolve => {
+                        const channelId = match.channels[key as keyof MatchChannels];
+                        if (!channelId) return resolve(true);
+
+                        await deleteChannel({
+                            client,
+                            channelId,
+                        });
+                        resolve(true);
+                    })
+            )
+        );
     });
 };
