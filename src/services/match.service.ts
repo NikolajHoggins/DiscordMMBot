@@ -58,14 +58,14 @@ const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
         const teamAVC = await createChannel({
             client,
-            name: `Team A VC`,
+            name: `Match-${match.match_number} Team A Voice`,
             parentId: matchCategoryId,
             type: ChannelType.GuildVoice,
             allowedIds: match.teamA,
         });
         const teamBVC = await createChannel({
             client,
-            name: `Team B VC`,
+            name: `Match-${match.match_number} Team B Voice`,
             parentId: matchCategoryId,
             type: ChannelType.GuildVoice,
             allowedIds: match.teamB,
@@ -249,23 +249,18 @@ const createSideVotingChannel = async ({
 }): Promise<string> => {
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('colonist')
-                    .setLabel('Colonist')
-                    .setStyle(ButtonStyle.Primary)
-            )
-            .addComponents(
-                new ButtonBuilder()
-                    .setCustomId('reyab')
-                    .setLabel('Reyab')
-                    .setStyle(ButtonStyle.Primary)
+        const row = new ActionRowBuilder();
+        const teams = process.env.GAME_TEAMS;
+        if (!teams || !teams.includes(',')) throw new Error('No teams found in env');
+        teams.split(',').forEach(team => {
+            row.addComponents(
+                new ButtonBuilder().setCustomId(team).setLabel(team).setStyle(ButtonStyle.Primary)
             );
+        });
 
         const teamAChannel = await createChannel({
             client,
-            name: `Team A Match-${match.match_number}`,
+            name: `Match-${match.match_number} Team A`,
             parentId: matchCategoryId,
             allowedIds: match.teamA,
         });
@@ -286,11 +281,25 @@ const createMapVotingChannel = async ({
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
 
+        const row = new ActionRowBuilder();
+        const maps = process.env.GAME_MAPS;
+        if (!maps || !maps.includes(',')) throw new Error('No maps found in env');
+        maps.split(',').forEach(map => {
+            row.addComponents(
+                new ButtonBuilder().setCustomId(map).setLabel(map).setStyle(ButtonStyle.Primary)
+            );
+        });
         const teamBChannel = await createChannel({
             client,
-            name: `Team B Match-${match.match_number}`,
+            name: `Match-${match.match_number} Team B`,
             parentId: matchCategoryId,
             allowedIds: match.teamB,
+        });
+        const mapMessage = { content: 'Pick a map to play', components: [row] };
+        await sendMessage({
+            channelId: teamBChannel.id,
+            messageContent: mapMessage,
+            client,
         });
 
         resolve(teamBChannel.id);
