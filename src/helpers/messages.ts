@@ -20,6 +20,7 @@ export const sendMessage = async ({
             throw new Error('No channel id for message ' + messageContent);
         }
         const channel = await client.channels.fetch(channelId).then(resp => resp);
+        if (!channel) throw new Error(`Couldn't fetch channel ${channelId} for sending message: `);
         const message = await (channel as TextChannel).send(messageContent);
         if (!message) throw new Error("Couldn't send message");
 

@@ -144,7 +144,6 @@ const sendReadyMessage = async ({
             q = q.filter(id => id !== user.id);
 
             if (q.length <= 0) {
-                readyMessage.delete();
                 startGame(client, match);
             }
             if (queuePlayers.find(q => q.discordId === user.id)) return true;
