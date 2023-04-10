@@ -18,7 +18,7 @@ import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
-import { createTeamsEmbed } from '../helpers/embed';
+import { createMatchEmbed } from '../helpers/embed';
 import { calculateEloChanges } from '../helpers/elo.js';
 import { deleteChannel, createChannel } from '../helpers/channel.js';
 const DEBUG_MODE = true;
@@ -154,7 +154,7 @@ const sendReadyMessage = async ({
             q = q.filter(id => id !== user.id);
 
             if (q.length <= 0) {
-                startGame(client, match);
+                startVotingPhase(client, match);
             }
             if (queuePlayers.find(q => q.discordId === user.id)) return true;
             return false;
@@ -190,7 +190,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: -1 });
-        const count = DEBUG_MODE ? 2 : 10;
+        const count = DEBUG_MODE ? 1 : 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -333,11 +333,27 @@ const createVotingChannels = ({
             }
         );
 
+        setTimeout(async () => {
+            await sendMessage({
+                channelId: teamAChannel,
+                messageContent: "Time's up! Starting game",
+                client,
+            });
+            await sendMessage({
+                channelId: teamBChannel,
+                messageContent: "Time's up! Starting game",
+                client,
+            });
+            setTimeout(() => {
+                startGame({ client, matchNumber: match.match_number });
+            }, 500);
+        }, 10000);
+
         resolve();
     });
 };
 
-export const startGame = (client: Client, match: IMatch): Promise<void> => {
+export const startVotingPhase = (client: Client, match: IMatch): Promise<void> => {
     return new Promise(async resolve => {
         if (!match) return;
 
@@ -353,25 +369,58 @@ export const startGame = (client: Client, match: IMatch): Promise<void> => {
 
         await createVotingChannels({ client, match });
 
+        resolve();
+    });
+};
+
+export const startGame = ({
+    client,
+    matchNumber,
+}: {
+    client: Client;
+    matchNumber: number;
+}): Promise<void> => {
+    return new Promise(async resolve => {
+        //create match channel
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match) throw new Error('No match found');
+        console.log(match);
+        //delete voting channels
+        if (match.channels.teamA) await deleteChannel({ client, channelId: match.channels.teamA });
+        if (match.channels.teamB) await deleteChannel({ client, channelId: match.channels.teamB });
+
+        const matchCategoryId = await getChannelId(CategoriesType.matches);
+        const matchChannel = await createChannel({
+            client,
+            name: `Match-${match.match_number}`,
+            parentId: matchCategoryId,
+            allowedIds: match.players.map(p => p.id),
+        });
+
+        await Match.updateOne(
+            { match_number: match.match_number },
+            {
+                $set: {
+                    status: 'started',
+                    'channels.matchChannel': matchChannel.id,
+                },
+            }
+        );
         // const dbMatch = await Match.findOne({ match_number: match.match_number });
         // if (!dbMatch) throw new Error('No match found');
         // dbMatch.status = 'started';
         // await dbMatch.save();
-
         // await sendMessage({
         //     channelId: match.channels.ready,
         //     messageContent: 'All players ready, game is starting',
         //     client,
         // });
-        // const teamsEmbed = createTeamsEmbed({ teamA: match.teamA, teamB: match.teamB });
-
-        // await sendMessage({
-        //     channelId: match.channels.ready,
-        //     messageContent: { embeds: [teamsEmbed] },
-        //     client,
-        // });
-
-        resolve();
+        const teamsEmbed = createMatchEmbed({ match });
+        await sendMessage({
+            channelId: matchChannel.id,
+            messageContent: { embeds: [teamsEmbed] },
+            client,
+        });
     });
 };
 
@@ -385,6 +434,7 @@ export const findByChannelId = async (channelId: string): Promise<IMatch | null>
                     { 'channels.teamBVoice': channelId },
                     { 'channels.teamA': channelId },
                     { 'channels.teamB': channelId },
+                    { 'channels.matchChannel': channelId },
                 ],
             })
         );

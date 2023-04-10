@@ -60,7 +60,7 @@ export const SubmitScore: Command = {
             client,
         });
 
-        const content = `yes ${score?.value}`;
+        const content = `Got score ${score?.value}`;
 
         await interaction.followUp({
             ephemeral: true,

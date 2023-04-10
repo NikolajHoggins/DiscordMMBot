@@ -2,7 +2,7 @@ import { EmbedBuilder } from 'discord.js';
 import { IMatch } from '../models/match.schema.js';
 import { getTeam } from './players.js';
 
-export const createTeamsEmbed = ({ match }: { match: IMatch }) => {
+export const createMatchEmbed = ({ match }: { match: IMatch }) => {
     const teamA = getTeam(match.players, 'a');
     const teamB = getTeam(match.players, 'b');
     return new EmbedBuilder()
