@@ -21,6 +21,7 @@ import { updateLeaderboard } from '../helpers/leaderboard';
 import { createMatchEmbed } from '../helpers/embed';
 import { calculateEloChanges } from '../helpers/elo.js';
 import { deleteChannel, createChannel } from '../helpers/channel.js';
+import { getVotes } from '../helpers/match.js';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -190,7 +191,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: -1 });
-        const count = DEBUG_MODE ? 1 : 10;
+        const count = DEBUG_MODE ? 2 : 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -389,6 +390,8 @@ export const startGame = ({
         if (match.channels.teamA) await deleteChannel({ client, channelId: match.channels.teamA });
         if (match.channels.teamB) await deleteChannel({ client, channelId: match.channels.teamB });
 
+        const votes = await getVotes(match.players);
+
         const matchCategoryId = await getChannelId(CategoriesType.matches);
         const matchChannel = await createChannel({
             client,
@@ -403,6 +406,8 @@ export const startGame = ({
                 $set: {
                     status: 'started',
                     'channels.matchChannel': matchChannel.id,
+                    map: votes.map,
+                    teamASide: votes.teamASide,
                 },
                 $unset: {
                     'channels.teamA': '',
@@ -411,7 +416,7 @@ export const startGame = ({
             }
         );
 
-        const teamsEmbed = createMatchEmbed({ match });
+        const teamsEmbed = await createMatchEmbed({ matchNumber: match.match_number });
         await sendMessage({
             channelId: matchChannel.id,
             messageContent: { embeds: [teamsEmbed] },

@@ -34,6 +34,8 @@ export interface IMatch {
     players: IMatchPlayer[];
     teamARounds?: number;
     teamBRounds?: number;
+    map: string;
+    teamASide: string;
     version: number;
 }
 
@@ -47,6 +49,8 @@ const matchSchema = new Schema<IMatch>({
     roleId: { type: String, required: true },
     teamARounds: { type: Number },
     teamBRounds: { type: Number },
+    map: { type: String },
+    teamASide: { type: String },
     version: { type: Number, required: true },
 });
 
