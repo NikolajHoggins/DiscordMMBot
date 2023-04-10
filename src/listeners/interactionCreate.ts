@@ -1,4 +1,4 @@
-import { CommandInteraction, Client, Interaction } from 'discord.js';
+import { CommandInteraction, Client, Interaction, ButtonInteraction } from 'discord.js';
 import { Commands } from '../Commands';
 
 export default (client: Client): void => {
@@ -6,7 +6,14 @@ export default (client: Client): void => {
         if (interaction.isCommand()) {
             await handleSlashCommand(client, interaction);
         }
+        if (interaction.isButton()) {
+            await handleButtonInteraction(client, interaction);
+        }
     });
+};
+
+const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
+    interaction.reply({ content: `You voted ${interaction.customId}` });
 };
 
 const handleSlashCommand = async (
