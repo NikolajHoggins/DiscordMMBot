@@ -12,7 +12,7 @@ export const updateStatus = async (client: Client) => {
         const user = await client.users?.fetch(expired[i].discordId);
 
         await user.send('Your queue has expired');
-        console.log('sent dm to user', user.username);
+        console.log('sent dm to user', user.username, 'queue expired');
     }
     await Queue.deleteMany({ expires: { $lt: now } });
     const queue = await queueService.get();

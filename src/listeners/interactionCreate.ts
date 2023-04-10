@@ -75,7 +75,6 @@ const updatePlayerVote = async ({
     return new Promise(async resolve => {
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('Match not found');
-        console.log('found match', match.version);
 
         const result = await Match.updateOne(
             { 'players.id': playerId, version: match.version },

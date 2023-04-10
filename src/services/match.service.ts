@@ -384,7 +384,7 @@ export const startGame = ({
         //create match channel
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('No match found');
-        console.log(match);
+
         //delete voting channels
         if (match.channels.teamA) await deleteChannel({ client, channelId: match.channels.teamA });
         if (match.channels.teamB) await deleteChannel({ client, channelId: match.channels.teamB });
@@ -404,17 +404,13 @@ export const startGame = ({
                     status: 'started',
                     'channels.matchChannel': matchChannel.id,
                 },
+                $unset: {
+                    'channels.teamA': '',
+                    'channels.teamB': '',
+                },
             }
         );
-        // const dbMatch = await Match.findOne({ match_number: match.match_number });
-        // if (!dbMatch) throw new Error('No match found');
-        // dbMatch.status = 'started';
-        // await dbMatch.save();
-        // await sendMessage({
-        //     channelId: match.channels.ready,
-        //     messageContent: 'All players ready, game is starting',
-        //     client,
-        // });
+
         const teamsEmbed = createMatchEmbed({ match });
         await sendMessage({
             channelId: matchChannel.id,
