@@ -3,7 +3,6 @@ import Match, { IMatch } from '../models/match.schema.js';
 import { getTeam } from './players.js';
 
 const prettyTeamName = (team: string) => {
-    console.log('team name', team);
     return team.charAt(0).toUpperCase() + team.slice(1);
 };
 
