@@ -1,7 +1,7 @@
 import { Schema, model, connect } from 'mongoose';
 
 // 1. Create an interface representing a document in MongoDB.
-export interface MatchChannels {
+export interface IMatchChannels {
     ready?: string;
     teamA?: string;
     teamB?: string;
@@ -9,14 +9,29 @@ export interface MatchChannels {
     teamAVoice?: string;
     teamBVoice?: string;
 }
+
+export interface IMatchPlayer {
+    id: string;
+    team: 'a' | 'b';
+    vote: string;
+    ready: boolean;
+}
+
+export const MatchStatus = {
+    pending: 'pending',
+    started: 'started',
+    ended: 'ended',
+} as const;
+
+export type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
+
 export interface IMatch {
     start: number;
     match_number: number;
-    channels: MatchChannels;
-    status: 'pending' | 'started' | 'ended';
+    channels: IMatchChannels;
+    status: MatchStatus;
     roleId: string;
-    teamA: string[];
-    teamB: string[];
+    players: IMatchPlayer[];
     teamARounds?: number;
     teamBRounds?: number;
 }
@@ -24,8 +39,7 @@ export interface IMatch {
 // 2. Create a Schema corresponding to the document interface.
 const matchSchema = new Schema<IMatch>({
     start: { type: Number, required: true },
-    teamA: { type: [], required: true },
-    teamB: { type: [], required: true },
+    players: { type: [], required: true },
     match_number: { type: Number, required: true },
     channels: { type: {}, required: true },
     status: { type: String, required: true },

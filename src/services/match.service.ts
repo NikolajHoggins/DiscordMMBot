@@ -9,11 +9,11 @@ import {
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { PRETTY_TEAM_NAMES, sendMessage } from '../helpers/messages';
-import Match, { IMatch, MatchChannels } from '../models/match.schema';
+import Match, { IMatch, IMatchChannels } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
-import { createTeams } from '../helpers/players';
+import { createTeams, getTeam } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
@@ -61,14 +61,14 @@ const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
             name: `Match-${match.match_number} Team A Voice`,
             parentId: matchCategoryId,
             type: ChannelType.GuildVoice,
-            allowedIds: match.teamA,
+            allowedIds: getTeam(match.players, 'a').map(p => p.id),
         });
         const teamBVC = await createChannel({
             client,
             name: `Match-${match.match_number} Team B Voice`,
             parentId: matchCategoryId,
             type: ChannelType.GuildVoice,
-            allowedIds: match.teamB,
+            allowedIds: getTeam(match.players, 'b').map(p => p.id),
         });
 
         await Match.updateOne(
@@ -262,11 +262,12 @@ const createSideVotingChannel = async ({
             client,
             name: `Match-${match.match_number} Team A`,
             parentId: matchCategoryId,
-            allowedIds: match.teamA,
+            allowedIds: getTeam(match.players, 'a').map(p => p.id),
         });
 
         const sideMessage = { content: 'Pick a side to start on', components: [row] };
         await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
+        //Set timeout, and check which has more votes
 
         resolve(teamAChannel.id);
     });
@@ -293,7 +294,7 @@ const createMapVotingChannel = async ({
             client,
             name: `Match-${match.match_number} Team B`,
             parentId: matchCategoryId,
-            allowedIds: match.teamB,
+            allowedIds: getTeam(match.players, 'b').map(p => p.id),
         });
         const mapMessage = { content: 'Pick a map to play', components: [row] };
         await sendMessage({
@@ -442,7 +443,7 @@ export const end = async ({ matchNumber, client }: { matchNumber: number; client
             Object.keys(match.channels).map(
                 (key: string) =>
                     new Promise(async resolve => {
-                        const channelId = match.channels[key as keyof MatchChannels];
+                        const channelId = match.channels[key as keyof IMatchChannels];
                         if (!channelId) return resolve(true);
 
                         await deleteChannel({
