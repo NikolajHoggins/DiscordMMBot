@@ -44,13 +44,8 @@ export const SubmitScore: Command = {
             });
             return;
         }
-
-        //check which team user is on
-        let team = '';
-        if (match.teamA.find(p => p === user.id)) team = 'teamA';
-        if (match.teamB.find(p => p === user.id)) team = 'teamB';
-
-        if (!team || team === '') {
+        const matchPlayer = match.players.find(p => p.id === user.id);
+        if (!matchPlayer) {
             await interaction.followUp({
                 ephemeral: true,
                 content: 'You are not in this match',
@@ -60,7 +55,7 @@ export const SubmitScore: Command = {
 
         matchService.setScore({
             matchNumber: match.match_number,
-            team: team as 'teamA' | 'teamB',
+            team: matchPlayer.team,
             score: score?.value as number,
             client,
         });

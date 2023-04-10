@@ -190,7 +190,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: -1 });
-        const count = DEBUG_MODE ? 1 : 10;
+        const count = DEBUG_MODE ? 2 : 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -223,7 +223,8 @@ export const tryStart = (client: Client): Promise<void> => {
                 },
                 status: 'pending',
                 roleId: roleId,
-                ...teams,
+                players: teams,
+                version: 0,
             });
             await newMatch.save();
 
@@ -397,14 +398,14 @@ export const setScore = async ({
     client,
 }: {
     matchNumber: number;
-    team: 'teamA' | 'teamB';
+    team: 'a' | 'b';
     score: number;
     client: Client;
 }) => {
     return new Promise(async resolve => {
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error("Couldn't find match");
-        const index = team === 'teamA' ? 'teamARounds' : 'teamBRounds';
+        const index = team === 'a' ? 'teamARounds' : 'teamBRounds';
         match[index] = score;
         match.save();
 

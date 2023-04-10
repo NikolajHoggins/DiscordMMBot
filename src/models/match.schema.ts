@@ -13,8 +13,8 @@ export interface IMatchChannels {
 export interface IMatchPlayer {
     id: string;
     team: 'a' | 'b';
-    vote: string;
-    ready: boolean;
+    vote?: string;
+    ready?: boolean;
 }
 
 export const MatchStatus = {
@@ -34,6 +34,7 @@ export interface IMatch {
     players: IMatchPlayer[];
     teamARounds?: number;
     teamBRounds?: number;
+    version: number;
 }
 
 // 2. Create a Schema corresponding to the document interface.
@@ -46,6 +47,7 @@ const matchSchema = new Schema<IMatch>({
     roleId: { type: String, required: true },
     teamARounds: { type: Number },
     teamBRounds: { type: Number },
+    version: { type: Number, required: true },
 });
 
 const Match = model<IMatch>('Match', matchSchema);

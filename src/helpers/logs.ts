@@ -5,8 +5,7 @@ import { createTeamsEmbed } from './embed';
 import { botLog } from './messages';
 
 export const logMatch = async ({ match, client }: { match: IMatch; client: Client }) => {
-    const { teamA, teamB } = match;
-    const embed = createTeamsEmbed({ teamA, teamB });
+    const embed = createTeamsEmbed({ match });
     botLog({ messageContent: 'Teams for match ' + match.match_number, client });
     botLog({ messageContent: { embeds: [embed] }, client });
 };
