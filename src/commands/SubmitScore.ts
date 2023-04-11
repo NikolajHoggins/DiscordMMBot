@@ -7,6 +7,8 @@ import {
 import { Command } from '../Command';
 import * as matchService from '../services/match.service';
 import { capitalize, get } from 'lodash';
+import { getTeam } from '../helpers/players.js';
+import { getTeamBName } from '../helpers/team.js';
 
 export const SubmitScore: Command = {
     name: 'submit_score',
@@ -59,9 +61,11 @@ export const SubmitScore: Command = {
         });
 
         const teamName =
-            matchPlayer.team === 'a' ? capitalize(match.teamASide) : getTeamBName(match.teamASide);
+            matchPlayer.team === 'a'
+                ? capitalize(match.teamASide)
+                : capitalize(getTeamBName(match.teamASide));
 
-        const content = `Got score ${score?.value} for team ${teamName}`;
+        const content = `Submitted score ${score?.value} for team ${teamName}`;
 
         await interaction.followUp({
             ephemeral: true,

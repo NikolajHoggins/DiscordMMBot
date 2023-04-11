@@ -23,6 +23,7 @@ import { calculateEloChanges } from '../helpers/elo.js';
 import { deleteChannel, createChannel } from '../helpers/channel.js';
 import { getVotes } from '../helpers/match.js';
 import { capitalize } from 'lodash';
+import { getTeamBName } from '../helpers/team.js';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
