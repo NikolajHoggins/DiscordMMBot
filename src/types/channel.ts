@@ -7,6 +7,25 @@ export const ChannelsType = {
 
 export type ChannelsType = typeof ChannelsType[keyof typeof ChannelsType];
 
+export const RanksType = {
+    mod: 'mod',
+    ping: 'ping',
+    noregion: 'noregion',
+    eu: 'eu',
+    na: 'na',
+    oce: 'oce',
+    unranked: 'unranked',
+    iron: 'iron',
+    bronze: 'bronze',
+    silver: 'silver',
+    gold: 'gold',
+    platinum: 'platinum',
+    diamond: 'diamond',
+    master: 'master',
+};
+
+export type RanksType = typeof RanksType[keyof typeof RanksType];
+
 export const CategoriesType = {
     matches: 'matches',
 };
@@ -14,6 +33,11 @@ export const CategoriesType = {
 export type CategoriesType = typeof CategoriesType[keyof typeof CategoriesType];
 
 export type ChannelType = {
+    name: string;
+    id: string;
+};
+
+export type RankType = {
     name: string;
     id: string;
 };

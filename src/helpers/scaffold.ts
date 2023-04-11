@@ -1,9 +1,10 @@
 import { Client, TextChannel, ChannelType as DiscordChannelType } from 'discord.js';
 import { ISystem } from '../models/system.schema.js';
 import { getConfig, updateConfig } from '../services/system.service';
-import { CategoriesType, ChannelsType, ChannelType } from '../types/channel';
+import { CategoriesType, ChannelsType, ChannelType, RanksType } from '../types/channel';
 import { getEveryoneRole, getGuild } from './guild';
 import { sendMessage } from './messages';
+import { createRole } from './role.js';
 
 const createChannel = async (
     client: Client,
@@ -58,6 +59,47 @@ const cacheChannel = async (
         resolve(true);
     });
 };
+
+const validateRole = ({
+    key,
+    config,
+    client,
+}: {
+    key: string;
+    config: ISystem;
+    client: Client;
+}) => {
+    return new Promise(async (resolve, reject) => {
+        const role = config.roles.find(r => r.name === key);
+        console.log(config.roles, key);
+        if (!role) {
+            const newRole = await createRole({ roleName: key, client });
+            const oldConfig = await getConfig();
+            const newRoles = [...oldConfig.roles, { name: key, id: newRole.id }];
+            await updateConfig({ id: oldConfig._id, body: { roles: newRoles } });
+            resolve(true);
+            return;
+        }
+
+        const guild = await getGuild(client);
+        if (!guild) throw new Error("Couldn't fetch guild");
+        const guildRole = await guild.roles.fetch(role.id);
+        if (!guildRole) {
+            const newRole = await createRole({ roleName: key, client });
+            const oldConfig = await getConfig();
+            const newRoles = [
+                ...oldConfig.roles.filter(r => r.name !== key),
+                { name: key, id: newRole.id },
+            ];
+            await updateConfig({ id: oldConfig._id, body: { roles: newRoles } });
+            resolve(true);
+            return;
+        }
+
+        resolve(true);
+    });
+};
+
 const addPingToPlayMessage = async ({ config, client }: { config: ISystem; client: Client }) => {
     const roleChannel = config.channels.find(t => t.name === ChannelsType.roles);
     if (!roleChannel) throw new Error('no role channel found');
@@ -110,6 +152,17 @@ const scaffold = async (client: Client) => {
         Object.keys(ChannelsType).map(key => {
             return new Promise(async (resolve, reject) => {
                 await cacheChannel(config, key, client);
+                resolve(null);
+            });
+        })
+    );
+
+    //Loop through ranktypes and make sure rank exists
+    await Promise.all(
+        Object.keys(RanksType).map(key => {
+            return new Promise(async (resolve, reject) => {
+                // await createRank(config, key, client);
+                await validateRole({ key, config, client });
                 resolve(null);
             });
         })

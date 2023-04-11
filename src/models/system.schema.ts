@@ -1,10 +1,11 @@
 import { Schema, model, connect, ObjectId } from 'mongoose';
-import { ChannelType } from '../types/channel';
+import { ChannelType, RankType } from '../types/channel';
 
 // 1. Create an interface representing a document in MongoDB.
 export interface ISystem {
     last_ping: number;
     channels: ChannelType[];
+    roles: RankType[];
     _id: ObjectId;
 }
 
@@ -12,6 +13,7 @@ export interface ISystem {
 const systemSchema = new Schema<ISystem>({
     last_ping: { type: Number, required: true },
     channels: { type: [], required: true },
+    roles: { type: [], required: true },
 });
 
 const System = model<ISystem>('System', systemSchema);
