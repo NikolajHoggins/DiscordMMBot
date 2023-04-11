@@ -12,6 +12,7 @@ export interface IMatchChannels {
 
 export interface IMatchPlayer {
     id: string;
+    name: string;
     team: 'a' | 'b';
     vote?: string;
     ready?: boolean;

@@ -56,7 +56,7 @@ export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
                 playerId: p.id,
                 matchNumber: match.match_number,
                 ratingChange: eloChange,
-                won: false,
+                won: true,
             });
             resolve(null);
         });

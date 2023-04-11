@@ -22,6 +22,7 @@ import { createMatchEmbed } from '../helpers/embed';
 import { calculateEloChanges } from '../helpers/elo.js';
 import { deleteChannel, createChannel } from '../helpers/channel.js';
 import { getVotes } from '../helpers/match.js';
+import { capitalize } from 'lodash';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -125,8 +126,9 @@ const sendReadyMessage = async ({
     match: IMatch;
 }): Promise<void> => {
     return new Promise(async () => {
-        const timeToReadyInMs = 30000;
-        const warning = timeToReadyInMs - 10000;
+        const secondInMs = 1000;
+        const timeToReadyInMs = 3 * 60 * secondInMs;
+        const warning = timeToReadyInMs - 60 * secondInMs;
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
         const readyMessage = await sendMessage({
             channelId,
@@ -268,6 +270,10 @@ const createSideVotingChannel = async ({
         });
 
         const sideMessage = { content: 'Pick a side to start on', components: [row] };
+        const teammatesMessage = `You're teammates are: ${getTeam(match.players, 'a').map(
+            p => `${p.name},`
+        )}`;
+        await sendMessage({ channelId: teamAChannel.id, messageContent: teammatesMessage, client });
         await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
         //Set timeout, and check which has more votes
 
@@ -299,6 +305,10 @@ const createMapVotingChannel = async ({
             allowedIds: getTeam(match.players, 'b').map(p => p.id),
         });
         const mapMessage = { content: 'Pick a map to play', components: [row] };
+        const teammatesMessage = `You're teammates are: ${getTeam(match.players, 'b').map(
+            p => `${p.name},`
+        )}`;
+        await sendMessage({ channelId: teamBChannel.id, messageContent: teammatesMessage, client });
         await sendMessage({
             channelId: teamBChannel.id,
             messageContent: mapMessage,
@@ -458,17 +468,33 @@ export const setScore = async ({
         if (!match) throw new Error("Couldn't find match");
         const index = team === 'a' ? 'teamARounds' : 'teamBRounds';
         match[index] = score;
+
         match.save();
 
         //if both scores are set, end match
-        if (match.teamARounds && match.teamBRounds) {
-            if (match.teamARounds !== 11 && match.teamBRounds !== 11) return;
+        if (match.teamARounds !== undefined && match.teamBRounds !== undefined) {
+            if (match.teamARounds === 6 && match.teamBRounds === 6) {
+                //handle draw
+                sendMessage({
+                    channelId: match.channels.matchChannel,
+                    messageContent: 'Match is a draw, L',
+                    client,
+                });
+                setTimeout(() => {
+                    end({ matchNumber, client });
+                }, 5000);
+                return;
+            }
+            if (match.teamARounds !== 7 && match.teamBRounds !== 7) return;
 
-            const winner = match.teamARounds > match.teamBRounds ? 'teamA' : 'teamB';
+            const winner =
+                match.teamARounds > match.teamBRounds
+                    ? capitalize(match.teamASide)
+                    : capitalize(getTeamBName(match.teamASide));
 
             sendMessage({
                 channelId: match.channels.matchChannel,
-                messageContent: PRETTY_TEAM_NAMES[winner] + ' wins!',
+                messageContent: winner + ' wins!',
                 client,
             });
 
@@ -476,8 +502,8 @@ export const setScore = async ({
                 updateLeaderboard({ client });
                 calculateEloChanges(match);
 
-                end({ matchNumber, client: client });
-            }, 3000);
+                end({ matchNumber, client });
+            }, 5000);
         }
     });
 };

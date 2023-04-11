@@ -10,10 +10,10 @@ export const createTeams = (queuePlayers: IQueue[]): IMatchPlayer[] => {
     const players = shuffle(queuePlayers);
     const teamA: IMatchPlayer[] = players
         .slice(0, players.length / 2)
-        .map(q => ({ id: q.discordId, team: 'a' }));
+        .map(q => ({ id: q.discordId, team: 'a', name: q.name }));
     const teamB: IMatchPlayer[] = players
         .slice(players.length / 2, players.length)
-        .map(q => ({ id: q.discordId, team: 'b' }));
+        .map(q => ({ id: q.discordId, team: 'b', name: q.name }));
 
     return [...teamA, ...teamB];
 };

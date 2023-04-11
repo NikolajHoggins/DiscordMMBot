@@ -2,13 +2,11 @@ import {
     CommandInteraction,
     Client,
     ApplicationCommandType,
-    TextChannel,
-    Channel,
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
-import { getGuild } from '../helpers/guild';
 import * as matchService from '../services/match.service';
+import { capitalize, get } from 'lodash';
 
 export const SubmitScore: Command = {
     name: 'submit_score',
@@ -18,7 +16,7 @@ export const SubmitScore: Command = {
             name: 'score',
             description: 'score of your own team',
             type: ApplicationCommandOptionType.Number,
-            max_value: 11,
+            max_value: 7,
             min_value: 0,
             required: true,
         },
@@ -60,7 +58,10 @@ export const SubmitScore: Command = {
             client,
         });
 
-        const content = `Got score ${score?.value}`;
+        const teamName =
+            matchPlayer.team === 'a' ? capitalize(match.teamASide) : getTeamBName(match.teamASide);
+
+        const content = `Got score ${score?.value} for team ${teamName}`;
 
         await interaction.followUp({
             ephemeral: true,

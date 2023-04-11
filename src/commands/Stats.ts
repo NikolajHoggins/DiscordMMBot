@@ -16,9 +16,9 @@ export const Stats: Command = {
         const losses = matches - wins;
         const winRate = ceil((wins / (wins + losses)) * 100);
 
-        const content = `User ${player.name} has ${wins} wins and ${losses} losses. ${
-            !isNaN(winRate) ? winRate : 0
-        }% winrate`;
+        const content = `User ${player.name} [${Math.floor(
+            player.rating
+        )}] has ${wins} wins and ${losses} losses. ${!isNaN(winRate) ? winRate : 0}% winrate`;
 
         await interaction.followUp({
             ephemeral: true,
