@@ -71,7 +71,7 @@ const validateRole = ({
 }) => {
     return new Promise(async (resolve, reject) => {
         const role = config.roles.find(r => r.name === key);
-        console.log(config.roles, key);
+
         if (!role) {
             const newRole = await createRole({ roleName: key, client });
             const oldConfig = await getConfig();
