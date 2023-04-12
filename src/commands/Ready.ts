@@ -12,6 +12,7 @@ import { ready } from '../services/queue.service';
 import { getConfig } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import Match from '../models/match.schema.js';
+import { sendMessage } from '../helpers/messages.js';
 
 export const handleReady = async ({
     interaction,
@@ -45,6 +46,16 @@ export const handleReady = async ({
     await interaction.reply({
         ephemeral: true,
         content,
+    });
+
+    const queueChannelId = await getConfig().then(
+        config => config.channels.find(c => c.name === ChannelsType['ranked-queue'])?.id
+    );
+    if (!queueChannelId) throw new Error('Queue channel not found');
+    await sendMessage({
+        channelId: queueChannelId,
+        messageContent: `${player.name} readied up!`,
+        client,
     });
 };
 
