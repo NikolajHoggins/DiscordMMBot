@@ -20,8 +20,13 @@ export default (client: Client): void => {
 const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
     const match = await findByChannelId(interaction.channelId);
 
+    if (!match) {
+        interaction.reply({ content: 'Not in match channel', ephemeral: true });
+        return;
+    }
+
     if (interaction.customId === ButtonInteractionsType.verify) {
-        await handleVerifyInteraction({ interaction, client });
+        await handleVerifyInteraction({ interaction, match });
         return;
     }
 

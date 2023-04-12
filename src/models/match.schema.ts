@@ -16,6 +16,7 @@ export interface IMatchPlayer {
     team: 'a' | 'b';
     vote?: string;
     ready?: boolean;
+    verifiedScore?: boolean;
 }
 
 export const MatchStatus = {
