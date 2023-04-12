@@ -3,6 +3,8 @@ import { Commands } from '../Commands';
 import { findByChannelId } from '../services/match.service.js';
 import { getTeam } from '../helpers/players.js';
 import Match, { IMatch } from '../models/match.schema.js';
+import { ButtonInteractionsType } from '../types/interactions.js';
+import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction.js';
 
 export default (client: Client): void => {
     client.on('interactionCreate', async (interaction: Interaction) => {
@@ -15,28 +17,32 @@ export default (client: Client): void => {
     });
 };
 
-const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) =>
-    //check if in pending match channel
-    {
-        const match = await findByChannelId(interaction.channelId);
-        if (!match || match.status !== 'pending') {
-            interaction.reply({ content: 'Not in pending match channel' });
-            return;
-        }
+const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
+    const match = await findByChannelId(interaction.channelId);
 
-        const players = match.players.map(p => p.id);
+    if (interaction.customId === ButtonInteractionsType.verify) {
+        await handleVerifyInteraction({ interaction, client });
+        return;
+    }
 
-        if (
-            players.includes(interaction.user.id) &&
-            [match.channels.teamA, match.channels.teamB].includes(interaction.channelId)
-        ) {
-            await handleMatchVote({ client, match, interaction });
-            return;
-        }
+    if (!match || match.status !== 'pending') {
+        interaction.reply({ content: 'Not in pending match channel' });
+        return;
+    }
 
-        //Check if on correct team
-        interaction.reply({ content: `You cannot vote here` });
-    };
+    const players = match.players.map(p => p.id);
+
+    if (
+        players.includes(interaction.user.id) &&
+        [match.channels.teamA, match.channels.teamB].includes(interaction.channelId)
+    ) {
+        await handleMatchVote({ client, match, interaction });
+        return;
+    }
+
+    //Check if on correct team
+    interaction.reply({ content: `You cannot vote here` });
+};
 
 const handleMatchVote = async ({
     client,
@@ -57,7 +63,7 @@ const handleMatchVote = async ({
             matchNumber: match.match_number,
         });
 
-        interaction.reply({ content: `You voted ${interaction.customId}` });
+        interaction.reply({ content: `You voted ${interaction.customId}`, ephemeral: true });
 
         resolve(true);
     });
