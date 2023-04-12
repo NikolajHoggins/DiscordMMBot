@@ -1,6 +1,7 @@
 import { Client } from 'discord.js';
 import { IMatch } from '../models/match.schema.js';
 import { addWinLoss, get, idsToObjects } from '../services/player.service.js';
+import { MatchResultType } from '../models/player.schema.js';
 import { getTeam } from './players.js';
 
 export const calculateEloChanges = async (match: IMatch, client: Client): Promise<boolean> => {
@@ -67,7 +68,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                 playerId: p.id,
                 matchNumber: match.match_number,
                 ratingChange: eloChange,
-                won: true,
+                result: MatchResultType.win,
                 client,
             });
             resolve(null);
@@ -93,7 +94,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                 playerId: p.id,
                 matchNumber: match.match_number,
                 ratingChange: eloChange,
-                won: false,
+                result: MatchResultType.loss,
                 client,
             });
             resolve(null);

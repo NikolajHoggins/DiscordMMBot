@@ -63,7 +63,6 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
                     const currentRankName = config.roles.find(({ id }) => id === r)?.name;
                     if (!currentRankName) return resolve(true);
 
-                    console.log('checking', Object.values(rankCutoffs), currentRankName);
                     if (Object.values(rankCutoffs).includes(currentRankName)) {
                         await member.roles.remove(r);
                         return resolve(true);

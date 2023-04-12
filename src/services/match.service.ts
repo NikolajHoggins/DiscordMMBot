@@ -26,6 +26,8 @@ import { deleteChannel, createChannel } from '../helpers/channel.js';
 import { getVotes } from '../helpers/match.js';
 import { capitalize } from 'lodash';
 import { getTeamBName } from '../helpers/team.js';
+import { addWinLoss } from './player.service.js';
+import { MatchResultType } from '../models/player.schema.js';
 const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -568,6 +570,20 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
                 messageContent: 'Match is a draw, L',
                 client,
             });
+            await Promise.all(
+                match.players.map(p => {
+                    return new Promise(async resolve => {
+                        await addWinLoss({
+                            client,
+                            playerId: p.id,
+                            result: MatchResultType.draw,
+                            matchNumber: match.match_number,
+                            ratingChange: 0,
+                        });
+                        resolve(true);
+                    });
+                })
+            );
             setTimeout(() => {
                 end({ matchNumber, client });
             }, 5000);

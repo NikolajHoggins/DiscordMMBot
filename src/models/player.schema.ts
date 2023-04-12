@@ -1,6 +1,14 @@
 import { Schema, model, connect } from 'mongoose';
 
-type MatchHistory = { match_number: number; result: 'win' | 'loss'; change: number }[];
+export const MatchResultType = {
+    win: 'win',
+    loss: 'loss',
+    draw: 'draw',
+} as const;
+
+export type MatchResultType = typeof MatchResultType[keyof typeof MatchResultType];
+
+type MatchHistory = { match_number: number; result: MatchResultType; change: number }[];
 // 1. Create an interface representing a document in MongoDB.
 export interface IPlayer {
     discordId: string;
