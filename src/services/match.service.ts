@@ -6,6 +6,7 @@ import {
     Client,
     Guild,
     MessageActionRowComponentBuilder,
+    TextChannel,
     User,
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
@@ -439,6 +440,7 @@ export const startGame = ({
 
 export const findByChannelId = async (channelId: string): Promise<IMatch | null> => {
     return new Promise(async resolve => {
+        if (!channelId) throw new Error('No channel id provided');
         resolve(
             await Match.findOne({
                 $or: [
@@ -451,6 +453,39 @@ export const findByChannelId = async (channelId: string): Promise<IMatch | null>
                 ],
             })
         );
+    });
+};
+
+const deleteOldScoreCard = async ({ match, client }: { match: IMatch; client: Client }) => {
+    return new Promise(async resolve => {
+        if (!match.channels.matchChannel) throw new Error('No match channel found');
+
+        const channel = (await client.channels.fetch(match.channels.matchChannel)) as TextChannel;
+        if (!channel) throw new Error('No channel found');
+
+        if (!client.user) throw new Error('No client user found');
+
+        const channelMessages = await channel.messages.fetch();
+        await Promise.all(
+            channelMessages.map(m => {
+                return new Promise(async resolve => {
+                    if (!client.user || m.author.id !== client.user.id) {
+                        resolve(false);
+                        return;
+                    }
+                    if (m.embeds.length === 0) {
+                        resolve(false);
+                        return;
+                    }
+
+                    if (m.embeds[0].description === 'Verify the scores below by hitting "Verify"')
+                        await m.delete();
+
+                    resolve(true);
+                });
+            })
+        );
+        resolve(true);
     });
 };
 
@@ -468,10 +503,14 @@ export const setScore = async ({
     return new Promise(async resolve => {
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error("Couldn't find match");
-        const index = team === 'a' ? 'teamARounds' : 'teamBRounds';
-        match[index] = score;
 
-        match.save();
+        const index = team === 'a' ? 'teamARounds' : 'teamBRounds';
+
+        await deleteOldScoreCard({ client, match });
+
+        match[index] = score;
+        match.players = match.players.map(p => ({ ...p, verifiedScore: false }));
+        await match.save();
 
         //if both scores are set, end match
         if (match.teamARounds !== undefined && match.teamBRounds !== undefined) {

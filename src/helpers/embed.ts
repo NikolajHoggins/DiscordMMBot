@@ -53,7 +53,7 @@ export const createScoreCardEmbed = async ({ match }: { match: IMatch }): Promis
             new EmbedBuilder()
                 .setTitle('Scores')
                 .setColor('#C69B6D')
-                .setDescription('Verify the scores below with a ✅')
+                .setDescription('Verify the scores below by hitting "Verify"')
                 .addFields(
                     {
                         name: capitalize(match.teamASide),

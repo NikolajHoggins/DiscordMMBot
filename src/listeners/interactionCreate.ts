@@ -1,7 +1,6 @@
 import { CommandInteraction, Client, Interaction, ButtonInteraction } from 'discord.js';
 import { Commands } from '../Commands';
 import { findByChannelId } from '../services/match.service.js';
-import { getTeam } from '../helpers/players.js';
 import Match, { IMatch } from '../models/match.schema.js';
 import { ButtonInteractionsType } from '../types/interactions.js';
 import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction.js';
@@ -88,11 +87,10 @@ const updatePlayerVote = async ({
         if (!match) throw new Error('Match not found');
 
         const result = await Match.updateOne(
-            { 'players.id': playerId, version: match.version },
+            { match_number: match.match_number, 'players.id': playerId, version: match.version },
             { $set: { 'players.$.vote': vote }, $inc: { version: 1 } }
         );
         if (result.modifiedCount === 0) {
-            console.log('Vote conflict, retrying');
             setTimeout(() => {
                 updatePlayerVote({ playerId, vote, matchNumber });
             }, 1000);

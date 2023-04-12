@@ -27,7 +27,7 @@ const setPlayerVerified = async ({
         if (!match) throw new Error('Match not found');
 
         const result = await Match.updateOne(
-            { 'players.id': playerId, version: match.version },
+            { match_number: match.match_number, 'players.id': playerId, version: match.version },
             { $set: { 'players.$.verifiedScore': true }, $inc: { version: 1 } }
         );
         if (result.modifiedCount === 0) {
