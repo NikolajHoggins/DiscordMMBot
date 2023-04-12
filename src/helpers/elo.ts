@@ -5,10 +5,8 @@ import { getTeam } from './players.js';
 export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
     const { players } = match;
     const K_FACTOR = 40;
-    const teamA = getTeam(players, 'a');
-    const teamB = getTeam(players, 'b');
 
-    const winner = match.teamARounds === 11 ? 'a' : 'b';
+    const winner = match.teamARounds === 7 ? 'a' : 'b';
     const loser = winner === 'a' ? 'b' : 'a';
 
     const winningTeam = await Promise.all(idsToObjects(getTeam(players, winner).map(p => p.id)));
@@ -65,7 +63,6 @@ export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
     const loserMap = getTeam(players, loser).map(p => {
         return new Promise(async resolve => {
             const player = await get(p.id);
-
             if (!player) throw new Error(`Player ${p} doesn't exist`);
 
             const actualScore = loserRounds / totalRounds;

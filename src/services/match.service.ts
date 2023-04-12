@@ -541,43 +541,47 @@ export const setScore = async ({
                 messageContent: verifyContent,
                 client,
             });
-
-            // if (match.teamARounds === 6 && match.teamBRounds === 6) {
-            //     //handle draw
-            //     sendMessage({
-            //         channelId: match.channels.matchChannel,
-            //         messageContent: 'Match is a draw, L',
-            //         client,
-            //     });
-            //     setTimeout(() => {
-            //         end({ matchNumber, client });
-            //     }, 5000);
-            //     return;
-            // }
-            // if (match.teamARounds !== 7 && match.teamBRounds !== 7) return;
-
-            // const winner =
-            //     match.teamARounds > match.teamBRounds
-            //         ? capitalize(match.teamASide)
-            //         : capitalize(getTeamBName(match.teamASide));
-
-            // sendMessage({
-            //     channelId: match.channels.matchChannel,
-            //     messageContent: winner + ' wins!',
-            //     client,
-            // });
-
-            // setTimeout(() => {
-            //     updateLeaderboard({ client });
-            //     calculateEloChanges(match);
-
-            //     end({ matchNumber, client });
-            // }, 5000);
         }
     });
 };
 
-export const end = async ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
+export const finishMatch = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
+    return new Promise(async resolve => {
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match) throw new Error('No match found');
+
+        if (match.teamARounds === 6 && match.teamBRounds === 6) {
+            //handle draw
+            sendMessage({
+                channelId: match.channels.matchChannel,
+                messageContent: 'Match is a draw, L',
+                client,
+            });
+            setTimeout(() => {
+                end({ matchNumber, client });
+            }, 5000);
+            return;
+        }
+        if (match.teamARounds !== undefined && match.teamBRounds !== undefined) {
+            const winner =
+                match.teamARounds > match.teamBRounds
+                    ? capitalize(match.teamASide)
+                    : capitalize(getTeamBName(match.teamASide));
+            sendMessage({
+                channelId: match.channels.matchChannel,
+                messageContent: winner + ' wins!',
+                client,
+            });
+            setTimeout(() => {
+                updateLeaderboard({ client });
+                calculateEloChanges(match);
+                end({ matchNumber, client });
+            }, 5000);
+        }
+    });
+};
+
+export const end = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
     return new Promise(async resolve => {
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) return;

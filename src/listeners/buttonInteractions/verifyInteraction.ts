@@ -1,6 +1,7 @@
 import { ButtonInteraction, Client } from 'discord.js';
 import Match, { IMatch } from '../../models/match.schema.js';
 import { sendMessage } from '../../helpers/messages.js';
+import { finishMatch } from '../../services/match.service.js';
 
 export const handleVerifyInteraction = ({
     interaction,
@@ -57,6 +58,10 @@ const setPlayerVerified = async ({
                 channelId: interaction.channelId,
                 messageContent: 'All players have verified score',
                 client: interaction.client,
+            });
+            await finishMatch({
+                matchNumber: match.match_number,
+                client: interaction.client as Client,
             });
         }
 
