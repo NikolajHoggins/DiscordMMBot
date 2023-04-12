@@ -4,7 +4,7 @@ import Player, { IPlayer } from '../models/player.schema.js';
 import { getGuild } from './guild.js';
 import { getConfig } from '../services/system.service.js';
 
-const rankCutoffs: Record<number, RanksType> = {
+export const rankCutoffs: Record<number, RanksType> = {
     0: RanksType.iron,
     200: RanksType.bronze,
     500: RanksType.silver,
@@ -63,8 +63,10 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
                     const currentRankName = config.roles.find(({ id }) => id === r)?.name;
                     if (!currentRankName) return resolve(true);
 
+                    console.log('checking', Object.values(rankCutoffs), currentRankName);
                     if (Object.values(rankCutoffs).includes(currentRankName)) {
-                        return await member.roles.remove(r);
+                        await member.roles.remove(r);
+                        return resolve(true);
                     }
                     resolve(true);
                 });
