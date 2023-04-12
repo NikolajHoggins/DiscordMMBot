@@ -36,7 +36,7 @@ const handleButtonInteraction = async (client: Client, interaction: ButtonIntera
     }
 
     if (!match || match.status !== 'pending') {
-        interaction.reply({ content: 'Not in pending match channel' });
+        interaction.reply({ content: 'Not in pending match channel', ephemeral: true });
         return;
     }
 
@@ -51,7 +51,7 @@ const handleButtonInteraction = async (client: Client, interaction: ButtonIntera
     }
 
     //Check if on correct team
-    interaction.reply({ content: `You cannot vote here` });
+    interaction.reply({ content: `You cannot vote here`, ephemeral: true });
 };
 
 const handleMatchVote = async ({

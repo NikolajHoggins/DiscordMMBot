@@ -67,7 +67,7 @@ export const SubmitScore: Command = {
 
         const content = `Submitted score ${score?.value} for team ${teamName}`;
 
-        await interaction.followUp({
+        await interaction.reply({
             content,
         });
     },

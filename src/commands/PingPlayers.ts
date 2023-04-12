@@ -19,12 +19,12 @@ export const PingPlayers: Command = {
                 messageContent: content,
                 client,
             });
-            interaction.followUp('Pinging players');
+            interaction.reply('Pinging players');
 
             await setPingCooldown();
             return;
         }
 
-        interaction.followUp('Cannot ping for another ' + response + 'minutes');
+        interaction.reply('Cannot ping for another ' + response + 'minutes');
     },
 };
