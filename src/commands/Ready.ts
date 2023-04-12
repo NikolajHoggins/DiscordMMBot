@@ -65,7 +65,6 @@ export const Ready: Command = {
 
         await ready({ player, time: readyTime });
         await updateStatus(client);
-        await tryStart(client);
 
         const content = `You have been set to be ready for a match for ${readyTime} minutes.`;
 
