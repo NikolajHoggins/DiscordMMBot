@@ -11,7 +11,8 @@ const emojis = {
 };
 
 const getEmoji = (result: string) => {
-    return emojis[result as 'w' | 'l' | 'd'];
+    if (['w', 'l', 'd'].includes(result)) return emojis[result as 'w' | 'l' | 'd'];
+    return '';
 };
 export const Stats: Command = {
     name: 'stats',
@@ -49,10 +50,11 @@ export const Stats: Command = {
                 },
                 {
                     name: 'Match History',
-                    value: player.history
-                        .slice(-10)
-                        .map(h => `${getEmoji(h.result[0])}`)
-                        .join(''),
+                    value:
+                        player.history
+                            .slice(-10)
+                            .map(h => `${getEmoji(h.result[0])}`)
+                            .join('') || 'No matches played',
                     inline: false,
                 },
             ]);
