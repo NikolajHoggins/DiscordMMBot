@@ -128,7 +128,7 @@ const sendReadyMessage = async ({
     queuePlayers: IQueue[];
     match: IMatch;
 }): Promise<void> => {
-    return new Promise(async () => {
+    return new Promise(async resolve => {
         const secondInMs = 1000;
         const timeToReadyInMs = 3 * 60 * secondInMs;
         const warning = timeToReadyInMs - 60 * secondInMs;
@@ -140,7 +140,7 @@ const sendReadyMessage = async ({
             } seconds to ready up. Once clicked, you cannot unready`,
             client,
         });
-        if (!readyMessage) return;
+        if (!readyMessage) throw new Error('Could not send ready message');
 
         let q = queuePlayers.map(q => q.discordId);
         readyMessage.react('✅');
@@ -186,12 +186,13 @@ const sendReadyMessage = async ({
                 end({ matchNumber: match.match_number, client });
             }, 5000);
         });
+        resolve();
     });
 };
 
 export const tryStart = (client: Client): Promise<void> => {
     return new Promise(async resolve => {
-        if (!process.env.SERVER_ID) return;
+        if (!process.env.SERVER_ID) throw new Error('No server id');
 
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
@@ -201,13 +202,11 @@ export const tryStart = (client: Client): Promise<void> => {
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
 
-            if (!DEBUG_MODE || true) {
-                await sendMessage({
-                    channelId: queueChannelId,
-                    messageContent: count + ' players in queue - Game is starting',
-                    client,
-                });
-            }
+            await sendMessage({
+                channelId: queueChannelId,
+                messageContent: count + ' players in queue - Game is starting',
+                client,
+            });
 
             const guild = await getGuild(client);
             if (!guild) throw new Error("Couldn't find guild");
