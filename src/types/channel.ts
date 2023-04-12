@@ -1,5 +1,6 @@
 export const ChannelsType = {
     'ranked-queue': 'ranked-queue',
+    'ready-up': 'ready-up',
     roles: 'roles',
     'bot-log': 'bot-log',
     leaderboard: 'leaderboard',

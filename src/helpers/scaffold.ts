@@ -1,4 +1,12 @@
-import { Client, TextChannel, ChannelType as DiscordChannelType } from 'discord.js';
+import {
+    Client,
+    TextChannel,
+    ChannelType as DiscordChannelType,
+    ActionRowBuilder,
+    MessageActionRowComponentBuilder,
+    ButtonStyle,
+    ButtonBuilder,
+} from 'discord.js';
 import { ISystem } from '../models/system.schema.js';
 import { getConfig, updateConfig } from '../services/system.service';
 import { CategoriesType, ChannelsType, ChannelType, RanksType } from '../types/channel';
@@ -140,6 +148,53 @@ const cacheReactionRoleMessages = async ({
     }
 };
 
+const addReadyUpMessage = async ({ config, client }: { config: ISystem; client: Client }) => {
+    const readyChannel = config.channels.find(t => t.name === ChannelsType['ready-up']);
+    if (!readyChannel) throw new Error('no ready channel found');
+    const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+
+    row.addComponents(
+        new ButtonBuilder().setCustomId('ready.30').setLabel('30').setStyle(ButtonStyle.Success)
+    );
+    row.addComponents(
+        new ButtonBuilder().setCustomId('ready.60').setLabel('60').setStyle(ButtonStyle.Success)
+    );
+    row.addComponents(
+        new ButtonBuilder()
+            .setCustomId('ready.unready')
+            .setLabel('unready')
+            .setStyle(ButtonStyle.Danger)
+    );
+
+    const readyContent = {
+        content: 'Click a button to ready up for set minutes',
+        components: [row],
+    };
+    const readyUpMessage = await sendMessage({
+        channelId: readyChannel.id,
+        messageContent: readyContent,
+        client,
+    });
+    if (!readyUpMessage) throw new Error("Couldn't send ping to play message");
+};
+const cacheReadyUpMessages = async ({ config, client }: { config: ISystem; client: Client }) => {
+    //Find and fetch ready up messages
+    const readyChannel = config.channels.find(t => t.name === ChannelsType['ready-up']);
+    if (!readyChannel) throw new Error('no ready channel found');
+
+    const channel = (await client.channels.fetch(readyChannel.id)) as TextChannel;
+    if (!channel) throw new Error('ready channel not found');
+
+    const messages = await channel.messages.fetch();
+
+    const readyUpMessages = messages.filter(m =>
+        m.content.includes('Click a button to ready up for set minutes')
+    );
+    if (readyUpMessages.size === 0) {
+        await addReadyUpMessage({ config, client });
+    }
+};
+
 const scaffold = async (client: Client) => {
     const guild = await getGuild(client);
     if (!guild) throw new Error('no guild found');
@@ -178,6 +233,7 @@ const scaffold = async (client: Client) => {
     );
 
     await cacheReactionRoleMessages({ config, guild, client });
+    await cacheReadyUpMessages({ config, client });
 };
 
 export default scaffold;

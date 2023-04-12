@@ -4,11 +4,13 @@ import { findByChannelId } from '../services/match.service.js';
 import Match, { IMatch } from '../models/match.schema.js';
 import { ButtonInteractionsType } from '../types/interactions.js';
 import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction.js';
+import { handleReadyInteraction } from './buttonInteractions/readyInteraction.js';
 
 export default (client: Client): void => {
     client.on('interactionCreate', async (interaction: Interaction) => {
         if (interaction.isCommand()) {
             await handleSlashCommand(client, interaction);
+            return;
         }
         if (interaction.isButton()) {
             await handleButtonInteraction(client, interaction);
@@ -18,6 +20,10 @@ export default (client: Client): void => {
 
 const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
     const match = await findByChannelId(interaction.channelId);
+
+    if (interaction.customId.split('.')[0] === 'ready') {
+        return handleReadyInteraction(interaction, client);
+    }
 
     if (!match) {
         interaction.reply({ content: 'Not in match channel', ephemeral: true });
@@ -107,11 +113,9 @@ const handleSlashCommand = async (
 ): Promise<void> => {
     const slashCommand = Commands.find(c => c.name === interaction.commandName);
     if (!slashCommand) {
-        interaction.followUp({ content: 'An error has occurred' });
+        interaction.reply({ content: 'An error has occurred' });
         return;
     }
-
-    await interaction.deferReply();
 
     slashCommand.run(client, interaction);
 };
