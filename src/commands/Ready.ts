@@ -13,6 +13,7 @@ import * as playerService from '../services/player.service';
 import { ready } from '../services/queue.service';
 import { getConfig } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
+import Match from '../models/match.schema.js';
 
 export const Ready: Command = {
     name: 'ready',
@@ -44,6 +45,17 @@ export const Ready: Command = {
         //fetch player from database
         const { user } = interaction;
         const player = await playerService.findOrCreate(user);
+
+        //Check if match with player on it is in progress
+        const match = await Match.findOne({ 'players.id': user.id, status: { $ne: 'ended' } });
+
+        if (match) {
+            interaction.followUp({
+                content: `You are already in a match`,
+                ephemeral: true,
+            });
+            return;
+        }
 
         const option = interaction.options.get('time');
         const isNumber = typeof option?.value == 'number';
