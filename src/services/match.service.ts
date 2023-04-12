@@ -527,8 +527,9 @@ export const setScore = async ({
             //Ask if scores are correct
             const { teamARounds, teamBRounds } = match;
             const isDraw = teamARounds === 6 && teamBRounds === 6;
+            const roundTotal = teamARounds + teamBRounds;
 
-            if (teamARounds !== 7 && teamBRounds !== 7 && !isDraw) return;
+            if ((teamARounds !== 7 && teamBRounds !== 7 && !isDraw) || roundTotal > 12) return;
 
             const scoreEmbed = await createScoreCardEmbed({ match });
 
