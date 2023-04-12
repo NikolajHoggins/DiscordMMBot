@@ -3,6 +3,7 @@ import { RanksType } from '../types/channel.js';
 import Player, { IPlayer } from '../models/player.schema.js';
 import { getGuild } from './guild.js';
 import { getConfig } from '../services/system.service.js';
+import { capitalize } from 'lodash';
 
 export const rankCutoffs: Record<number, RanksType> = {
     0: RanksType.iron,
@@ -77,4 +78,14 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
 
         resolve(true);
     });
+};
+
+export const getRankName = (rating: number): string => {
+    const closestEloCutoff = getClosestLowerNumber(
+        Object.keys(rankCutoffs).map(k => parseInt(k)),
+        rating
+    );
+
+    const currentRankRole: RanksType = rankCutoffs[closestEloCutoff];
+    return capitalize(currentRankRole);
 };

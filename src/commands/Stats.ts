@@ -1,8 +1,18 @@
-import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
+import { CommandInteraction, Client, ApplicationCommandType, EmbedBuilder } from 'discord.js';
 import { ceil, floor } from 'lodash';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
+import { getRankName } from '../helpers/rank.js';
 
+const emojis = {
+    w: '<:BR_W:1095827374655934604>',
+    l: '<:BR_L:1095827371971596408>',
+    d: '<:BR_D:1095827346931601458>',
+};
+
+const getEmoji = (result: string) => {
+    return emojis[result as 'w' | 'l' | 'd'];
+};
 export const Stats: Command = {
     name: 'stats',
     description: 'Get player stats?',
@@ -16,13 +26,42 @@ export const Stats: Command = {
         const losses = matches - wins;
         const winRate = ceil((wins / (wins + losses)) * 100);
 
+        const isUnranked = player.history.length < 10;
+        const rankName = isUnranked ? 'Unranked' : getRankName(player.rating);
+        const playerRating = isUnranked ? 'Play 10 matches' : floor(player.rating);
+
+        const statsEmbed = new EmbedBuilder()
+            .setTitle(`${player.name}`)
+            .setColor('#C69B6D')
+            .setThumbnail(user.avatarURL())
+            .setDescription(`${rankName} \nGames played - ${player.history.length}`)
+            // .setDescription(`Map: ${capitalize(match.map)}`)
+            .addFields([
+                {
+                    name: 'Wins',
+                    value: '' + player.history.filter(match => match.result === 'win').length,
+                    inline: true,
+                },
+                {
+                    name: 'Rating',
+                    value: '' + playerRating,
+                    inline: true,
+                },
+                {
+                    name: 'Match History',
+                    value: player.history
+                        .slice(-10)
+                        .map(h => `${getEmoji(h.result[0])}`)
+                        .join(''),
+                    inline: false,
+                },
+            ]);
         const content = `User ${player.name} [${Math.floor(
             player.rating
         )}] has ${wins} wins and ${losses} losses. ${!isNaN(winRate) ? winRate : 0}% winrate`;
 
-        await interaction.followUp({
-            ephemeral: true,
-            content,
+        await interaction.reply({
+            embeds: [statsEmbed],
         });
     },
 };
