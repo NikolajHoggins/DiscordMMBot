@@ -4,7 +4,8 @@ import { getTeam } from './players.js';
 
 export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
     const { players } = match;
-    const K_FACTOR = 40;
+
+    const K_FACTOR = 200;
 
     const winner = match.teamARounds === 7 ? 'a' : 'b';
     const loser = winner === 'a' ? 'b' : 'a';
@@ -45,10 +46,21 @@ export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
             }
 
             let eloChange = K_FACTOR * (actualScore - expectedScoreForWinningTeam);
+
+            const isUnranked = player.history.length < 10;
+            console.log('isUnranked', isUnranked);
+            console.log('elo before unranked', eloChange);
+            if (isUnranked) {
+                eloChange *= 2;
+            }
+            console.log('elo after unranked', eloChange);
+
+            console.log('elo before multiplier', eloChange);
             if (winStreak > 1) {
                 const multiplier = 1 + (winStreak - 1) * 0.1;
                 eloChange *= multiplier;
             }
+            console.log('elo after multiplier', eloChange);
 
             addWinLoss({
                 playerId: p.id,
@@ -67,8 +79,14 @@ export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
 
             const actualScore = loserRounds / totalRounds;
 
-            const eloChange = K_FACTOR * (actualScore - expectedScoreForLosingTeam);
-
+            let eloChange = K_FACTOR * (actualScore - expectedScoreForLosingTeam);
+            const isUnranked = player.history.length < 10;
+            console.log('isUnranked', isUnranked);
+            console.log('elo before unranked', eloChange);
+            if (isUnranked) {
+                eloChange *= 2;
+            }
+            console.log('elo after unranked', eloChange);
             addWinLoss({
                 playerId: p.id,
                 matchNumber: match.match_number,

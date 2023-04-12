@@ -133,6 +133,11 @@ const sendReadyMessage = async ({
         const timeToReadyInMs = 3 * 60 * secondInMs;
         const warning = timeToReadyInMs - 60 * secondInMs;
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
+        await sendMessage({
+            channelId,
+            messageContent: `${queuePlayers.map(p => `<@${p.discordId}>`)}`,
+            client,
+        });
         const readyMessage = await sendMessage({
             channelId,
             messageContent: `Game has been found, you have ${
@@ -271,9 +276,12 @@ const createSideVotingChannel = async ({
             allowedIds: getTeam(match.players, 'a').map(p => p.id),
         });
 
-        const sideMessage = { content: 'Pick a side to start on', components: [row] };
-        const teammatesMessage = `You're teammates are: ${getTeam(match.players, 'a').map(
-            p => `${p.name},`
+        const sideMessage = {
+            content: 'Pick a side to start on. Voting ends in 20 seconds',
+            components: [row],
+        };
+        const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'a').map(
+            p => `<@${p.id}>,`
         )}`;
         await sendMessage({ channelId: teamAChannel.id, messageContent: teammatesMessage, client });
         await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
@@ -306,9 +314,12 @@ const createMapVotingChannel = async ({
             parentId: matchCategoryId,
             allowedIds: getTeam(match.players, 'b').map(p => p.id),
         });
-        const mapMessage = { content: 'Pick a map to play', components: [row] };
-        const teammatesMessage = `You're teammates are: ${getTeam(match.players, 'b').map(
-            p => `${p.name},`
+        const mapMessage = {
+            content: 'Pick a map to play. Voting ends in 20 seconds',
+            components: [row],
+        };
+        const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'b').map(
+            p => `<@${p.id}>,`
         )}`;
         await sendMessage({ channelId: teamBChannel.id, messageContent: teammatesMessage, client });
         await sendMessage({
@@ -360,7 +371,7 @@ const createVotingChannels = ({
             setTimeout(() => {
                 startGame({ client, matchNumber: match.match_number });
             }, 500);
-        }, 10000);
+        }, 20000);
 
         resolve();
     });
