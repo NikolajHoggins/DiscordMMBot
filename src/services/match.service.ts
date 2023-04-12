@@ -5,10 +5,11 @@ import {
     ChannelType,
     Client,
     Guild,
+    MessageActionRowComponentBuilder,
     User,
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
-import { PRETTY_TEAM_NAMES, sendMessage } from '../helpers/messages';
+import { sendMessage } from '../helpers/messages';
 import Match, { IMatch, IMatchChannels } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
@@ -18,7 +19,7 @@ import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
-import { createMatchEmbed } from '../helpers/embed';
+import { createMatchEmbed, createScoreCardEmbed } from '../helpers/embed';
 import { calculateEloChanges } from '../helpers/elo.js';
 import { deleteChannel, createChannel } from '../helpers/channel.js';
 import { getVotes } from '../helpers/match.js';
@@ -254,7 +255,7 @@ const createSideVotingChannel = async ({
 }): Promise<string> => {
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
-        const row = new ActionRowBuilder();
+        const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
         const teams = process.env.GAME_TEAMS;
         if (!teams || !teams.includes(',')) throw new Error('No teams found in env');
         teams.split(',').forEach(team => {
@@ -291,7 +292,7 @@ const createMapVotingChannel = async ({
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
 
-        const row = new ActionRowBuilder();
+        const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
         const maps = process.env.GAME_MAPS;
         if (!maps || !maps.includes(',')) throw new Error('No maps found in env');
         maps.split(',').forEach(map => {
@@ -474,37 +475,65 @@ export const setScore = async ({
 
         //if both scores are set, end match
         if (match.teamARounds !== undefined && match.teamBRounds !== undefined) {
-            if (match.teamARounds === 6 && match.teamBRounds === 6) {
-                //handle draw
-                sendMessage({
-                    channelId: match.channels.matchChannel,
-                    messageContent: 'Match is a draw, L',
-                    client,
-                });
-                setTimeout(() => {
-                    end({ matchNumber, client });
-                }, 5000);
-                return;
-            }
-            if (match.teamARounds !== 7 && match.teamBRounds !== 7) return;
+            //Ask if scores are correct
+            const { teamARounds, teamBRounds } = match;
+            const isDraw = teamARounds === 6 && teamBRounds === 6;
 
-            const winner =
-                match.teamARounds > match.teamBRounds
-                    ? capitalize(match.teamASide)
-                    : capitalize(getTeamBName(match.teamASide));
+            if (teamARounds !== 7 && teamBRounds !== 7 && !isDraw) return;
 
-            sendMessage({
+            const scoreEmbed = await createScoreCardEmbed({ match });
+
+            const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+
+            row.addComponents(
+                new ButtonBuilder()
+                    .setCustomId('verify')
+                    .setLabel('Verify')
+                    .setStyle(ButtonStyle.Success)
+            );
+
+            const verifyContent = {
+                embeds: [scoreEmbed],
+                components: [row],
+            };
+
+            await sendMessage({
                 channelId: match.channels.matchChannel,
-                messageContent: winner + ' wins!',
+                messageContent: verifyContent,
                 client,
             });
 
-            setTimeout(() => {
-                updateLeaderboard({ client });
-                calculateEloChanges(match);
+            // if (match.teamARounds === 6 && match.teamBRounds === 6) {
+            //     //handle draw
+            //     sendMessage({
+            //         channelId: match.channels.matchChannel,
+            //         messageContent: 'Match is a draw, L',
+            //         client,
+            //     });
+            //     setTimeout(() => {
+            //         end({ matchNumber, client });
+            //     }, 5000);
+            //     return;
+            // }
+            // if (match.teamARounds !== 7 && match.teamBRounds !== 7) return;
 
-                end({ matchNumber, client });
-            }, 5000);
+            // const winner =
+            //     match.teamARounds > match.teamBRounds
+            //         ? capitalize(match.teamASide)
+            //         : capitalize(getTeamBName(match.teamASide));
+
+            // sendMessage({
+            //     channelId: match.channels.matchChannel,
+            //     messageContent: winner + ' wins!',
+            //     client,
+            // });
+
+            // setTimeout(() => {
+            //     updateLeaderboard({ client });
+            //     calculateEloChanges(match);
+
+            //     end({ matchNumber, client });
+            // }, 5000);
         }
     });
 };

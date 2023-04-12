@@ -1,12 +1,17 @@
-import { EmbedBuilder } from 'discord.js';
+import { Embed, EmbedBuilder } from 'discord.js';
 import Match, { IMatch } from '../models/match.schema.js';
 import { getTeam } from './players.js';
+import { getTeamBName } from './team.js';
 
 export const capitalize = (team: string) => {
     return team.charAt(0).toUpperCase() + team.slice(1);
 };
 
-export const createMatchEmbed = async ({ matchNumber }: { matchNumber: number }) => {
+export const createMatchEmbed = async ({
+    matchNumber,
+}: {
+    matchNumber: number;
+}): Promise<EmbedBuilder> => {
     return new Promise(async resolve => {
         if (!process.env.GAME_TEAMS) throw new Error('GAME_TEAMS not set');
         const match = await Match.findOne({ match_number: matchNumber });
@@ -35,6 +40,29 @@ export const createMatchEmbed = async ({ matchNumber }: { matchNumber: number })
                     {
                         name: capitalize(teamBSide),
                         value: `${teamB.map(p => `<@${p.id}>\n`)}`,
+                        inline: true,
+                    }
+                )
+        );
+    });
+};
+
+export const createScoreCardEmbed = async ({ match }: { match: IMatch }): Promise<EmbedBuilder> => {
+    return new Promise(async resolve => {
+        resolve(
+            new EmbedBuilder()
+                .setTitle('Scores')
+                .setColor('#C69B6D')
+                .setDescription('Verify the scores below with a ✅')
+                .addFields(
+                    {
+                        name: capitalize(match.teamASide),
+                        value: `${match.teamARounds}`,
+                        inline: true,
+                    },
+                    {
+                        name: capitalize(getTeamBName(match.teamASide)),
+                        value: `${match.teamBRounds}`,
                         inline: true,
                     }
                 )

@@ -1,10 +1,6 @@
-import { Client, Message, TextChannel } from 'discord.js';
+import { Client, Message, MessageCreateOptions, MessagePayload, TextChannel } from 'discord.js';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
-export const PRETTY_TEAM_NAMES = {
-    teamA: 'Team A',
-    teamB: 'Team B',
-};
 
 export const sendMessage = async ({
     channelId,
@@ -13,7 +9,7 @@ export const sendMessage = async ({
 }: {
     channelId?: string;
     client: Client;
-    messageContent: string | any;
+    messageContent: string | MessagePayload | MessageCreateOptions;
 }): Promise<Message> => {
     return new Promise(async resolve => {
         if (!channelId) {
