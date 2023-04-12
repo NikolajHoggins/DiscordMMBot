@@ -1,6 +1,6 @@
 import { Client } from 'discord.js';
 import { RanksType } from '../types/channel.js';
-import { IPlayer } from '../models/player.schema.js';
+import Player, { IPlayer } from '../models/player.schema.js';
 import { getGuild } from './guild.js';
 import { getConfig } from '../services/system.service.js';
 
@@ -27,44 +27,52 @@ const getClosestLowerNumber = (numbers: number[], targetNumber: number): number 
     return closestLowerNumber;
 };
 
-export const checkRank = ({ client, player }: { client: Client; player: IPlayer }) => {
+export const checkRank = ({ client, playerId }: { client: Client; playerId: string }) => {
     return new Promise(async resolve => {
+        const player = await Player.findOne({ discordId: playerId });
+        if (!player) throw new Error('Player not found');
+
         if (player.history.length + 1 < 10) {
             resolve(true);
             return;
         }
 
-        console.log('=== checkRank ===');
-        console.log('got player', player.name);
-        console.log('rating', player.rating);
+        const config = await getConfig();
+
         const closestEloCutoff = getClosestLowerNumber(
             Object.keys(rankCutoffs).map(k => parseInt(k)),
             player.rating
         );
-        const role: RanksType = rankCutoffs[closestEloCutoff];
-        const config = await getConfig();
-        console.log('rank', role, closestEloCutoff);
-        const roleId = config.roles.find(({ name }) => name === role)?.id;
-        const unrankedId = config.roles.find(({ name }) => name === role)?.id;
+
+        const currentRankRole: RanksType = rankCutoffs[closestEloCutoff];
+
+        const roleId = config.roles.find(({ name }) => name === currentRankRole)?.id;
+        const unrankedId = config.roles.find(({ name }) => name === RanksType.unranked)?.id;
 
         if (!roleId || !unrankedId) throw new Error('Role not found');
-        console.log('role id', roleId);
 
         const guild = await getGuild(client);
-        const guildRole = await guild.roles.fetch(roleId);
-        if (!guildRole) throw new Error('guild role not found');
+
         const member = await guild.members.fetch(player.discordId);
         if (!member) throw new Error('Member not found');
-        const currentRoles = member.roles.cache.map(r => r.id);
+        const currentRoles = await member.roles.cache.map(r => r.id);
+
         await Promise.all(
             currentRoles.map(r => {
-                if (Object.values(rankCutoffs).includes(r)) {
-                    return member.roles.remove(r);
-                }
+                return new Promise(async resolve => {
+                    const currentRankName = config.roles.find(({ id }) => id === r)?.name;
+                    if (!currentRankName) return resolve(true);
+
+                    if (Object.values(rankCutoffs).includes(currentRankName)) {
+                        return await member.roles.remove(r);
+                    }
+                    resolve(true);
+                });
             })
         );
+
         await member.roles.remove(unrankedId);
-        await member.roles.add(guildRole);
+        await member.roles.add(roleId);
 
         resolve(true);
     });

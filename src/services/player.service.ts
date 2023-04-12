@@ -68,7 +68,7 @@ export const addWinLoss = async ({
             }
         );
 
-        await checkRank({ client, player });
+        await checkRank({ client, playerId: player.discordId });
 
         resolve();
     });
