@@ -1,5 +1,6 @@
-import { User } from 'discord.js';
+import { Client, User } from 'discord.js';
 import Player, { IPlayer } from '../models/player.schema';
+import { checkRank } from '../helpers/rank.js';
 
 export const findOrCreate = (user: User): Promise<IPlayer> => {
     return new Promise(async (resolve, reject) => {
@@ -43,11 +44,13 @@ export const addWinLoss = async ({
     matchNumber,
     ratingChange,
     won,
+    client,
 }: {
     playerId: string;
     matchNumber: number;
     ratingChange: number;
     won: boolean;
+    client: Client;
 }): Promise<void> => {
     return new Promise(async resolve => {
         const player = await get(playerId);
@@ -64,6 +67,9 @@ export const addWinLoss = async ({
                 rating: player.rating + Math.round(ratingChange * 100) / 100,
             }
         );
+
+        await checkRank({ client, player });
+
         resolve();
     });
 };

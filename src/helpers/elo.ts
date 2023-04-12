@@ -1,8 +1,9 @@
+import { Client } from 'discord.js';
 import { IMatch } from '../models/match.schema.js';
 import { addWinLoss, get, idsToObjects } from '../services/player.service.js';
 import { getTeam } from './players.js';
 
-export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
+export const calculateEloChanges = async (match: IMatch, client: Client): Promise<boolean> => {
     const { players } = match;
 
     const K_FACTOR = 200;
@@ -67,6 +68,7 @@ export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
                 matchNumber: match.match_number,
                 ratingChange: eloChange,
                 won: true,
+                client,
             });
             resolve(null);
         });
@@ -92,6 +94,7 @@ export const calculateEloChanges = async (match: IMatch): Promise<boolean> => {
                 matchNumber: match.match_number,
                 ratingChange: eloChange,
                 won: false,
+                client,
             });
             resolve(null);
         });

@@ -585,7 +585,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
             });
             setTimeout(() => {
                 updateLeaderboard({ client });
-                calculateEloChanges(match);
+                calculateEloChanges(match, client);
                 end({ matchNumber, client });
             }, 5000);
         }
