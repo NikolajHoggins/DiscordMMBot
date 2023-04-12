@@ -24,6 +24,8 @@ export const Ready: Command = {
             description: 'set how many minutes you want to be in queue',
             type: ApplicationCommandOptionType.Number,
             required: false,
+            min_value: 5,
+            max_value: 120,
         },
     ],
     type: ApplicationCommandType.ChatInput,
