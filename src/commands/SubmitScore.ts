@@ -31,14 +31,14 @@ export const SubmitScore: Command = {
 
         const match = await matchService.findByChannelId(channelId);
         if (!match) {
-            await interaction.followUp({
+            await interaction.reply({
                 ephemeral: true,
                 content: 'Command only works in match thread',
             });
             return;
         }
         if (match.status === 'pending' || match.status === 'ended') {
-            await interaction.followUp({
+            await interaction.reply({
                 ephemeral: true,
                 content: 'Match not in started state',
             });
@@ -46,7 +46,7 @@ export const SubmitScore: Command = {
         }
         const matchPlayer = match.players.find(p => p.id === user.id);
         if (!matchPlayer) {
-            await interaction.followUp({
+            await interaction.reply({
                 ephemeral: true,
                 content: 'You are not in this match',
             });
@@ -68,7 +68,6 @@ export const SubmitScore: Command = {
         const content = `Submitted score ${score?.value} for team ${teamName}`;
 
         await interaction.followUp({
-            ephemeral: true,
             content,
         });
     },
