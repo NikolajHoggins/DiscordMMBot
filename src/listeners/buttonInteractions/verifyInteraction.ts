@@ -53,18 +53,6 @@ const setPlayerVerified = async ({
             ephemeral: true,
         });
 
-        if (verifiedPlayersCount >= totalNeeded) {
-            await sendMessage({
-                channelId: interaction.channelId,
-                messageContent: 'All players have verified score',
-                client: interaction.client,
-            });
-            await finishMatch({
-                matchNumber: match.match_number,
-                client: interaction.client as Client,
-            });
-        }
-
         resolve(true);
     });
 };

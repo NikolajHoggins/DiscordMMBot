@@ -197,6 +197,34 @@ const sendReadyMessage = async ({
     });
 };
 
+export const checkScoreVerified = ({
+    client,
+    matchNumber,
+}: {
+    client: Client;
+    matchNumber: number;
+}) => {
+    return new Promise(async resolve => {
+        console.log('validating', matchNumber);
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match) throw new Error('Match not found');
+        const verifiedPlayersCount = match.players.length;
+        const totalNeeded = match.players.length / 2 + 1;
+
+        if (verifiedPlayersCount >= totalNeeded) {
+            await sendMessage({
+                channelId: match.channels.matchChannel,
+                messageContent: 'All players have verified score',
+                client: client,
+            });
+            await finishMatch({
+                matchNumber: match.match_number,
+                client: client,
+            });
+        }
+    });
+};
+
 export const tryStart = (client: Client): Promise<void> => {
     return new Promise(async resolve => {
         if (!process.env.SERVER_ID) throw new Error('No server id');
