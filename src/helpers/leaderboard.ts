@@ -54,8 +54,9 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 ' ',
                 whitespace
             )}${nameLength % 2 === 0 ? '' : ' '}`;
+            const actualRating = p.history.length < 10 ? 'Hidden' : Math.floor(p.rating).toString();
             const prettyRating = getPretty({
-                value: Math.floor(p.rating).toString(),
+                value: actualRating,
                 slotLength: 8,
             });
             const prettyWins = getPretty({ value: wins.toString(), slotLength: 6 });
@@ -68,7 +69,9 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 slotLength: 12,
             });
             content = `${content}
-|  ${i}   |${prettyName}|${prettyRating}|${prettyWins}|${prettyPlayed}|${prettyWinRate}|`;
+|  ${
+                toInteger(i) + 1
+            }   |${prettyName}|${prettyRating}|${prettyWins}|${prettyPlayed}|${prettyWinRate}|`;
         }
         content = content + '```';
 

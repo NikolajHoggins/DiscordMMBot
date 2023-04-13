@@ -63,26 +63,19 @@ const setPermissions = async ({
 const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
-        const teamAVC = await createChannel({
+        const teamVC = await createChannel({
             client,
-            name: `Match-${match.match_number} Team A Voice`,
+            name: `Match-${match.match_number} Voice`,
             parentId: matchCategoryId,
             type: ChannelType.GuildVoice,
-            allowedIds: getTeam(match.players, 'a').map(p => p.id),
-        });
-        const teamBVC = await createChannel({
-            client,
-            name: `Match-${match.match_number} Team B Voice`,
-            parentId: matchCategoryId,
-            type: ChannelType.GuildVoice,
-            allowedIds: getTeam(match.players, 'b').map(p => p.id),
+            allowedIds: match.players.map(p => p.id),
         });
 
         await Match.updateOne(
             { match_number: match.match_number },
             {
                 $set: {
-                    channels: { ...match.channels, teamAVoice: teamAVC.id, teamBVoice: teamBVC.id },
+                    channels: { ...match.channels, teamAVoice: teamVC.id },
                 },
             }
         );
@@ -628,9 +621,11 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
                 client,
             });
             setTimeout(() => {
-                updateLeaderboard({ client });
                 calculateEloChanges(match, client);
                 end({ matchNumber, client });
+                setTimeout(() => {
+                    updateLeaderboard({ client });
+                }, 5000);
             }, 5000);
         }
     });
