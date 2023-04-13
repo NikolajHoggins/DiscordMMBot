@@ -68,10 +68,9 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 value: `${!isNaN(winRate) ? winRate : 0}%`,
                 slotLength: 12,
             });
+            const prettyRank = getPretty({ value: '' + toInteger(i) + 1, slotLength: 6 });
             content = `${content}
-|  ${
-                toInteger(i) + 1
-            }   |${prettyName}|${prettyRating}|${prettyWins}|${prettyPlayed}|${prettyWinRate}|`;
+|${prettyRank}|${prettyName}|${prettyRating}|${prettyWins}|${prettyPlayed}|${prettyWinRate}|`;
         }
         content = content + '```';
 
