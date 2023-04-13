@@ -82,7 +82,7 @@ export const Ready: Command = {
             interaction.channelId !==
                 config.channels.filter((c: any) => c.name === ChannelsType['ranked-queue'])[0].id
         ) {
-            await interaction.followUp({
+            await interaction.reply({
                 ephemeral: true,
                 content: 'Keep queue commands in queue',
             });

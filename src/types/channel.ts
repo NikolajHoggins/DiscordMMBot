@@ -16,6 +16,8 @@ export const RanksType = {
     na: 'na',
     oce: 'oce',
     unranked: 'unranked',
+    plastic: 'plastic',
+    copper: 'copper',
     iron: 'iron',
     bronze: 'bronze',
     silver: 'silver',

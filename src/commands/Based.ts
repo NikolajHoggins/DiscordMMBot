@@ -8,7 +8,7 @@ export const Based: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const content = 'b a s e d.';
 
-        await interaction.followUp({
+        await interaction.reply({
             ephemeral: true,
             content,
         });

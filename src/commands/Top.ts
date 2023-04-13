@@ -24,7 +24,7 @@ export const Top: Command = {
 
         content = content + '```';
 
-        await interaction.followUp({
+        await interaction.reply({
             ephemeral: true,
             content,
         });

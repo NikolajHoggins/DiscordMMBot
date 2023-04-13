@@ -32,7 +32,7 @@ export const EndGame: Command = {
 
         const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
         if (!isMod) {
-            await interaction.followUp({
+            await interaction.reply({
                 ephemeral: true,
                 content: 'no perms',
             });
@@ -44,7 +44,7 @@ export const EndGame: Command = {
         const content = match ? 'Deleting' : 'Not in match thread';
 
         botLog({ messageContent: `<@${user.id}> Ended match ${match?.match_number}`, client });
-        await interaction.followUp({
+        await interaction.reply({
             ephemeral: true,
             content,
         });

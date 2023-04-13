@@ -15,7 +15,7 @@ export const QueueCommand: Command = {
             content = `${content} ${queue.name},`;
         });
 
-        await interaction.followUp({
+        await interaction.reply({
             ephemeral: true,
             content,
         });
