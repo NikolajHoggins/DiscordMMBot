@@ -1,34 +1,81 @@
 import { Client } from 'discord.js';
 import { IMatch } from '../models/match.schema.js';
 import { addWinLoss, get, idsToObjects } from '../services/player.service.js';
-import { MatchResultType } from '../models/player.schema.js';
+import { IPlayer, MatchResultType } from '../models/player.schema.js';
 import { getTeam } from './players.js';
+
+const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
+    const ratingDifference = opponentRating - playerRating;
+    const exponent = ratingDifference / 400;
+    const expectedScore = 1 / (1 + 10 ** exponent);
+    return expectedScore;
+};
+
+const calculateEloChange = (
+    kFactor: number,
+    playerRating: number,
+    actualScore: number,
+    expectedScore: number
+): number => {
+    const ratingDifference = actualScore - expectedScore;
+    const eloChange = kFactor * ratingDifference;
+    return eloChange;
+};
+
+const calculateTeamEloChange = ({
+    winner,
+    loser,
+    winnerRounds,
+    loserRounds,
+}: {
+    winner: IPlayer[];
+    loser: IPlayer[];
+    winnerRounds: number;
+    loserRounds: number;
+}) => {
+    const K_FACTOR = 24;
+    const MIN_ELO_GAIN = 10;
+    const MAX_ELO_GAIN = 32;
+
+    const winnerRating = winner.reduce((sum, player) => sum + player.rating, 0) / winner.length;
+    const loserRating = loser.reduce((sum, player) => sum + player.rating, 0) / loser.length;
+
+    const winnerExpectedScore = calculateExpectedScore(winnerRating, loserRating);
+    const loserExpectedScore = calculateExpectedScore(loserRating, winnerRating);
+
+    console.log('rating diff', winnerRating - loserRating);
+    console.log('winner rating', winnerRating, winnerRounds);
+    console.log('winner expected', winnerExpectedScore);
+    console.log('loser rating', loserRating, loserRounds);
+    console.log('loser expected', loserExpectedScore);
+    // console.log('actual score', actualScore);
+    const winnerChange = K_FACTOR * (1 - winnerExpectedScore);
+    const loserChange = K_FACTOR * (1 - loserExpectedScore);
+
+    const actualChange = Math.max(
+        Math.min(winnerChange * winnerRounds - loserChange * loserRounds, MAX_ELO_GAIN),
+        MIN_ELO_GAIN
+    );
+
+    return actualChange;
+};
 
 export const calculateEloChanges = async (match: IMatch, client: Client): Promise<boolean> => {
     const { players } = match;
 
-    const K_FACTOR = 200;
-
     const winner = match.teamARounds === 7 ? 'a' : 'b';
     const loser = winner === 'a' ? 'b' : 'a';
-
     const winningTeam = await Promise.all(idsToObjects(getTeam(players, winner).map(p => p.id)));
     const losingTeam = await Promise.all(idsToObjects(getTeam(players, loser).map(p => p.id)));
-
-    const winningTeamAverageRating =
-        winningTeam.reduce((sum, player) => sum + player.rating, 0) / winningTeam.length;
-
-    const losingTeamAverageRating =
-        losingTeam.reduce((sum, player) => sum + player.rating, 0) / losingTeam.length;
-
     const winnerRounds = (winner === 'a' ? match.teamARounds : match.teamBRounds) || 0;
     const loserRounds = (loser === 'a' ? match.teamARounds : match.teamBRounds) || 0;
 
-    const totalRounds = winnerRounds + loserRounds;
-
-    const expectedScoreForWinningTeam =
-        (1 + 10 ** ((losingTeamAverageRating - winningTeamAverageRating) / 400)) ** -1;
-    const expectedScoreForLosingTeam = 1 - expectedScoreForWinningTeam;
+    const personChange = calculateTeamEloChange({
+        winner: winningTeam,
+        loser: losingTeam,
+        winnerRounds,
+        loserRounds,
+    });
 
     const winnerPromises = getTeam(players, winner).map(p => {
         return new Promise(async resolve => {
@@ -36,7 +83,10 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
 
             if (!player) return;
 
-            const actualScore = winnerRounds / totalRounds;
+            // const expectedScore = calculateExpectedScore(player.rating, losingTeamAverageRating);
+            // const actualScore = expectedScoreWinningTeam / winningTeam.length;
+
+            let eloChange = personChange;
 
             let winStreak = 0;
             for (let i = player.history.length - 1; i >= 0; i--) {
@@ -47,22 +97,23 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                 }
             }
 
-            let eloChange = K_FACTOR * (actualScore - expectedScoreForWinningTeam);
+            console.log(eloChange);
+            // let eloChange = K_FACTOR * (actualScore - expectedScoreForWinningTeam);
 
             const isUnranked = player.history.length < 10;
-            console.log('isUnranked', isUnranked);
-            console.log('elo before unranked', eloChange);
+            console.log(player.name, 'isUnranked', isUnranked);
+            console.log(player.name, 'elo before unranked', eloChange);
             if (isUnranked) {
                 eloChange *= 2;
             }
-            console.log('elo after unranked', eloChange);
+            console.log(player.name, 'elo after unranked', eloChange);
 
-            console.log('elo before multiplier', eloChange);
+            console.log(player.name, 'elo before multiplier', eloChange);
             if (winStreak > 1) {
-                const multiplier = 1 + (winStreak - 1) * 0.1;
+                const multiplier = 1 + (winStreak - 1) * 0.05;
                 eloChange *= multiplier;
             }
-            console.log('elo after multiplier', eloChange);
+            console.log(player.name, 'elo after multiplier', eloChange);
 
             addWinLoss({
                 playerId: p.id,
@@ -80,16 +131,13 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
             const player = await get(p.id);
             if (!player) throw new Error(`Player ${p} doesn't exist`);
 
-            const actualScore = loserRounds / totalRounds;
-
-            let eloChange = K_FACTOR * (actualScore - expectedScoreForLosingTeam);
+            let eloChange = personChange * -1;
             const isUnranked = player.history.length < 10;
-            console.log('isUnranked', isUnranked);
-            console.log('elo before unranked', eloChange);
+
             if (isUnranked) {
                 eloChange *= 2;
             }
-            console.log('elo after unranked', eloChange);
+            console.log(player.name, 'elo after unranked', eloChange);
             addWinLoss({
                 playerId: p.id,
                 matchNumber: match.match_number,
