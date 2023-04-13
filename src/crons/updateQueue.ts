@@ -1,4 +1,4 @@
-import { Client } from 'discord.js';
+import { ActivityType, Client } from 'discord.js';
 import cron from 'node-cron';
 import Queue, { IQueue } from '../models/queue.schema';
 import * as queueService from '../services/queue.service';
@@ -16,7 +16,9 @@ export const updateStatus = async (client: Client) => {
     }
     await Queue.deleteMany({ expires: { $lt: now } });
     const queue = await queueService.get();
-    await client.user.setActivity(`${queue.length} players in queue`);
+    await client.user.setActivity(`${queue.length} players in queue`, {
+        type: ActivityType.Watching,
+    });
 };
 
 const initStatusCron = async (client: Client) => {
