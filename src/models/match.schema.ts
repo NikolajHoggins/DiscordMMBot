@@ -1,4 +1,4 @@
-import { Schema, model, connect } from 'mongoose';
+import { Schema, model } from 'mongoose';
 
 // 1. Create an interface representing a document in MongoDB.
 export interface IMatchChannels {
@@ -15,6 +15,7 @@ export interface IMatchPlayer {
     name: string;
     team: 'a' | 'b';
     rating: number;
+    captain?: boolean;
     vote?: string;
     ready?: boolean;
     verifiedScore?: boolean;

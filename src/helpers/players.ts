@@ -30,17 +30,19 @@ export const splitObjects = (players: IQueue[]) => {
 export const createTeams = (queuePlayers: IQueue[]): IMatchPlayer[] => {
     const players = shuffle(queuePlayers);
     const fairTeams = splitObjects(players);
-    const teamA: IMatchPlayer[] = fairTeams[0].map(q => ({
+    const teamA: IMatchPlayer[] = fairTeams[0].map((q, i) => ({
         id: q.discordId,
         team: 'a',
         name: q.name,
         rating: q.rating,
+        ...(i === 0 ? { captain: true } : {}),
     }));
-    const teamB: IMatchPlayer[] = fairTeams[1].map(q => ({
+    const teamB: IMatchPlayer[] = fairTeams[1].map((q, i) => ({
         id: q.discordId,
         team: 'b',
         name: q.name,
         rating: q.rating,
+        ...(i === 0 ? { captain: true } : {}),
     }));
 
     return [...teamA, ...teamB];

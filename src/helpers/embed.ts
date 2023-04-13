@@ -34,12 +34,16 @@ export const createMatchEmbed = async ({
                 .addFields(
                     {
                         name: capitalize(match.teamASide),
-                        value: `${teamA.length > 0 ? teamA.map(p => `<@${p.id}>\n`) : 'player'}`,
+                        value: `${
+                            teamA.length > 0
+                                ? teamA.map(p => `<@${p.id}>${p.captain ? ' - Captain' : ''}\n`)
+                                : 'player'
+                        }`,
                         inline: true,
                     },
                     {
                         name: capitalize(teamBSide),
-                        value: `${teamB.map(p => `<@${p.id}>\n`)}`,
+                        value: `${teamB.map(p => `<@${p.id}>${p.captain ? 'Captain' : ''}\n`)}`,
                         inline: true,
                     }
                 )

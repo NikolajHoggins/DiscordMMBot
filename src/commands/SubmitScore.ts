@@ -52,6 +52,13 @@ export const SubmitScore: Command = {
             });
             return;
         }
+        if (!matchPlayer.captain) {
+            await interaction.reply({
+                ephemeral: true,
+                content: 'You are not the captain',
+            });
+            return;
+        }
 
         matchService.setScore({
             matchNumber: match.match_number,
