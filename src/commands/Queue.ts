@@ -14,9 +14,9 @@ export const QueueCommand: Command = {
         queuePlayers.forEach(queue => {
             content = `${content} ${queue.name},`;
         });
+        content = `[${queuePlayers.length}] - ${content}`;
 
         await interaction.reply({
-            ephemeral: true,
             content,
         });
     },

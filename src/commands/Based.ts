@@ -1,4 +1,4 @@
-import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
+import { CommandInteraction, Client, ApplicationCommandType, TextChannel } from 'discord.js';
 import { Command } from '../Command';
 
 export const Based: Command = {
