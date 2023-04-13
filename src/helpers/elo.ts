@@ -33,9 +33,9 @@ const calculateTeamEloChange = ({
     winnerRounds: number;
     loserRounds: number;
 }) => {
-    const K_FACTOR = 24;
+    const K_FACTOR = 30;
     const MIN_ELO_GAIN = 10;
-    const MAX_ELO_GAIN = 32;
+    const MAX_ELO_GAIN = 35;
 
     const winnerRating = winner.reduce((sum, player) => sum + player.rating, 0) / winner.length;
     const loserRating = loser.reduce((sum, player) => sum + player.rating, 0) / loser.length;
@@ -52,10 +52,9 @@ const calculateTeamEloChange = ({
     const winnerChange = K_FACTOR * (1 - winnerExpectedScore);
     const loserChange = K_FACTOR * (1 - loserExpectedScore);
 
-    const actualChange = Math.max(
-        Math.min(winnerChange * winnerRounds - loserChange * loserRounds, MAX_ELO_GAIN),
-        MIN_ELO_GAIN
-    );
+    const beforeCap = winnerChange * winnerRounds - loserChange * loserRounds;
+    console.log('before cap', beforeCap);
+    const actualChange = Math.max(Math.min(beforeCap, MAX_ELO_GAIN), MIN_ELO_GAIN);
 
     return actualChange;
 };
@@ -131,7 +130,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
             const player = await get(p.id);
             if (!player) throw new Error(`Player ${p} doesn't exist`);
 
-            let eloChange = personChange * -1;
+            let eloChange = personChange * -1 * 0.95;
             const isUnranked = player.history.length < 10;
 
             if (isUnranked) {

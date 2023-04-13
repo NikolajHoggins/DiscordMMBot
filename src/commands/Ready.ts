@@ -93,5 +93,7 @@ export const Ready: Command = {
         const readyTime = isNumber ? (option.value as number) : 30;
 
         handleReady({ interaction, time: readyTime, client });
+
+        //If all players are in queue, send a "stratingw within the next minute message"
     },
 };
