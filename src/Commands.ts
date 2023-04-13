@@ -4,6 +4,7 @@ import { EndGame } from './commands/EndGame';
 import { PingPlayers } from './commands/PingPlayers';
 import { QueueCommand } from './commands/Queue';
 import { Ready } from './commands/Ready';
+import { RestartBot } from './commands/Restart.js';
 import { Stats } from './commands/Stats';
 import { SubmitScore } from './commands/SubmitScore';
 import { Top } from './commands/Top';
@@ -18,4 +19,5 @@ export const Commands: Command[] = [
     EndGame,
     PingPlayers,
     SubmitScore,
+    RestartBot,
 ];
