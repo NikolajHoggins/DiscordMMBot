@@ -14,6 +14,7 @@ export interface IMatchPlayer {
     id: string;
     name: string;
     team: 'a' | 'b';
+    rating: number;
     vote?: string;
     ready?: boolean;
     verifiedScore?: boolean;

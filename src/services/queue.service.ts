@@ -23,6 +23,7 @@ export const ready = ({
             expires: Date.now() + ONE_MINUTE * time,
             signup_time: Date.now(),
             name: player.name,
+            rating: player.rating,
         });
 
         newSpot.save();

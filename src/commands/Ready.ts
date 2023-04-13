@@ -94,6 +94,6 @@ export const Ready: Command = {
 
         handleReady({ interaction, time: readyTime, client });
 
-        //If all players are in queue, send a "stratingw within the next minute message"
+        //If all players are in queue, send a "stratingw within the next minute message" maybe even seconds (in x seconds)
     },
 };
