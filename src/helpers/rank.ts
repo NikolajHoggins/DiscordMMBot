@@ -6,13 +6,15 @@ import { getConfig } from '../services/system.service.js';
 import { capitalize } from 'lodash';
 
 export const rankCutoffs: Record<number, RanksType> = {
-    0: RanksType.iron,
-    200: RanksType.bronze,
-    500: RanksType.silver,
-    1000: RanksType.gold,
-    1500: RanksType.platinum,
-    2000: RanksType.diamond,
-    2500: RanksType.master,
+    0: RanksType.plastic,
+    1100: RanksType.iron,
+    1200: RanksType.copper,
+    1300: RanksType.bronze,
+    1400: RanksType.silver,
+    1500: RanksType.gold,
+    1700: RanksType.platinum,
+    1900: RanksType.diamond,
+    2200: RanksType.master,
 };
 
 const getClosestLowerNumber = (numbers: number[], targetNumber: number): number => {
