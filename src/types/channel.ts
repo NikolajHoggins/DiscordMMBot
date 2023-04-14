@@ -4,6 +4,7 @@ export const ChannelsType = {
     roles: 'roles',
     'bot-log': 'bot-log',
     leaderboard: 'leaderboard',
+    region: 'region',
 };
 
 export type ChannelsType = typeof ChannelsType[keyof typeof ChannelsType];
@@ -13,7 +14,8 @@ export const RanksType = {
     ping: 'ping',
     noregion: 'noregion',
     eu: 'eu',
-    na: 'na',
+    naw: 'naw',
+    nae: 'nae',
     oce: 'oce',
     unranked: 'unranked',
     plastic: 'plastic',

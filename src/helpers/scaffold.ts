@@ -123,6 +123,25 @@ const addPingToPlayMessage = async ({ config, client }: { config: ISystem; clien
     pingToPlayMessage.react('❌');
 };
 
+const addRegionMessage = async ({ config, client }: { config: ISystem; client: Client }) => {
+    const regionChannel = config.channels.find(t => t.name === ChannelsType.region);
+    if (!regionChannel) throw new Error('no region channel found');
+
+    const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+    row.addComponents(
+        new ButtonBuilder().setCustomId('region.naw').setLabel('NAW').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId('region.nae').setLabel('NAE').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId('region.eu').setLabel('EU').setStyle(ButtonStyle.Success),
+        new ButtonBuilder().setCustomId('region.oce').setLabel('OCE').setStyle(ButtonStyle.Success)
+    );
+    const regionMessage = await sendMessage({
+        channelId: regionChannel.id,
+        messageContent: { content: 'Select your region', components: [row] },
+        client,
+    });
+    if (!regionMessage) throw new Error("Couldn't send ping to play message");
+};
+
 const cacheReactionRoleMessages = async ({
     config,
     guild,
@@ -176,6 +195,21 @@ const addReadyUpMessage = async ({ config, client }: { config: ISystem; client: 
         client,
     });
     if (!readyUpMessage) throw new Error("Couldn't send ping to play message");
+};
+const cacheRegionMessages = async ({ config, client }: { config: ISystem; client: Client }) => {
+    //Find and fetch ready up messages
+    const regionChannel = config.channels.find(t => t.name === ChannelsType.region);
+    if (!regionChannel) throw new Error('no region channel found');
+
+    const channel = (await client.channels.fetch(regionChannel.id)) as TextChannel;
+    if (!channel) throw new Error('ready channel not found');
+
+    const messages = await channel.messages.fetch();
+
+    const regionMessages = messages.filter(m => m.content.includes('Select your region'));
+    if (regionMessages.size === 0) {
+        await addRegionMessage({ config, client });
+    }
 };
 const cacheReadyUpMessages = async ({ config, client }: { config: ISystem; client: Client }) => {
     //Find and fetch ready up messages
@@ -234,6 +268,7 @@ const scaffold = async (client: Client) => {
 
     await cacheReactionRoleMessages({ config, guild, client });
     await cacheReadyUpMessages({ config, client });
+    await cacheRegionMessages({ config, client });
 };
 
 export default scaffold;
