@@ -1,13 +1,5 @@
-import {
-    CommandInteraction,
-    Client,
-    ApplicationCommandType,
-    TextChannel,
-    Channel,
-    ApplicationCommandOptionType,
-} from 'discord.js';
+import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
-import { updateStatus } from '../crons/updateQueue';
 import { getGuild } from '../helpers/guild';
 import { botLog } from '../helpers/messages';
 

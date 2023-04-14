@@ -5,10 +5,11 @@ import {
     EmbedBuilder,
     ApplicationCommandOptionType,
 } from 'discord.js';
-import { ceil, floor } from 'lodash';
+import { ceil, findIndex, floor } from 'lodash';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
 import { getRankName } from '../helpers/rank.js';
+import Player from '../models/player.schema.js';
 
 const emojis = {
     w: '<:BR_W:1095827374655934604>',
@@ -36,6 +37,10 @@ export const Stats: Command = {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
         const userToCheck = mention || user;
+        const playerList = await Player.find().sort({ rating: -1 });
+
+        const eloPosition = findIndex(playerList, { discordId: userToCheck.id });
+
         const player = await playerService.findOrCreate(userToCheck);
         const { history } = player;
         const wins = history.filter(match => match.result === 'win').length;
@@ -48,7 +53,7 @@ export const Stats: Command = {
         const playerRating = isUnranked ? 'Play 10 matches' : floor(player.rating);
 
         const statsEmbed = new EmbedBuilder()
-            .setTitle(`${player.name}`)
+            .setTitle(`#${eloPosition + 1} - ${player.name}`)
             .setColor('#C69B6D')
             .setThumbnail(userToCheck.avatarURL())
             .setDescription(`${rankName} \nGames played - ${player.history.length}`)

@@ -1,4 +1,5 @@
 import { Command } from './Command';
+import { Abandon } from './commands/Abandon.js';
 import { Based } from './commands/Based';
 import { EndGame } from './commands/EndGame';
 import { ForceStart } from './commands/ForceStart.js';
@@ -22,6 +23,7 @@ export const Commands: Command[] = [
     Unready,
     PingPlayers,
     SubmitScore,
+    Abandon,
     RatingChange,
     //mod commands
     EndGame,
