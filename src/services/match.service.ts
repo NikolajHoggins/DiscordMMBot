@@ -225,7 +225,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: 1 });
-        const count = DEBUG_MODE ? 4 : 10;
+        const count = DEBUG_MODE ? 1 : 10;
 
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
@@ -463,6 +463,7 @@ export const startGame = ({
         );
 
         const teamsEmbed = await createMatchEmbed({ matchNumber: match.match_number });
+
         await sendMessage({
             channelId: matchChannel.id,
             messageContent: { embeds: [teamsEmbed] },

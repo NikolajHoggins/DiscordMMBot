@@ -21,6 +21,7 @@ export const createMatchEmbed = async ({
         const teamB = getTeam(match.players, 'b');
 
         const teamBSide = process.env.GAME_TEAMS.split(',').filter(t => t !== match.teamASide)[0];
+
         resolve(
             new EmbedBuilder()
                 .setTitle('Teams')
@@ -30,7 +31,11 @@ export const createMatchEmbed = async ({
                         match.map
                     )}.png?media=1678957731`
                 )
-                .setDescription(`Map: ${capitalize(match.map)}`)
+                .setDescription(
+                    `Map: ${capitalize(
+                        match.map
+                    )}\When done, captains should submit how many rounds their team won\n/submit_score <rounds won>`
+                )
                 .addFields(
                     {
                         name: capitalize(match.teamASide),
@@ -43,7 +48,11 @@ export const createMatchEmbed = async ({
                     },
                     {
                         name: capitalize(teamBSide),
-                        value: `${teamB.map(p => `<@${p.id}>${p.captain ? 'Captain' : ''}\n`)}`,
+                        value: `${
+                            teamB.length > 0
+                                ? teamB.map(p => `<@${p.id}>${p.captain ? 'Captain' : ''}\n`)
+                                : 'player'
+                        }`,
                         inline: true,
                     }
                 )
