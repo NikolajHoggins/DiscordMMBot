@@ -36,31 +36,29 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
         }
         const topPlayers = await Player.find().sort({ rating: -1 }).limit(20);
         let content = '```';
-        content =
-            content + `| Rank |     Name     |    Rating    | Wins | Games Played | Win Rate % |`;
+        content = content + `| Rank |     Name     | Rating | Wins | Games Played | Win Rate % |`;
         content = `${content}
-+------+--------------+--------------+------+--------------+------------+`;
++------+--------------+--------+------+--------------+------------+`;
         const nameSlotLength = 14;
 
         for (const i in topPlayers) {
             const p = topPlayers[i];
             const { history } = p;
-            const nameLength = Math.min(p.name.length, 10);
+            const nameLength = Math.min(Array.from(p.name).length, 10);
             const whitespace = (nameSlotLength - nameLength) / 2;
             const wins = history.filter(match => match.result === 'win').length;
-            const losses = history.filter(match => match.result !== 'win').length;
-            const total = wins + losses;
+            const losses = history.filter(match => match.result === 'loss').length;
+            const total = history.length;
             const winRate = ceil((wins / (wins + losses)) * 100);
 
             const prettyName = `${repeat(' ', whitespace)}${p.name.slice(0, 10)}${repeat(
                 ' ',
                 whitespace
             )}${nameLength % 2 === 0 ? '' : ' '}`;
-            const actualRating =
-                p.history.length < 10 ? `Hidden ${total}/10` : Math.floor(p.rating).toString();
+            const actualRating = p.history.length < 10 ? 'Hidden' : Math.floor(p.rating).toString();
             const prettyRating = getPretty({
                 value: actualRating,
-                slotLength: 14,
+                slotLength: 8,
             });
             const prettyWins = getPretty({ value: wins.toString(), slotLength: 6 });
             const prettyPlayed = getPretty({
