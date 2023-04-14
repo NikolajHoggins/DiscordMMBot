@@ -3,6 +3,7 @@ import { Based } from './commands/Based';
 import { EndGame } from './commands/EndGame';
 import { PingPlayers } from './commands/PingPlayers';
 import { QueueCommand } from './commands/Queue';
+import { RatingChange } from './commands/RatingChange.js';
 import { Ready } from './commands/Ready';
 import { RestartBot } from './commands/Restart.js';
 import { Stats } from './commands/Stats';
@@ -20,4 +21,5 @@ export const Commands: Command[] = [
     PingPlayers,
     SubmitScore,
     RestartBot,
+    RatingChange,
 ];
