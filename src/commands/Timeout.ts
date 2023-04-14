@@ -11,6 +11,7 @@ import * as playerService from '../services/player.service';
 import { getRankName } from '../helpers/rank.js';
 import Player from '../models/player.schema.js';
 import Queue from '../models/queue.schema.js';
+import { getGuild } from '../helpers/guild.js';
 
 export const Timeout: Command = {
     name: 'timeout',
@@ -38,6 +39,17 @@ export const Timeout: Command = {
         if (!durationValue) return interaction.reply({ content: 'provide timeout time' });
 
         if (!mention) return interaction.reply({ content: 'no mention' });
+        const guild = await getGuild(client);
+        const member = await guild?.members.fetch(user.id);
+
+        const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
+        if (!isMod) {
+            await interaction.reply({
+                ephemeral: true,
+                content: 'no perms',
+            });
+            return;
+        }
 
         const player = await playerService.findOrCreate(mention);
         if (!player) return interaction.reply({ content: `User not found` });
