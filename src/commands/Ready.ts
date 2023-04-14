@@ -10,7 +10,7 @@ import { updateStatus } from '../crons/updateQueue';
 import * as playerService from '../services/player.service';
 import { ready } from '../services/queue.service';
 import { getConfig } from '../services/system.service';
-import { ChannelsType } from '../types/channel';
+import { ChannelsType, RanksType } from '../types/channel';
 import Match from '../models/match.schema.js';
 import { sendMessage } from '../helpers/messages.js';
 import { ceil } from 'lodash';
@@ -27,6 +27,21 @@ export const handleReady = async ({
     //fetch player from database
     const { user } = interaction;
     const player = await playerService.findOrCreate(user);
+    const guildMember = await interaction.guild?.members.fetch(user.id);
+    if (!guildMember) throw new Error('Guild member not found');
+    const userRoles = guildMember.roles.cache.map(r => r.id);
+    const config = await getConfig();
+    const regionRanks = [RanksType.eu, RanksType.nae, RanksType.naw, RanksType.oce].find(r =>
+        userRoles.includes(config.roles.find(role => role.name === r)?.id || '')
+    );
+    // console.log(userRoles, RanksType.nae);
+    if (!regionRanks || regionRanks.length === 0) {
+        const regionChannel = config.channels.find(c => c.name === ChannelsType.region);
+        return interaction.reply({
+            content: `You need to select a region first in <#${regionChannel?.id}>`,
+            ephemeral: true,
+        });
+    }
 
     if (player.banEnd > Date.now()) {
         interaction.reply({
