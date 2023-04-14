@@ -1,4 +1,10 @@
-import { CommandInteraction, Client, ApplicationCommandType, EmbedBuilder } from 'discord.js';
+import {
+    CommandInteraction,
+    Client,
+    ApplicationCommandType,
+    EmbedBuilder,
+    ApplicationCommandOptionType,
+} from 'discord.js';
 import { ceil, floor } from 'lodash';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
@@ -18,9 +24,19 @@ export const Stats: Command = {
     name: 'stats',
     description: 'Get player stats?',
     type: ApplicationCommandType.ChatInput,
+    options: [
+        {
+            type: ApplicationCommandOptionType.User,
+            name: 'user',
+            description: 'User to get stats for',
+            required: false,
+        },
+    ],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
-        const player = await playerService.findOrCreate(user);
+        const mention = interaction.options.get('user')?.user;
+        const userToCheck = mention || user;
+        const player = await playerService.findOrCreate(userToCheck);
         const { history } = player;
         const wins = history.filter(match => match.result === 'win').length;
         const matches = history.length;
@@ -34,7 +50,7 @@ export const Stats: Command = {
         const statsEmbed = new EmbedBuilder()
             .setTitle(`${player.name}`)
             .setColor('#C69B6D')
-            .setThumbnail(user.avatarURL())
+            .setThumbnail(userToCheck.avatarURL())
             .setDescription(`${rankName} \nGames played - ${player.history.length}`)
             // .setDescription(`Map: ${capitalize(match.map)}`)
             .addFields([
