@@ -1,6 +1,7 @@
 import { Command } from './Command';
 import { Based } from './commands/Based';
 import { EndGame } from './commands/EndGame';
+import { ForceStart } from './commands/ForceStart.js';
 import { PingPlayers } from './commands/PingPlayers';
 import { QueueCommand } from './commands/Queue';
 import { RatingChange } from './commands/RatingChange.js';
@@ -24,4 +25,5 @@ export const Commands: Command[] = [
     RestartBot,
     RatingChange,
     Timeout,
+    ForceStart,
 ];
