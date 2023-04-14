@@ -36,9 +36,10 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
         }
         const topPlayers = await Player.find().sort({ rating: -1 }).limit(20);
         let content = '```';
-        content = content + `| Rank |     Name     | Rating | Wins | Games Played | Win Rate % |`;
+        content =
+            content + `| Rank |     Name     |    Rating    | Wins | Games Played | Win Rate % |`;
         content = `${content}
-+------+--------------+--------+------+--------------+------------+`;
++------+--------------+--------------+------+--------------+------------+`;
         const nameSlotLength = 14;
 
         for (const i in topPlayers) {
@@ -55,10 +56,11 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 ' ',
                 whitespace
             )}${nameLength % 2 === 0 ? '' : ' '}`;
-            const actualRating = p.history.length < 10 ? 'Hidden' : Math.floor(p.rating).toString();
+            const actualRating =
+                p.history.length < 10 ? `Hidden ${total}/10` : Math.floor(p.rating).toString();
             const prettyRating = getPretty({
                 value: actualRating,
-                slotLength: 8,
+                slotLength: 14,
             });
             const prettyWins = getPretty({ value: wins.toString(), slotLength: 6 });
             const prettyPlayed = getPretty({
