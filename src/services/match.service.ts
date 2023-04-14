@@ -201,7 +201,7 @@ export const checkScoreVerified = ({
         console.log('validating', matchNumber);
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('Match not found');
-        const verifiedPlayersCount = match.players.length;
+        const verifiedPlayersCount = match.players.filter(p => p.verifiedScore === true).length;
         const totalNeeded = match.players.length / 2 + 1;
 
         if (verifiedPlayersCount >= totalNeeded) {
