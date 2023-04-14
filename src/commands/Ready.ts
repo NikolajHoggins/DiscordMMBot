@@ -13,6 +13,7 @@ import { getConfig } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import Match from '../models/match.schema.js';
 import { sendMessage } from '../helpers/messages.js';
+import { ceil } from 'lodash';
 
 export const handleReady = async ({
     interaction,
@@ -26,6 +27,16 @@ export const handleReady = async ({
     //fetch player from database
     const { user } = interaction;
     const player = await playerService.findOrCreate(user);
+
+    if (player.banEnd > Date.now()) {
+        interaction.reply({
+            content: `You are banned from queue for ${ceil(
+                (player.banEnd - Date.now()) / 1000 / 60
+            )} minutes`,
+            ephemeral: true,
+        });
+        return;
+    }
 
     //Check if match with player on it is in progress
     const match = await Match.findOne({ 'players.id': user.id, status: { $ne: 'ended' } });

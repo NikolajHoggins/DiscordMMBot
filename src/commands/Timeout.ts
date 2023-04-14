@@ -10,6 +10,7 @@ import { Command } from '../Command';
 import * as playerService from '../services/player.service';
 import { getRankName } from '../helpers/rank.js';
 import Player from '../models/player.schema.js';
+import Queue from '../models/queue.schema.js';
 
 export const Timeout: Command = {
     name: 'timeout',
@@ -41,12 +42,16 @@ export const Timeout: Command = {
         const player = await playerService.findOrCreate(mention);
         if (!player) return interaction.reply({ content: `User not found` });
 
+        //Make sure to remove user from queue if they are.
+        await Queue.deleteOne({ discordId: mention.id });
+
         const now = Date.now();
         const timeoutEnd = now + durationValue * 60 * 1000;
         await Player.updateOne(
             { discordId: mention.id },
             { $set: { banStart: durationValue, banEnd: timeoutEnd } }
         );
+
         interaction.reply({ content: `player has been timed out for ${durationValue} minutes` });
     },
 };
