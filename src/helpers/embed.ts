@@ -34,7 +34,7 @@ export const createMatchEmbed = async ({
                 .setDescription(
                     `Map: ${capitalize(
                         match.map
-                    )}\When done, captains should submit how many rounds their team won\n/submit_score <rounds won>`
+                    )}\nWhen done, captains should submit how many rounds their team won\n/submit_score <rounds won>`
                 )
                 .addFields(
                     {
