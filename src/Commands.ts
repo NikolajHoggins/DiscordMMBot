@@ -8,6 +8,7 @@ import { Ready } from './commands/Ready';
 import { RestartBot } from './commands/Restart.js';
 import { Stats } from './commands/Stats';
 import { SubmitScore } from './commands/SubmitScore';
+import { Timeout } from './commands/Timeout.js';
 import { Top } from './commands/Top';
 import { Unready } from './commands/Unready';
 export const Commands: Command[] = [
@@ -22,4 +23,5 @@ export const Commands: Command[] = [
     SubmitScore,
     RestartBot,
     RatingChange,
+    Timeout,
 ];

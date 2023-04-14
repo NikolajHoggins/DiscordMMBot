@@ -15,6 +15,8 @@ export interface IPlayer {
     name: string;
     rating: number;
     history: MatchHistory;
+    banStart: number;
+    banEnd: number;
 }
 
 // 2. Create a Schema corresponding to the document interface.
@@ -23,6 +25,8 @@ const playerSchema = new Schema<IPlayer>({
     name: { type: String, required: true },
     rating: { type: Number, required: true },
     history: { type: [], required: true },
+    banStart: { type: Number },
+    banEnd: { type: Number },
 });
 
 const Player = model<IPlayer>('Player', playerSchema);
