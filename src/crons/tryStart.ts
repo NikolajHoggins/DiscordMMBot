@@ -2,6 +2,7 @@ import { Client } from 'discord.js';
 import cron from 'node-cron';
 import { checkScoreVerified, tryStart } from '../services/match.service.js';
 import Match from '../models/match.schema.js';
+import { updateLeaderboard } from '../helpers/leaderboard.js';
 
 const verifyRunningMatches = async (client: Client) => {
     const matches = await Match.find({
@@ -19,6 +20,7 @@ const initTryStartCron = async (client: Client) => {
     cron.schedule('* * * * *', async () => {
         tryStart(client);
         verifyRunningMatches(client);
+        updateLeaderboard({ client }); //If performance becomes and issue, move this to like every 5 minutes
         //Cronjob hacker :sunglasses:
         setTimeout(() => {
             verifyRunningMatches(client);
