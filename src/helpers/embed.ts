@@ -53,7 +53,7 @@ export const createMatchEmbed = async ({
                         value: `${
                             teamB.length > 0
                                 ? teamB
-                                      .map(p => `<@${p.id}>${p.captain ? 'Captain' : ''}\n`)
+                                      .map(p => `<@${p.id}>${p.captain ? ' - Captain' : ''}\n`)
                                       .join('')
                                 : 'player'
                         }`,
