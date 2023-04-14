@@ -48,6 +48,7 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
             const whitespace = (nameSlotLength - nameLength) / 2;
             const wins = history.filter(match => match.result === 'win').length;
             const losses = history.filter(match => match.result === 'loss').length;
+            const total = history.length;
             const winRate = ceil((wins / (wins + losses)) * 100);
 
             const prettyName = `${repeat(' ', whitespace)}${p.name.slice(0, 10)}${repeat(
@@ -61,7 +62,7 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
             });
             const prettyWins = getPretty({ value: wins.toString(), slotLength: 6 });
             const prettyPlayed = getPretty({
-                value: (wins + losses).toString(),
+                value: total.toString(),
                 slotLength: 14,
             });
             const prettyWinRate = getPretty({
