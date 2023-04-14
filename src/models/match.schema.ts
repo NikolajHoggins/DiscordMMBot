@@ -6,8 +6,7 @@ export interface IMatchChannels {
     teamA?: string;
     teamB?: string;
     matchChannel?: string;
-    teamAVoice?: string;
-    teamBVoice?: string;
+    voice?: string;
 }
 
 export interface IMatchPlayer {

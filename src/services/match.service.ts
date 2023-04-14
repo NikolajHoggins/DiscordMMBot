@@ -28,7 +28,7 @@ import { capitalize } from 'lodash';
 import { getTeamBName } from '../helpers/team.js';
 import { addWinLoss } from './player.service.js';
 import { MatchResultType } from '../models/player.schema.js';
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async resolve => {
@@ -75,7 +75,7 @@ const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
             { match_number: match.match_number },
             {
                 $set: {
-                    channels: { ...match.channels, teamAVoice: teamVC.id },
+                    channels: { ...match.channels, voice: teamVC.id },
                 },
             }
         );

@@ -25,17 +25,26 @@ export const createChannel = ({
             permissionOverwrites: [
                 {
                     id: everyoneRole.id,
-                    deny: [PermissionsBitField.Flags.ViewChannel],
+                    deny:
+                        type === ChannelType.GuildVoice
+                            ? [PermissionsBitField.Flags.Connect]
+                            : [PermissionsBitField.Flags.ViewChannel],
                 },
                 ...allowedIds.map(id => ({
                     id: id,
-                    allow: [PermissionsBitField.Flags.ViewChannel],
+                    allow:
+                        type === ChannelType.GuildVoice
+                            ? [PermissionsBitField.Flags.Connect]
+                            : [PermissionsBitField.Flags.ViewChannel],
                 })),
                 ...(process.env.MOD_ROLE_ID
                     ? [
                           {
                               id: process.env.MOD_ROLE_ID,
-                              allow: [PermissionsBitField.Flags.ViewChannel],
+                              allow:
+                                  type === ChannelType.GuildVoice
+                                      ? [PermissionsBitField.Flags.Connect]
+                                      : [PermissionsBitField.Flags.ViewChannel],
                           },
                       ]
                     : []),
