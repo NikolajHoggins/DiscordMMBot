@@ -20,7 +20,7 @@ import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
-import { createMatchEmbed, createScoreCardEmbed } from '../helpers/embed';
+import { createMatchEmbed, createMatchResultEmbed, createScoreCardEmbed } from '../helpers/embed';
 import { calculateEloChanges } from '../helpers/elo.js';
 import { deleteChannel, createChannel } from '../helpers/channel.js';
 import { getVotes } from '../helpers/match.js';
@@ -656,5 +656,14 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
                     })
             )
         );
+        //post match results in match-results channel
+        const matchResultsChannel = await getChannelId(ChannelsType['match-results']);
+        if (!matchResultsChannel) throw new Error('No match results channel found');
+        const embed = await createMatchResultEmbed({ matchNumber: match.match_number });
+        await sendMessage({
+            channelId: matchResultsChannel,
+            messageContent: { embeds: [embed] },
+            client,
+        });
     });
 };

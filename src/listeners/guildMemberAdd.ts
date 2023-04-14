@@ -7,10 +7,9 @@ export default (client: Client): void => {
         //Get config
         const { roles } = await getConfig();
         const unrankedRole = roles.find(t => t.name === RanksType.unranked);
-        const noregionRole = roles.find(t => t.name === RanksType.noregion);
-        if (!unrankedRole || !noregionRole) throw new Error('Roles not found');
+
+        if (!unrankedRole) throw new Error('Roles not found');
 
         await member.roles.add(unrankedRole.id);
-        await member.roles.add(noregionRole.id);
     });
 };
