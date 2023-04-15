@@ -2,6 +2,7 @@ import { rejects } from 'assert';
 import { User } from 'discord.js';
 import Player, { IPlayer } from '../models/player.schema';
 import Queue, { IQueue } from '../models/queue.schema';
+import { RegionsType } from '../types/queue.js';
 
 const ONE_MINUTE = 60000;
 
@@ -9,10 +10,12 @@ export const ready = ({
     player,
     time = 30,
     region,
+    queueRegion,
 }: {
     player: IPlayer;
     time?: number;
     region: string;
+    queueRegion: RegionsType;
 }): Promise<boolean> => {
     return new Promise(async (resolve, reject) => {
         const queueSpot = await getSpot(player.discordId);
@@ -32,6 +35,7 @@ export const ready = ({
             name: player.name,
             rating: player.rating,
             region: region,
+            queueRegion: queueRegion,
         });
 
         newSpot.save();

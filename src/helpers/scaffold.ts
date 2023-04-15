@@ -13,6 +13,7 @@ import { CategoriesType, ChannelsType, ChannelType, RanksType } from '../types/c
 import { getEveryoneRole, getGuild } from './guild';
 import { sendMessage } from './messages';
 import { createRole } from './role.js';
+import { RegionsType } from '../types/queue.js';
 
 const createChannel = async (
     client: Client,
@@ -167,26 +168,44 @@ const cacheReactionRoleMessages = async ({
     }
 };
 
-const addReadyUpMessage = async ({ config, client }: { config: ISystem; client: Client }) => {
+const addReadyUpMessage = async ({
+    config,
+    client,
+    region,
+    text,
+}: {
+    config: ISystem;
+    client: Client;
+    region: RegionsType;
+    text: string;
+}) => {
     const readyChannel = config.channels.find(t => t.name === ChannelsType['ready-up']);
     if (!readyChannel) throw new Error('no ready channel found');
     const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
 
     row.addComponents(
-        new ButtonBuilder().setCustomId('ready.30').setLabel('30').setStyle(ButtonStyle.Success)
-    );
-    row.addComponents(
-        new ButtonBuilder().setCustomId('ready.60').setLabel('60').setStyle(ButtonStyle.Success)
+        new ButtonBuilder()
+            .setCustomId(`ready.60.${region}`)
+            .setLabel(`60 ${region.toUpperCase()}`)
+            .setStyle(ButtonStyle.Success)
     );
     row.addComponents(
         new ButtonBuilder()
-            .setCustomId('ready.unready')
-            .setLabel('unready')
-            .setStyle(ButtonStyle.Danger)
+            .setCustomId(`ready.30.${region.toUpperCase()}`)
+            .setLabel(`30 ${region.toUpperCase()}`)
+            .setStyle(ButtonStyle.Success)
     );
+    if (region === RegionsType.fill) {
+        row.addComponents(
+            new ButtonBuilder()
+                .setCustomId(`ready.unready.${region.toUpperCase()}`)
+                .setLabel('unready')
+                .setStyle(ButtonStyle.Danger)
+        );
+    }
 
     const readyContent = {
-        content: 'Click a button to ready up for set minutes',
+        content: text,
         components: [row],
     };
     const readyUpMessage = await sendMessage({
@@ -225,7 +244,24 @@ const cacheReadyUpMessages = async ({ config, client }: { config: ISystem; clien
         m.content.includes('Click a button to ready up for set minutes')
     );
     if (readyUpMessages.size === 0) {
-        await addReadyUpMessage({ config, client });
+        await addReadyUpMessage({
+            config,
+            client,
+            region: RegionsType.fill as RegionsType,
+            text: "'Click a button to ready up for set minutes'",
+        });
+        await addReadyUpMessage({
+            config,
+            client,
+            region: RegionsType.eu as RegionsType,
+            text: '🇪🇺',
+        });
+        await addReadyUpMessage({
+            config,
+            client,
+            region: RegionsType.na as RegionsType,
+            text: '🇺🇸',
+        });
     }
 };
 

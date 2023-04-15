@@ -14,14 +14,17 @@ import { ChannelsType, RanksType } from '../types/channel';
 import Match from '../models/match.schema.js';
 import { sendMessage } from '../helpers/messages.js';
 import { ceil } from 'lodash';
+import { RegionsType } from '../types/queue.js';
 
 export const handleReady = async ({
     interaction,
     time,
     client,
+    region,
 }: {
     interaction: CommandInteraction | ButtonInteraction;
     time: number;
+    region: RegionsType;
     client: Client;
 }) => {
     //fetch player from database
@@ -64,7 +67,7 @@ export const handleReady = async ({
         return;
     }
 
-    await ready({ player, time: time, region: regionRanks });
+    await ready({ player, time: time, region: regionRanks, queueRegion: region });
     await updateStatus(client);
 
     const content = `You have been set to be ready for a match for ${time} minutes.`;
@@ -97,6 +100,11 @@ export const Ready: Command = {
             min_value: 5,
             max_value: 120,
         },
+        {
+            name: 'region',
+            description: 'NA | EU | FILL',
+            type: ApplicationCommandOptionType.String,
+        },
     ],
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
@@ -117,8 +125,19 @@ export const Ready: Command = {
         const option = interaction.options.get('time');
         const isNumber = typeof option?.value == 'number';
         const readyTime = isNumber ? (option.value as number) : 30;
+        const region = interaction.options.get('region');
+        if (region && !['na', 'eu', 'fill'].includes((region.value as string).toLowerCase())) {
+            return interaction.reply({
+                content: 'Region must be NA, EU, or FILL',
+            });
+        }
 
-        handleReady({ interaction, time: readyTime, client });
+        handleReady({
+            interaction,
+            time: readyTime,
+            client,
+            region: ((region?.value as string).toLowerCase() as RegionsType) || 'fill',
+        });
 
         //If all players are in queue, send a "stratingw within the next minute message" maybe even seconds (in x seconds)
     },
