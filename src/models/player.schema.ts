@@ -8,7 +8,7 @@ export const MatchResultType = {
 
 export type MatchResultType = typeof MatchResultType[keyof typeof MatchResultType];
 
-type MatchHistory = { match_number: number; result: MatchResultType; change: number }[];
+type MatchHistory = { matchNumber: number; result: MatchResultType; change: number }[];
 
 type BanHistory = { timeoutInMinutes: number; reason: string; startTime: number; modId?: string }[];
 // 1. Create an interface representing a document in MongoDB.

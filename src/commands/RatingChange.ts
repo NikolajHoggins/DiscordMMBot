@@ -26,7 +26,7 @@ export const RatingChange: Command = {
         if (!lastMatch) return interaction.reply({ content: `You have no matches played` });
 
         interaction.reply({
-            content: `Your last match rating change from match ${lastMatch.match_number} was a ${
+            content: `Your last match rating change from match ${lastMatch.matchNumber} was a ${
                 lastMatch.result
             } and resulted in ${Math.floor(lastMatch.change)} elo`,
         });
