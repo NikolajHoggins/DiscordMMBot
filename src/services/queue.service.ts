@@ -13,11 +13,16 @@ export const ready = ({
     player: IPlayer;
     time?: number;
     region: string;
-}): Promise<IQueue> => {
+}): Promise<boolean> => {
     return new Promise(async (resolve, reject) => {
         const queueSpot = await getSpot(player.discordId);
         if (queueSpot) {
-            await Queue.deleteOne({ discordId: player.discordId });
+            //update
+            await Queue.updateOne(
+                { discordId: player.discordId },
+                { expires: Date.now() + ONE_MINUTE * time }
+            );
+            return resolve(true);
         }
 
         const newSpot = new Queue({
@@ -31,7 +36,7 @@ export const ready = ({
 
         newSpot.save();
 
-        resolve(newSpot);
+        resolve(true);
     });
 };
 export const unReady = async ({ discordId }: { discordId: string }): Promise<void> => {
