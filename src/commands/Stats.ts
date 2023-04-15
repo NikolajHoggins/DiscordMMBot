@@ -37,12 +37,16 @@ export const Stats: Command = {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
         const userToCheck = mention || user;
-        const playerList = await Player.find().sort({ rating: -1 });
-
-        const eloPosition = findIndex(playerList, { discordId: userToCheck.id });
+        const playerList = await Player.find({
+            $expr: {
+                $gte: [{ $size: '$history' }, 10],
+            },
+        }).sort({ rating: -1 });
 
         const player = await playerService.findOrCreate(userToCheck);
         const { history } = player;
+        const eloPosition =
+            history.length > 9 ? findIndex(playerList, { discordId: userToCheck.id }) + 1 : '?';
         const wins = history.filter(match => match.result === 'win').length;
         const matches = history.length;
         const losses = matches - wins;
@@ -53,7 +57,7 @@ export const Stats: Command = {
         const playerRating = isUnranked ? 'Play 10 matches' : floor(player.rating);
 
         const statsEmbed = new EmbedBuilder()
-            .setTitle(`#${eloPosition + 1} - ${player.name}`)
+            .setTitle(`#${eloPosition} - ${player.name}`)
             .setColor('#C69B6D')
             .setThumbnail(userToCheck.avatarURL())
             .setDescription(`${rankName} \nGames played - ${player.history.length}`)
@@ -78,6 +82,15 @@ export const Stats: Command = {
                             .join('') || 'No matches played',
                     inline: false,
                 },
+                ...(history.length < 10
+                    ? [
+                          {
+                              name: 'You are unranked',
+                              value: "Stats will be available once you've played 10 matches.",
+                              inline: false,
+                          },
+                      ]
+                    : []),
             ]);
         const content = `User ${player.name} [${Math.floor(
             player.rating
