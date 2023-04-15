@@ -10,6 +10,8 @@ import { Command } from '../Command';
 import * as playerService from '../services/player.service';
 import { getRankName } from '../helpers/rank.js';
 import Player from '../models/player.schema.js';
+import { getChannelId } from '../services/system.service.js';
+import { ChannelsType } from '../types/channel.js';
 
 const emojis = {
     w: '<:BR_W:1095827374655934604>',
@@ -36,6 +38,15 @@ export const Stats: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
+
+        const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
+        if (interaction.channelId !== queueChannel) {
+            return interaction.reply({
+                content: `Keep messages in <#${queueChannel}> channel`,
+                ephemeral: true,
+            });
+        }
+
         const userToCheck = mention || user;
         const playerList = await Player.find({
             $expr: {

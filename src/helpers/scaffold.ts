@@ -248,7 +248,7 @@ const cacheReadyUpMessages = async ({ config, client }: { config: ISystem; clien
             config,
             client,
             region: RegionsType.fill as RegionsType,
-            text: 'Click a button to ready up for set minutes\n*Region you queue decides server, not where you are from*',
+            text: 'Click a button to ready up for set minutes\n*Region you queue decides server, not where you are from*\n\nPlease use fill if you do not have a strong preference',
         });
         await addReadyUpMessage({
             config,

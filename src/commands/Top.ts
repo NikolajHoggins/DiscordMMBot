@@ -2,6 +2,8 @@ import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { ceil, toInteger } from 'lodash';
 import { Command } from '../Command';
 import Player from '../models/player.schema';
+import { getChannelId } from '../services/system.service.js';
+import { ChannelsType } from '../types/channel.js';
 
 export const Top: Command = {
     name: 'top',
@@ -9,6 +11,14 @@ export const Top: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
         //Fetch user from database
+        const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
+        if (interaction.channelId !== queueChannel) {
+            return interaction.reply({
+                content: `Keep messages in <#${queueChannel}> channel`,
+                ephemeral: true,
+            });
+        }
+
         const topPlayers = await Player.find().sort({ wins: -1 }).limit(10);
 
         let content = '```';
