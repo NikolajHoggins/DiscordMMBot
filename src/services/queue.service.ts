@@ -23,7 +23,7 @@ export const ready = ({
             //update
             await Queue.updateOne(
                 { discordId: player.discordId },
-                { expires: Date.now() + ONE_MINUTE * time }
+                { expires: Date.now() + ONE_MINUTE * time, queueRegion }
             );
             return resolve(true);
         }
