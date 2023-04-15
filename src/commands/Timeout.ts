@@ -31,10 +31,17 @@ export const Timeout: Command = {
             min_value: 1,
             required: true,
         },
+        {
+            type: ApplicationCommandOptionType.String,
+            name: 'reason',
+            description: 'timeout in minutes',
+            required: true,
+        },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
+        const reason = interaction.options.get('reason')?.value;
         const durationValue = interaction.options.get('duration')?.value as number;
         if (!durationValue) return interaction.reply({ content: 'provide timeout time' });
 
@@ -59,11 +66,28 @@ export const Timeout: Command = {
 
         const now = Date.now();
         const timeoutEnd = now + durationValue * 60 * 1000;
+        const banBody = {
+            startTime: now,
+            reason: reason,
+            timeoutInMinutes: durationValue,
+            modId: user.id,
+        };
         await Player.updateOne(
             { discordId: mention.id },
-            { $set: { banStart: durationValue, banEnd: timeoutEnd } }
+            {
+                $set: { banStart: now, banEnd: timeoutEnd, test: 'lol' },
+                ...(player.bans
+                    ? {
+                          $push: {
+                              bans: banBody,
+                          },
+                      }
+                    : { $set: { bans: [banBody] } }),
+            }
         );
 
-        interaction.reply({ content: `player has been timed out for ${durationValue} minutes` });
+        interaction.reply({
+            content: `<@${member.id}> has been timed out for ${durationValue} minutes due to "${reason}"`,
+        });
     },
 };

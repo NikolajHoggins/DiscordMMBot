@@ -9,12 +9,15 @@ export const MatchResultType = {
 export type MatchResultType = typeof MatchResultType[keyof typeof MatchResultType];
 
 type MatchHistory = { match_number: number; result: MatchResultType; change: number }[];
+
+type BanHistory = { timeoutInMinutes: number; reason: string; startTime: number; modId?: string }[];
 // 1. Create an interface representing a document in MongoDB.
 export interface IPlayer {
     discordId: string;
     name: string;
     rating: number;
     history: MatchHistory;
+    bans: BanHistory;
     banStart: number;
     banEnd: number;
 }
@@ -25,6 +28,7 @@ const playerSchema = new Schema<IPlayer>({
     name: { type: String, required: true },
     rating: { type: Number, required: true },
     history: { type: [], required: true },
+    bans: { type: [] },
     banStart: { type: Number },
     banEnd: { type: Number },
 });
