@@ -28,7 +28,7 @@ import { capitalize, groupBy, map, upperCase } from 'lodash';
 import { getTeamBName } from '../helpers/team.js';
 import { addWinLoss } from './player.service.js';
 import { MatchResultType } from '../models/player.schema.js';
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async resolve => {
