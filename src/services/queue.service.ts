@@ -8,9 +8,11 @@ const ONE_MINUTE = 60000;
 export const ready = ({
     player,
     time = 30,
+    region,
 }: {
     player: IPlayer;
     time?: number;
+    region: string;
 }): Promise<IQueue> => {
     return new Promise(async (resolve, reject) => {
         const queueSpot = await getSpot(player.discordId);
@@ -24,6 +26,7 @@ export const ready = ({
             signup_time: Date.now(),
             name: player.name,
             rating: player.rating,
+            region: region,
         });
 
         newSpot.save();

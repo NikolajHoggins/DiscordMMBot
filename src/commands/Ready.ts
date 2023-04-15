@@ -64,7 +64,7 @@ export const handleReady = async ({
         return;
     }
 
-    await ready({ player, time: time });
+    await ready({ player, time: time, region: regionRanks });
     await updateStatus(client);
 
     const content = `You have been set to be ready for a match for ${time} minutes.`;

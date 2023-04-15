@@ -7,6 +7,7 @@ export interface IQueue {
     signup_time: number;
     name: string;
     rating: number;
+    region: string;
 }
 
 // 2. Create a Schema corresponding to the document interface.
@@ -16,6 +17,7 @@ const queueSchema = new Schema<IQueue>({
     signup_time: { type: Number, required: true },
     name: { type: String, required: true },
     rating: { type: Number, required: true },
+    region: { type: String, required: true },
 });
 
 const Queue = model<IQueue>('Queue', queueSchema);

@@ -13,6 +13,7 @@ export interface IMatchPlayer {
     id: string;
     name: string;
     team: 'a' | 'b';
+    region: string;
     rating: number;
     captain?: boolean;
     vote?: string;

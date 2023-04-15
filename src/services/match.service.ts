@@ -24,7 +24,7 @@ import { createMatchEmbed, createMatchResultEmbed, createScoreCardEmbed } from '
 import { calculateEloChanges } from '../helpers/elo.js';
 import { deleteChannel, createChannel } from '../helpers/channel.js';
 import { getVotes } from '../helpers/match.js';
-import { capitalize } from 'lodash';
+import { capitalize, groupBy, map, upperCase } from 'lodash';
 import { getTeamBName } from '../helpers/team.js';
 import { addWinLoss } from './player.service.js';
 import { MatchResultType } from '../models/player.schema.js';
@@ -464,9 +464,20 @@ export const startGame = ({
 
         const teamsEmbed = await createMatchEmbed({ matchNumber: match.match_number });
 
+        const regions = groupBy(match.players.map(p => p.region));
+
+        const regionString = map(regions, (value, key) => {
+            return `${upperCase(key)} - ${value.length}\n`;
+        }).join('');
+
         await sendMessage({
             channelId: matchChannel.id,
             messageContent: { embeds: [teamsEmbed] },
+            client,
+        });
+        await sendMessage({
+            channelId: matchChannel.id,
+            messageContent: regionString,
             client,
         });
     });

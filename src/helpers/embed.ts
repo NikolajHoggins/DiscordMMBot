@@ -2,6 +2,7 @@ import { Embed, EmbedBuilder } from 'discord.js';
 import Match, { IMatch } from '../models/match.schema.js';
 import { getTeam } from './players.js';
 import { getTeamBName } from './team.js';
+import { groupBy, map, upperCase } from 'lodash';
 
 export const capitalize = (team: string) => {
     return team.charAt(0).toUpperCase() + team.slice(1);
