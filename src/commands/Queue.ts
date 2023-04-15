@@ -11,18 +11,24 @@ export const QueueCommand: Command = {
         //Fetch user from database
         const queuePlayers = await Queue.find();
 
-        const regions = groupBy(queuePlayers.map(p => p.region));
+        const naPlayers = queuePlayers.filter(q => q.region === 'na');
+        const euPlayers = queuePlayers.filter(q => q.region === 'eu');
+        const fillPlayers = queuePlayers.filter(q => q.region === 'fill');
 
-        const regionString = map(regions, (value, key) => {
-            return `${value.length} - ${upperCase(key)}`;
-        }).join(', ');
+        const euString = euPlayers.map(p => p.name).join(', ');
+        const naString = naPlayers.map(p => p.name).join(', ');
+        const fillString = fillPlayers.map(p => p.name).join(', ');
+        // const regionString = map(regions, (value, key) => {
+        //     return `${value.length} - ${upperCase(key)}`;
+        // }).join(', ');
 
-        let content = 'Currently looking for a game: ';
-        queuePlayers.forEach(queue => {
-            content = `${content} ${queue.name},`;
-        });
-        content = `[${queuePlayers.length}] - ${content}`;
-        // content = `[${queuePlayers.length}] - ${content}  ${regionString}`;
+        let content = `Currently looking for a game: ${queuePlayers.length}`;
+        // queuePlayersPlayers.forEach(queue => {
+        //     content = `${content} ${queue.name},`;
+        // });
+        content = `${content}\n**Fill** - [${fillPlayers.length}] - ${fillString}`;
+        content = `${content}\n**EU** -[${euPlayers.length}] - ${euString}`;
+        content = `${content}\n**NA** -[${naPlayers.length}] - ${naString}`;
 
         await interaction.reply({
             content,

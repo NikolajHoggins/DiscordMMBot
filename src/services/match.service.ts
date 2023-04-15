@@ -227,61 +227,150 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: 1 });
         const count = DEBUG_MODE ? 1 : 10;
+        const naPlayers = queue.filter(q => q.region === 'na');
+        const euPlayers = queue.filter(q => q.region === 'eu');
+        const fillPlayers = queue.filter(q => q.region === 'fill');
+
+        if (naPlayers.length >= count) {
+            //start na match
+            return await startMatch({
+                client,
+                queue: naPlayers,
+                count,
+                queueChannelId,
+                region: 'na',
+            });
+        }
+        if (euPlayers.length >= count) {
+            return await startMatch({
+                client,
+                queue: euPlayers,
+                count,
+                queueChannelId,
+                region: 'eu',
+            });
+            //start eu match
+        }
+
+        const euFill = fillPlayers.filter(p => p.region === 'eu');
+        if (euFill.length + euPlayers.length >= count) {
+            return await startMatch({
+                client,
+                queue: [...euFill, ...euPlayers],
+                count,
+                queueChannelId,
+                region: 'eu',
+            });
+        }
+        const naFill = fillPlayers.filter(p => p.region !== 'eu');
+        if (naFill.length + naPlayers.length >= count) {
+            return await startMatch({
+                client,
+                queue: [...naFill, ...naPlayers],
+                count,
+                queueChannelId,
+                region: 'na',
+            });
+        }
+
+        if (euPlayers.length + fillPlayers.length >= count) {
+            return await startMatch({
+                client,
+                queue: [...euPlayers, ...fillPlayers],
+                count,
+                queueChannelId,
+                region: 'eu',
+            });
+        }
+        if (naPlayers.length + fillPlayers.length >= count) {
+            return await startMatch({
+                client,
+                queue: [...naPlayers, ...fillPlayers],
+                count,
+                queueChannelId,
+                region: 'na',
+            });
+        }
 
         if (queue.length >= count) {
-            const queuePlayers = queue.slice(0, count);
-
-            // const sortedPlayers = queuePlayers.sort((a, b) => {
-            //     return a.rating - b.rating;
-            // });
-
-            // const ratingDiff =
-            //     sortedPlayers.length > 2 ? sortedPlayers[-1].rating - sortedPlayers[0].rating : 0;
-
             await sendMessage({
                 channelId: queueChannelId,
-                messageContent: count + ` players in queue - Game is starting`,
+                messageContent: `${queue.length} players in queue, couldn't create a game with servers of players wishes`,
                 client,
             });
-
-            const guild = await getGuild(client);
-            if (!guild) throw new Error("Couldn't find guild");
-
-            const newNumber = await getNewMatchNumber();
-
-            const { channelId, roleId } = await createMatchChannel({
-                client,
-                queuePlayers,
-                matchNumber: newNumber,
-            });
-
-            const teams = createTeams(queuePlayers);
-            const newMatch = new Match({
-                match_number: newNumber,
-                start: Date.now(),
-                channels: {
-                    ready: channelId,
-                },
-                status: 'pending',
-                roleId: roleId,
-                players: teams,
-                version: 0,
-            });
-            await newMatch.save();
-
-            await createVCs({ client, match: newMatch });
-
-            logMatch({ match: newMatch, client });
-
-            //Remove players from queue
-            await removePlayersFromQueue(queuePlayers);
-            await updateStatus(client);
-            await sendReadyMessage({ client, channelId, queuePlayers, match: newMatch });
         }
 
         resolve();
     });
 };
+
+const startMatch = ({
+    queue,
+    count,
+    queueChannelId,
+    client,
+    region,
+}: {
+    queue: IQueue[];
+    count: number;
+    queueChannelId: string;
+    client: Client;
+    region: string;
+}) => {
+    return new Promise(async resolve => {
+        const queuePlayers = queue.slice(0, count);
+
+        // const sortedPlayers = queuePlayers.sort((a, b) => {
+        //     return a.rating - b.rating;
+        // });
+
+        // const ratingDiff =
+        //     sortedPlayers.length > 2 ? sortedPlayers[-1].rating - sortedPlayers[0].rating : 0;
+
+        await sendMessage({
+            channelId: queueChannelId,
+            messageContent: count + ` players in queue - Game is starting on region`,
+            client,
+        });
+
+        const guild = await getGuild(client);
+        if (!guild) throw new Error("Couldn't find guild");
+
+        const newNumber = await getNewMatchNumber();
+
+        const { channelId, roleId } = await createMatchChannel({
+            client,
+            queuePlayers,
+            matchNumber: newNumber,
+        });
+
+        const teams = createTeams(queuePlayers);
+        const newMatch = new Match({
+            match_number: newNumber,
+            start: Date.now(),
+            channels: {
+                ready: channelId,
+            },
+            status: 'pending',
+            roleId: roleId,
+            players: teams,
+            version: 0,
+        });
+        await newMatch.save();
+
+        await createVCs({ client, match: newMatch });
+
+        logMatch({ match: newMatch, client });
+
+        //Remove players from queue
+        await removePlayersFromQueue(queuePlayers);
+        await updateStatus(client);
+        await sendReadyMessage({ client, channelId, queuePlayers, match: newMatch });
+
+        resolve(true);
+    });
+};
+
 const createSideVotingChannel = async ({
     client,
     match,
