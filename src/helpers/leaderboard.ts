@@ -34,7 +34,13 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 client,
             });
         }
-        const topPlayers = await Player.find().sort({ rating: -1 }).limit(20);
+        const topPlayers = await Player.find({
+            $expr: {
+                $gte: [{ $size: '$history' }, 10],
+            },
+        })
+            .sort({ rating: -1 })
+            .limit(20);
         let content = '```';
         content = content + `| Rank |     Name     | Rating | Wins | Games Played | Win Rate % |`;
         content = `${content}
