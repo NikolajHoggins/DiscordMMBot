@@ -35,7 +35,7 @@ export const ForceSubmit: Command = {
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user, channelId } = interaction;
-        const mention = interaction.options.get('user')?.user;
+        const mention = interaction.options.get('captain')?.user;
         const score = interaction.options.get('score')?.value as number;
         if (!score) return interaction.reply({ content: 'provide score' });
 

@@ -18,6 +18,14 @@ export const Abandon: Command = {
             });
         }
 
+        //remove player from match
+
+        //add a loss to player history
+
+        //set some sort of flag to indicate player has abandoned and from which team. This will be used in elo calculation
+
+        //set a timeout on player, and add a timeout history
+
         await interaction.reply({
             ephemeral: true,
             content,
