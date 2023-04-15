@@ -230,9 +230,20 @@ export const tryStart = (client: Client): Promise<void> => {
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
 
+            const sortedPlayers = queuePlayers.sort((a, b) => {
+                return a.rating - b.rating;
+            });
+
+            const ratingDiff =
+                sortedPlayers.length > 2 ? sortedPlayers[-1].rating - sortedPlayers[0].rating : 0;
+
             await sendMessage({
                 channelId: queueChannelId,
-                messageContent: count + ' players in queue - Game is starting',
+                messageContent:
+                    count +
+                    ` players in queue - Game is starting - Highest elo gap: ${Math.floor(
+                        ratingDiff
+                    )}`,
                 client,
             });
 
