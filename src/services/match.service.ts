@@ -329,7 +329,7 @@ const startMatch = ({
 
         await sendMessage({
             channelId: queueChannelId,
-            messageContent: count + ` players in queue - Game is starting on region`,
+            messageContent: count + ` players in queue - Game is starting on region ${region}}`,
             client,
         });
 

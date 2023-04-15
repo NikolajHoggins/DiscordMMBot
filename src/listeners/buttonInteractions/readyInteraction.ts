@@ -13,5 +13,5 @@ export const handleReadyInteraction = async (interaction: ButtonInteraction, cli
 
     const time = parseInt(action);
 
-    handleReady({ client, interaction, time, region });
+    handleReady({ client, interaction, time, region: region.toLocaleLowerCase() as RegionsType });
 };
