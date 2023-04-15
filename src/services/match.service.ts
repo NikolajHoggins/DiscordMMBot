@@ -28,7 +28,7 @@ import { capitalize, groupBy, map, upperCase } from 'lodash';
 import { getTeamBName } from '../helpers/team.js';
 import { addWinLoss } from './player.service.js';
 import { MatchResultType } from '../models/player.schema.js';
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async resolve => {
@@ -167,6 +167,7 @@ const sendReadyMessage = async ({
         };
         readyMessage.awaitReactions({ filter, time: timeToReadyInMs }).then(() => {
             if (q.length <= 0) return;
+
             sendMessage({
                 channelId,
                 messageContent: `${q.map(
@@ -230,20 +231,16 @@ export const tryStart = (client: Client): Promise<void> => {
         if (queue.length >= count) {
             const queuePlayers = queue.slice(0, count);
 
-            const sortedPlayers = queuePlayers.sort((a, b) => {
-                return a.rating - b.rating;
-            });
+            // const sortedPlayers = queuePlayers.sort((a, b) => {
+            //     return a.rating - b.rating;
+            // });
 
-            const ratingDiff =
-                sortedPlayers.length > 2 ? sortedPlayers[-1].rating - sortedPlayers[0].rating : 0;
+            // const ratingDiff =
+            //     sortedPlayers.length > 2 ? sortedPlayers[-1].rating - sortedPlayers[0].rating : 0;
 
             await sendMessage({
                 channelId: queueChannelId,
-                messageContent:
-                    count +
-                    ` players in queue - Game is starting - Highest elo gap: ${Math.floor(
-                        ratingDiff
-                    )}`,
+                messageContent: count + ` players in queue - Game is starting`,
                 client,
             });
 
