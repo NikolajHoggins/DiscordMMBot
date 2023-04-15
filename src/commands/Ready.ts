@@ -126,7 +126,7 @@ export const Ready: Command = {
         const isNumber = typeof option?.value == 'number';
         const readyTime = isNumber ? (option.value as number) : 30;
         const region = interaction.options.get('region');
-        if (region && !['na', 'eu', 'fill'].includes((region.value as string).toLowerCase())) {
+        if (region && !['na', 'eu', 'fill'].includes((region.value as string)?.toLowerCase())) {
             return interaction.reply({
                 content: 'Region must be NA, EU, or FILL',
             });
@@ -136,7 +136,7 @@ export const Ready: Command = {
             interaction,
             time: readyTime,
             client,
-            region: ((region?.value as string).toLowerCase() as RegionsType) || 'fill',
+            region: ((region?.value as string)?.toLowerCase() as RegionsType) || 'fill',
         });
 
         //If all players are in queue, send a "stratingw within the next minute message" maybe even seconds (in x seconds)
