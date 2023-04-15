@@ -6,6 +6,7 @@ export const ChannelsType = {
     leaderboard: 'leaderboard',
     region: 'region',
     'match-results': 'match-results',
+    'bot-commands': 'bot-commands',
 };
 
 export type ChannelsType = typeof ChannelsType[keyof typeof ChannelsType];

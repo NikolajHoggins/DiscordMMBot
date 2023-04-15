@@ -39,7 +39,7 @@ export const Stats: Command = {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
 
-        const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
+        const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
             return interaction.reply({
                 content: `Keep messages in <#${queueChannel}> channel`,

@@ -11,7 +11,7 @@ export const Top: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
         //Fetch user from database
-        const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
+        const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
             return interaction.reply({
                 content: `Keep messages in <#${queueChannel}> channel`,
