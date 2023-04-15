@@ -227,9 +227,9 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: 1 });
         const count = DEBUG_MODE ? 1 : 10;
-        const naPlayers = queue.filter(q => q.region === 'na');
-        const euPlayers = queue.filter(q => q.region === 'eu');
-        const fillPlayers = queue.filter(q => q.region === 'fill');
+        const naPlayers = queue.filter(q => q.queueRegion === 'na');
+        const euPlayers = queue.filter(q => q.queueRegion === 'eu');
+        const fillPlayers = queue.filter(q => q.queueRegion === 'fill');
 
         if (naPlayers.length >= count) {
             //start na match
