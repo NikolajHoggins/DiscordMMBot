@@ -87,7 +87,7 @@ export const Timeout: Command = {
         );
 
         interaction.reply({
-            content: `<@${member.id}> has been timed out for ${durationValue} minutes due to "${reason}"`,
+            content: `<@${mention.id}> has been timed out for ${durationValue} minutes due to "${reason}"`,
         });
     },
 };
