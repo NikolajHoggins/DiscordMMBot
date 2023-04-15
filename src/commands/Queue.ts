@@ -11,9 +11,9 @@ export const QueueCommand: Command = {
         //Fetch user from database
         const queuePlayers = await Queue.find();
 
-        const naPlayers = queuePlayers.filter(q => q.region === 'na');
-        const euPlayers = queuePlayers.filter(q => q.region === 'eu');
-        const fillPlayers = queuePlayers.filter(q => q.region === 'fill');
+        const naPlayers = queuePlayers.filter(q => q.queueRegion === 'na');
+        const euPlayers = queuePlayers.filter(q => q.queueRegion === 'eu');
+        const fillPlayers = queuePlayers.filter(q => q.queueRegion === 'fill');
 
         const euString = euPlayers.map(p => p.name).join(', ');
         const naString = naPlayers.map(p => p.name).join(', ');
