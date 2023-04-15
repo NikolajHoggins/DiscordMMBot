@@ -1,6 +1,6 @@
-import { CommandInteraction, Client, ApplicationCommandType, TextChannel } from 'discord.js';
+import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
-import { findByChannelId } from '../services/match.service.js';
+import { end, findByChannelId } from '../services/match.service.js';
 import Player from '../models/player.schema.js';
 import { getChannelId } from '../services/system.service.js';
 import { ChannelsType } from '../types/channel.js';
@@ -19,6 +19,47 @@ export const Abandon: Command = {
             return interaction.reply({
                 content: 'Command only works in match thread',
             });
+        }
+        if (match.status === 'pending') {
+            await interaction.reply({
+                content: `<@${user.id}> has denied the match. Match has been cancelled. Player has been given a timeout from queueing.`,
+            });
+            const player = await Player.findOne({ discordId: user.id });
+            if (!player) return interaction.reply({ content: `User not found` });
+            const previousBans = player.bans.filter(b => !b.modId).length;
+            const now = new Date();
+            const reason = `Denied match ${match.match_number} before it started`;
+            const durationValue = 10 * (previousBans + 1);
+            const timeoutEnd = now.getTime() + durationValue * 60 * 1000;
+            const banBody = {
+                startTime: now,
+                reason: reason,
+                timeoutInMinutes: durationValue,
+            };
+
+            await Player.updateOne(
+                { discordId: user.id },
+                {
+                    $set: { banStart: now, banEnd: timeoutEnd, test: 'lol' },
+                    ...(player.bans
+                        ? {
+                              $push: {
+                                  bans: banBody,
+                              },
+                          }
+                        : { $set: { bans: [banBody] } }),
+                }
+            );
+            const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
+            await sendMessage({
+                channelId: queueChannelId,
+                messageContent: `<@${user.id}> has been timed out for ${durationValue} minutes due to "${reason}"`,
+                client,
+            });
+            setTimeout(() => {
+                end({ matchNumber: match.match_number, client });
+            }, 3000);
+            return;
         }
 
         //remove player from match
