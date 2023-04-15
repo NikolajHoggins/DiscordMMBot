@@ -23,12 +23,7 @@ const initTryStartCron = async (client: Client) => {
         setTimeout(() => {
             verifyRunningMatches(client);
             tryStart(client);
-        }, 20000);
-
-        setTimeout(() => {
-            verifyRunningMatches(client);
-            tryStart(client);
-        }, 40000);
+        }, 30000);
     });
 };
 export default initTryStartCron;

@@ -256,7 +256,7 @@ export const tryStart = (client: Client): Promise<void> => {
         if (euFill.length + euPlayers.length >= count) {
             return await startMatch({
                 client,
-                queue: [...euFill, ...euPlayers],
+                queue: [...euPlayers, ...euFill],
                 count,
                 queueChannelId,
                 region: 'eu',
@@ -266,7 +266,7 @@ export const tryStart = (client: Client): Promise<void> => {
         if (naFill.length + naPlayers.length >= count) {
             return await startMatch({
                 client,
-                queue: [...naFill, ...naPlayers],
+                queue: [...naPlayers, ...naFill],
                 count,
                 queueChannelId,
                 region: 'na',
@@ -329,7 +329,8 @@ const startMatch = ({
 
         await sendMessage({
             channelId: queueChannelId,
-            messageContent: count + ` players in queue - Game is starting on region ${region}}`,
+            messageContent:
+                count + ` players in queue - Game is starting on region ${region.toUpperCase()}`,
             client,
         });
 
@@ -354,6 +355,7 @@ const startMatch = ({
             status: 'pending',
             roleId: roleId,
             players: teams,
+            region: region,
             version: 0,
         });
         await newMatch.save();
@@ -563,9 +565,10 @@ export const startGame = ({
 
         const regions = groupBy(match.players.map(p => p.region));
 
-        const regionString = map(regions, (value, key) => {
-            return `${upperCase(key)} - ${value.length}\n`;
-        }).join('');
+        const regionString =
+            map(regions, (value, key) => {
+                return `${upperCase(key)} - ${value.length}\n`;
+            }).join('') + `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
 
         await sendMessage({
             channelId: matchChannel.id,
