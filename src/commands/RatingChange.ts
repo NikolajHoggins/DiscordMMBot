@@ -22,6 +22,11 @@ export const RatingChange: Command = {
 
         const player = await playerService.findOrCreate(user);
         const { history } = player;
+        if (history.length < 10)
+            return interaction.reply({
+                content: `You need to play at least 10 matches to use this command`,
+                ephemeral: true,
+            });
         const lastMatch = last(history);
         if (!lastMatch) return interaction.reply({ content: `You have no matches played` });
 
