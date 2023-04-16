@@ -366,11 +366,10 @@ const startMatch = ({
     region: string;
 }) => {
     return new Promise(async resolve => {
-        const queuePlayers = queue.slice(0, count);
-
-        // const sortedPlayers = queuePlayers.sort((a, b) => {
-        //     return a.rating - b.rating;
-        // });
+        const sortedPlayers = queue.sort((a, b) => {
+            return a.signup_time - b.signup_time;
+        });
+        const queuePlayers = sortedPlayers.slice(0, count);
 
         // const ratingDiff =
         //     sortedPlayers.length > 2 ? sortedPlayers[-1].rating - sortedPlayers[0].rating : 0;
