@@ -18,7 +18,7 @@ const verifyRunningMatches = async (client: Client) => {
 const verifyPlayersReady = async (client: Client) => {
     const matches = await Match.find({ status: 'pending' });
     matches.forEach(match => {
-        checkPlayersReady({ match, client });
+        checkPlayersReady({ matchNumber: match.match_number, client });
     });
 };
 

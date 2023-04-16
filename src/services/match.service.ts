@@ -163,8 +163,17 @@ const sendReadyMessage = async ({
     });
 };
 
-export const checkPlayersReady = ({ match, client }: { match: IMatch; client: Client }) => {
+export const checkPlayersReady = ({
+    matchNumber,
+    client,
+}: {
+    matchNumber: number;
+    client: Client;
+}) => {
     return new Promise(async resolve => {
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match || match.status !== 'pending') return resolve(false);
+
         const unreadyPlayers = match.players.filter(p => p.ready !== true);
         if (unreadyPlayers.length <= 0) {
             startVotingPhase(client, match);
