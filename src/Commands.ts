@@ -3,6 +3,7 @@ import { Abandon } from './commands/Abandon.js';
 import { Bans } from './commands/Bans.js';
 import { Based } from './commands/Based';
 import { EndGame } from './commands/EndGame';
+import { ForceAbandon } from './commands/ForceAbandon.js';
 import { ForceStart } from './commands/ForceStart.js';
 import { ForceSubmit } from './commands/ForceSubmit.js';
 import { PingPlayers } from './commands/PingPlayers';
@@ -32,5 +33,6 @@ export const Commands: Command[] = [
     Timeout,
     ForceSubmit,
     ForceStart,
+    ForceAbandon,
     Bans,
 ];
