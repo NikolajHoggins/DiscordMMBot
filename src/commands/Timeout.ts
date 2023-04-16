@@ -5,13 +5,12 @@ import {
     EmbedBuilder,
     ApplicationCommandOptionType,
 } from 'discord.js';
-import { ceil, floor } from 'lodash';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
-import { getRankName } from '../helpers/rank.js';
 import Player from '../models/player.schema.js';
 import Queue from '../models/queue.schema.js';
 import { getGuild } from '../helpers/guild.js';
+import { BansType } from '../types/bans.js';
 
 export const Timeout: Command = {
     name: 'timeout',
@@ -58,36 +57,17 @@ export const Timeout: Command = {
             return;
         }
 
-        const player = await playerService.findOrCreate(mention);
-        if (!player) return interaction.reply({ content: `User not found` });
-
-        //Make sure to remove user from queue if they are.
-        await Queue.deleteOne({ discordId: mention.id });
-
-        const now = Date.now();
-        const timeoutEnd = now + durationValue * 60 * 1000;
-        const banBody = {
-            startTime: now,
-            reason: reason,
-            timeoutInMinutes: durationValue,
+        await playerService.addBan({
+            userId: mention.id,
+            reason: reason as string,
+            duration: durationValue,
             modId: user.id,
-        };
-        await Player.updateOne(
-            { discordId: mention.id },
-            {
-                $set: { banStart: now, banEnd: timeoutEnd, test: 'lol' },
-                ...(player.bans
-                    ? {
-                          $push: {
-                              bans: banBody,
-                          },
-                      }
-                    : { $set: { bans: [banBody] } }),
-            }
-        );
+            type: BansType.mod,
+            client,
+        });
 
         interaction.reply({
-            content: `<@${mention.id}> has been timed out for ${durationValue} minutes due to "${reason}"`,
+            content: `Done`,
         });
     },
 };

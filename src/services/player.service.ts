@@ -1,6 +1,11 @@
 import { Client, User } from 'discord.js';
 import Player, { IPlayer, MatchResultType } from '../models/player.schema';
 import { checkRank } from '../helpers/rank.js';
+import { BansType } from '../types/bans.js';
+import Queue from '../models/queue.schema.js';
+import { getChannelId } from './system.service.js';
+import { ChannelsType } from '../types/channel.js';
+import { sendMessage } from '../helpers/messages.js';
 
 export const findOrCreate = (user: User): Promise<IPlayer> => {
     return new Promise(async (resolve, reject) => {
@@ -79,4 +84,65 @@ export const idsToObjects = (players: string[]): Promise<IPlayer>[] => {
                 resolve(player);
             })
     );
+};
+
+export const addBan = ({
+    duration,
+    reason,
+    userId,
+    type,
+    modId,
+    client,
+}: {
+    duration: number;
+    reason: string;
+    userId: string;
+    type: string;
+    modId?: string;
+    client: Client;
+}) => {
+    return new Promise(async (resolve, reject) => {
+        const player = (await Player.findOne({ discordId: userId })) as IPlayer;
+        if (!player) {
+            reject('Player not found');
+            return;
+        }
+
+        await Queue.deleteOne({ discordId: userId });
+
+        const now = Date.now();
+        const timeoutEnd = now + duration * 60 * 1000;
+        const banBody = {
+            startTime: now,
+            reason: reason,
+            timeoutInMinutes: duration,
+            type,
+            ...(type === BansType.mod ? { modId: modId } : {}),
+        };
+        await Player.updateOne(
+            { discordId: userId },
+            {
+                $set: { banStart: now, banEnd: timeoutEnd, test: 'lol' },
+                ...(player.bans
+                    ? {
+                          $push: {
+                              bans: banBody,
+                          },
+                      }
+                    : { $set: { bans: [banBody] } }),
+            }
+        );
+
+        //Send message in queue channel
+
+        const message = `<@${userId}> has been timed out for ${duration} minutes due to "${reason}"`;
+
+        const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
+        await sendMessage({
+            channelId: queueChannel,
+            messageContent: message,
+            client,
+        });
+        resolve(true);
+    });
 };
