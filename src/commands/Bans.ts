@@ -39,7 +39,9 @@ export const Bans: Command = {
         }
 
         const player = await Player.findOne({ discordId: mention.id });
-        if (!player) return interaction.reply({ content: 'no player' });
+        if (!player) return interaction.reply({ content: 'no player', ephemeral: true });
+        if (!player.bans || player.bans.length === 0)
+            return interaction.reply({ content: 'no bans', ephemeral: true });
 
         const embed = new EmbedBuilder()
             .setTitle(`${mention.username} bans`)
