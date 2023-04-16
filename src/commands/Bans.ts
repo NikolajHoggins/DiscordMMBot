@@ -54,7 +54,7 @@ export const Bans: Command = {
                         ban =>
                             `${ban.type} - <t:${Math.floor(ban.startTime / 1000)}:F> - ${
                                 ban.reason
-                            }:F>`
+                            }`
                     )
                     .join('\n'),
             });
