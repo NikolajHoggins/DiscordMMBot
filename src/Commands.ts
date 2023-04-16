@@ -1,5 +1,6 @@
 import { Command } from './Command';
 import { Abandon } from './commands/Abandon.js';
+import { Bans } from './commands/Bans.js';
 import { Based } from './commands/Based';
 import { EndGame } from './commands/EndGame';
 import { ForceStart } from './commands/ForceStart.js';
@@ -31,4 +32,5 @@ export const Commands: Command[] = [
     Timeout,
     ForceSubmit,
     ForceStart,
+    Bans,
 ];

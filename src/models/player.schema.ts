@@ -1,4 +1,5 @@
 import { Schema, model, connect } from 'mongoose';
+import { BansType } from '../types/bans.js';
 
 export const MatchResultType = {
     win: 'win',
@@ -10,7 +11,13 @@ export type MatchResultType = typeof MatchResultType[keyof typeof MatchResultTyp
 
 type MatchHistory = { matchNumber: number; result: MatchResultType; change: number }[];
 
-type BanHistory = { timeoutInMinutes: number; reason: string; startTime: number; modId?: string }[];
+type BanHistory = {
+    timeoutInMinutes: number;
+    reason: string;
+    startTime: number;
+    modId?: string;
+    type: BansType;
+}[];
 // 1. Create an interface representing a document in MongoDB.
 export interface IPlayer {
     discordId: string;
