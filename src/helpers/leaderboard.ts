@@ -55,7 +55,7 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
             const wins = history.filter(match => match.result === 'win').length;
             const losses = history.filter(match => match.result === 'loss').length;
             const total = history.length;
-            const winRate = ceil((wins / (wins + losses)) * 100);
+            const winRate = ceil((wins / total) * 100);
 
             const prettyName = `${repeat(' ', whitespace)}${p.name.slice(0, 10)}${repeat(
                 ' ',
