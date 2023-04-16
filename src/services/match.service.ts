@@ -26,8 +26,9 @@ import { deleteChannel, createChannel } from '../helpers/channel.js';
 import { getVotes } from '../helpers/match.js';
 import { capitalize, groupBy, map, upperCase } from 'lodash';
 import { getTeamBName } from '../helpers/team.js';
-import { addWinLoss } from './player.service.js';
+import { addBan, addWinLoss } from './player.service.js';
 import { MatchResultType } from '../models/player.schema.js';
+import { BansType } from '../types/bans.js';
 const DEBUG_MODE = false;
 
 const getNewMatchNumber = async (): Promise<number> => {
@@ -182,6 +183,15 @@ const sendReadyMessage = async ({
                     match.match_number
                 }`,
                 client,
+            });
+
+            q.forEach(async player => {
+                addBan({
+                    client,
+                    type: BansType.ready,
+                    reason: `Failed to accept match ${match.match_number}`,
+                    userId: player,
+                });
             });
             setTimeout(() => {
                 end({ matchNumber: match.match_number, client });

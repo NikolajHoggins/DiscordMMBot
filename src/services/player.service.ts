@@ -1,7 +1,7 @@
 import { Client, User } from 'discord.js';
 import Player, { IPlayer, MatchResultType } from '../models/player.schema';
 import { checkRank } from '../helpers/rank.js';
-import { BansType } from '../types/bans.js';
+import { BansType, banTimes } from '../types/bans.js';
 import Queue from '../models/queue.schema.js';
 import { getChannelId } from './system.service.js';
 import { ChannelsType } from '../types/channel.js';
@@ -94,10 +94,10 @@ export const addBan = ({
     modId,
     client,
 }: {
-    duration: number;
+    duration?: number;
     reason: string;
     userId: string;
-    type: string;
+    type: BansType;
     modId?: string;
     client: Client;
 }) => {
@@ -110,8 +110,12 @@ export const addBan = ({
 
         await Queue.deleteOne({ discordId: userId });
 
+        const previousOffenses = player.bans.filter((b: any) => b.type === type).length;
+        const actualDuration = duration || banTimes[type] * previousOffenses;
+
+        console.log(actualDuration);
         const now = Date.now();
-        const timeoutEnd = now + duration * 60 * 1000;
+        const timeoutEnd = now + actualDuration * 60 * 1000;
         const banBody = {
             startTime: now,
             reason: reason,
@@ -135,7 +139,7 @@ export const addBan = ({
 
         //Send message in queue channel
 
-        const message = `<@${userId}> has been timed out for ${duration} minutes due to "${reason}"`;
+        const message = `<@${userId}> has been timed out for ${actualDuration} minutes due to "${reason}"`;
 
         const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
         await sendMessage({

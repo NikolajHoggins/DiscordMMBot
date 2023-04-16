@@ -1,6 +1,6 @@
 import { ObjectId } from 'mongoose';
 import System, { ISystem } from '../models/system.schema';
-import { ChannelsType } from '../types/channel';
+import { CategoriesType, ChannelsType } from '../types/channel';
 
 const ONE_MINUTE = 60000;
 
@@ -26,7 +26,7 @@ export const setPingCooldown = () => {
     });
 };
 
-export const getChannelId = (type: ChannelsType): Promise<string> => {
+export const getChannelId = (type: ChannelsType | CategoriesType): Promise<string> => {
     return new Promise(async (resolve, reject) => {
         const config = await getConfig();
         const channel = config.channels.find(t => t.name === type);
