@@ -6,6 +6,7 @@ import { ButtonInteractionsType } from '../types/interactions.js';
 import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction.js';
 import { handleReadyInteraction } from './buttonInteractions/readyInteraction.js';
 import { handleRegionInteraction } from './buttonInteractions/regionInteraction.js';
+import { handleMatchInteraction } from './buttonInteractions/handleMatchInteraction.js';
 
 export default (client: Client): void => {
     client.on('interactionCreate', async (interaction: Interaction) => {
@@ -28,6 +29,10 @@ const handleButtonInteraction = async (client: Client, interaction: ButtonIntera
 
     if (interaction.customId.split('.')[0] === 'region') {
         return handleRegionInteraction(interaction, client);
+    }
+
+    if (interaction.customId.split('.')[0] === 'match') {
+        return handleMatchInteraction(interaction, client);
     }
 
     if (!match) {

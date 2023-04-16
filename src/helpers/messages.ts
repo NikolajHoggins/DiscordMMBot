@@ -1,6 +1,17 @@
-import { Client, Message, MessageCreateOptions, MessagePayload, TextChannel } from 'discord.js';
+import {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    Client,
+    Message,
+    MessageActionRowComponentBuilder,
+    MessageCreateOptions,
+    MessagePayload,
+    TextChannel,
+} from 'discord.js';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
+import Match, { IMatch } from '../models/match.schema.js';
 
 export const sendMessage = async ({
     channelId,
@@ -36,5 +47,32 @@ export const botLog = async ({
         sendMessage({ channelId: logChannelId, messageContent, client });
 
         resolve();
+    });
+};
+
+export const createReadyMessage = ({
+    matchNumber,
+}: {
+    matchNumber: number;
+}): Promise<MessageCreateOptions> => {
+    return new Promise(async resolve => {
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match) throw new Error('Match not found');
+
+        const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+
+        row.addComponents(
+            new ButtonBuilder()
+                .setCustomId('match.confirm')
+                .setLabel('Ready')
+                .setStyle(ButtonStyle.Success)
+        );
+
+        const confirmMessageContent = {
+            content: `Confirm you are ready to play with the button below. If you cannot play do /abandon`,
+            components: [row],
+        };
+
+        resolve(confirmMessageContent);
     });
 };

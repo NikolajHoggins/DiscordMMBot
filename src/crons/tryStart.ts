@@ -1,6 +1,6 @@
 import { Client } from 'discord.js';
 import cron from 'node-cron';
-import { checkScoreVerified, tryStart } from '../services/match.service.js';
+import { checkPlayersReady, checkScoreVerified, tryStart } from '../services/match.service.js';
 import Match from '../models/match.schema.js';
 
 const verifyRunningMatches = async (client: Client) => {
@@ -15,13 +15,22 @@ const verifyRunningMatches = async (client: Client) => {
     });
 };
 
+const verifyPlayersReady = async (client: Client) => {
+    const matches = await Match.find({ status: 'pending' });
+    matches.forEach(match => {
+        checkPlayersReady({ match, client });
+    });
+};
+
 const initTryStartCron = async (client: Client) => {
     cron.schedule('* * * * *', async () => {
         tryStart(client);
         verifyRunningMatches(client);
+        verifyPlayersReady(client);
         //Cronjob hacker :sunglasses:
         setTimeout(() => {
             verifyRunningMatches(client);
+            verifyPlayersReady(client);
             tryStart(client);
         }, 30000);
     });

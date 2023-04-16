@@ -10,7 +10,7 @@ import {
     User,
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
-import { sendMessage } from '../helpers/messages';
+import { createReadyMessage, sendMessage } from '../helpers/messages';
 import Match, { IMatch, IMatchChannels } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
@@ -31,6 +31,8 @@ import { MatchResultType } from '../models/player.schema.js';
 import { BansType } from '../types/bans.js';
 const DEBUG_MODE = false;
 
+const SECOND_IN_MS = 1000;
+const MINUTE_IN_MS = 60 * SECOND_IN_MS;
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async resolve => {
         const latest = await Match.find()
@@ -125,79 +127,106 @@ const sendReadyMessage = async ({
     match: IMatch;
 }): Promise<void> => {
     return new Promise(async resolve => {
-        const secondInMs = 1000;
-        const timeToReadyInMs = 3 * 60 * secondInMs;
-        const warning = timeToReadyInMs - 60 * secondInMs;
-        const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
-        await sendMessage({
-            channelId,
-            messageContent: `${queuePlayers.map(p => `<@${p.discordId}>`)}`,
-            client,
-        });
+        const timeToReadyInMs = 3 * MINUTE_IN_MS;
+
         const readyMessage = await sendMessage({
             channelId,
             messageContent: `Game has been found, you have ${
                 timeToReadyInMs / 1000
-            } seconds to ready up. Once clicked, you cannot unready`,
+            } seconds to ready up.`,
             client,
         });
+
         if (!readyMessage) throw new Error('Could not send ready message');
 
-        let q = queuePlayers.map(q => q.discordId);
-        readyMessage.react('✅');
+        const readyMessageContent = await createReadyMessage({
+            matchNumber: match.match_number,
+        });
+        const playersMessage = await sendMessage({
+            channelId: match.channels.ready,
+            client,
+            messageContent:
+                'Missing players: ' +
+                match.players
+                    .filter(p => !p.ready)
+                    .map(p => `<@${p.id}>`)
+                    .join(' '),
+        });
+        const confirmMessage = await sendMessage({
+            channelId: match.channels.ready,
+            client,
+            messageContent: readyMessageContent,
+        });
+        if (!confirmMessage) throw new Error('Could not send ready message');
 
-        setTimeout(() => {
-            q.forEach(id => {
-                sendMessage({
-                    channelId,
-                    messageContent: `<@${id}> you have ${
-                        (timeToReadyInMs - warning) / 1000
-                    } seconds to ready up`,
-                    client,
-                });
-            });
-        }, warning);
-        const filter = (reaction: any, user: User) => {
-            q = q.filter(id => id !== user.id);
+        resolve();
+    });
+};
 
-            if (q.length <= 0) {
-                startVotingPhase(client, match);
-            }
-            if (queuePlayers.find(q => q.discordId === user.id)) return true;
-            return false;
-        };
-        readyMessage.awaitReactions({ filter, time: timeToReadyInMs }).then(() => {
-            if (q.length <= 0) return;
+export const checkPlayersReady = ({ match, client }: { match: IMatch; client: Client }) => {
+    return new Promise(async resolve => {
+        const unreadyPlayers = match.players.filter(p => p.ready !== true);
+        if (unreadyPlayers.length <= 0) {
+            startVotingPhase(client, match);
 
+            return resolve(true);
+        }
+
+        //if it's been more than 3 minutes since the match started, end game
+        if (Date.now() - match.start > 3 * 60 * SECOND_IN_MS) {
             sendMessage({
-                channelId,
-                messageContent: `${q.map(
-                    player => `<@${player}>,`
+                channelId: match.channels.ready,
+                messageContent: `${unreadyPlayers.map(
+                    player => `<@${player.id}>,`
                 )} failed to accept the match, ending game`,
                 client,
             });
 
+            //get queue channel id
+            const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
             sendMessage({
                 channelId: queueChannelId,
-                messageContent: `${q.map(player => `<@${player}>,`)} failed to accept match ${
-                    match.match_number
-                }`,
+                messageContent: `${unreadyPlayers.map(
+                    player => `<@${player.id}>,`
+                )} failed to accept match ${match.match_number}`,
                 client,
             });
 
-            q.forEach(async player => {
-                addBan({
-                    client,
-                    type: BansType.ready,
-                    reason: `Failed to accept match ${match.match_number}`,
-                    userId: player,
-                });
-            });
+            //ban players not ready
+            await Promise.all(
+                unreadyPlayers.map(player => {
+                    return new Promise(async resolve => {
+                        addBan({
+                            client,
+                            reason: `Failed to accept match ${match.match_number}`,
+                            type: BansType.ready,
+                            userId: player.id,
+                        });
+                    });
+                })
+            );
+
             setTimeout(() => {
                 end({ matchNumber: match.match_number, client });
             }, 5000);
-        });
-        resolve();
+            return resolve(true);
+        }
+
+        // if match. start is more 2 minutes ago, send message
+        if (Date.now() - match.start > 2 * MINUTE_IN_MS - 20 * SECOND_IN_MS) {
+            const timeToReadyInMs = 3 * MINUTE_IN_MS;
+            const endTime = match.start + timeToReadyInMs;
+            const timeLeft = endTime - Date.now();
+            const channelId = match.channels.ready;
+            const q = match.players.filter(p => p.ready !== true).map(p => p.id);
+            sendMessage({
+                channelId,
+                messageContent: `${q.map(player => `<@${player}>,`)} you have ${Math.floor(
+                    timeLeft / SECOND_IN_MS
+                )} seconds to ready up`,
+                client,
+            });
+        }
     });
 };
 
@@ -236,7 +265,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: 1 });
-        const count = DEBUG_MODE ? 1 : 10;
+        const count = DEBUG_MODE ? 2 : 10;
         const naPlayers = queue.filter(q => q.queueRegion === 'na');
         const euPlayers = queue.filter(q => q.queueRegion === 'eu');
         const fillPlayers = queue.filter(q => q.queueRegion === 'fill');
@@ -397,7 +426,10 @@ const createSideVotingChannel = async ({
         if (!teams || !teams.includes(',')) throw new Error('No teams found in env');
         teams.split(',').forEach(team => {
             row.addComponents(
-                new ButtonBuilder().setCustomId(team).setLabel(team).setStyle(ButtonStyle.Primary)
+                new ButtonBuilder()
+                    .setCustomId(team)
+                    .setLabel(capitalize(team))
+                    .setStyle(ButtonStyle.Primary)
             );
         });
 
@@ -437,7 +469,10 @@ const createMapVotingChannel = async ({
         if (!maps || !maps.includes(',')) throw new Error('No maps found in env');
         maps.split(',').forEach(map => {
             row.addComponents(
-                new ButtonBuilder().setCustomId(map).setLabel(map).setStyle(ButtonStyle.Primary)
+                new ButtonBuilder()
+                    .setCustomId(map)
+                    .setLabel(capitalize(map))
+                    .setStyle(ButtonStyle.Primary)
             );
         });
         const teamBChannel = await createChannel({
