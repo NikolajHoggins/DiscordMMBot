@@ -5,6 +5,8 @@ import Player from '../models/player.schema.js';
 import { getChannelId } from '../services/system.service.js';
 import { ChannelsType } from '../types/channel.js';
 import { sendMessage } from '../helpers/messages.js';
+import { addBan } from '../services/player.service.js';
+import { BansType } from '../types/bans.js';
 
 export const Abandon: Command = {
     name: 'abandon',
@@ -27,35 +29,15 @@ export const Abandon: Command = {
             const player = await Player.findOne({ discordId: user.id });
             if (!player) return interaction.reply({ content: `User not found` });
             const previousBans = player.bans.filter(b => !b.modId).length;
-            const now = new Date();
             const reason = `Denied match ${match.match_number} before it started`;
-            const durationValue = 10 * (previousBans + 1);
-            const timeoutEnd = now.getTime() + durationValue * 60 * 1000;
-            const banBody = {
-                startTime: now,
-                reason: reason,
-                timeoutInMinutes: durationValue,
-            };
 
-            await Player.updateOne(
-                { discordId: user.id },
-                {
-                    $set: { banStart: now, banEnd: timeoutEnd, test: 'lol' },
-                    ...(player.bans
-                        ? {
-                              $push: {
-                                  bans: banBody,
-                              },
-                          }
-                        : { $set: { bans: [banBody] } }),
-                }
-            );
-            const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
-            await sendMessage({
-                channelId: queueChannelId,
-                messageContent: `<@${user.id}> has been timed out for ${durationValue} minutes due to "${reason}"`,
+            addBan({
+                userId: user.id,
+                reason,
                 client,
+                type: BansType.preAbandon,
             });
+
             setTimeout(() => {
                 end({ matchNumber: match.match_number, client });
             }, 3000);
@@ -71,41 +53,19 @@ export const Abandon: Command = {
         //set a timeout on player, and add a timeout history
         const player = await Player.findOne({ discordId: user.id });
         if (!player) return interaction.reply({ content: `User not found` });
-        const previousBans = player.bans.filter(b => !b.modId).length;
-        const now = new Date();
-        const reason = `Abandoned match ${match.match_number}`;
-        const durationValue = 30 * (previousBans + 1);
-        const timeoutEnd = now.getTime() + durationValue * 60 * 1000;
-        const banBody = {
-            startTime: now,
-            reason: reason,
-            timeoutInMinutes: durationValue,
-        };
 
-        await Player.updateOne(
-            { discordId: user.id },
-            {
-                $set: { banStart: now, banEnd: timeoutEnd, test: 'lol' },
-                ...(player.bans
-                    ? {
-                          $push: {
-                              bans: banBody,
-                          },
-                      }
-                    : { $set: { bans: [banBody] } }),
-            }
-        );
+        const reason = `Abandoned match ${match.match_number}`;
+
+        addBan({
+            userId: user.id,
+            reason,
+            client,
+            type: BansType.abandon,
+        });
 
         await sendMessage({
             channelId: channelId,
             messageContent: `<@&${match.roleId}> <@${user.id}> has abandoned the match. They are not allowed to join the game again, and has been given a timeout from playing. \nYou will keep playing with the remaining players. \nSince one team is at a disadvantage, the team with a missing player will lose less elo for a loss, and win more from a win (WIP, dm hoggins).>`,
-            client,
-        });
-
-        const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
-        await sendMessage({
-            channelId: queueChannelId,
-            messageContent: `<@${user.id}> has been timed out for ${durationValue} minutes due to "${reason}"`,
             client,
         });
 
