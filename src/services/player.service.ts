@@ -111,9 +111,8 @@ export const addBan = ({
         await Queue.deleteOne({ discordId: userId });
 
         const previousOffenses = player.bans.filter((b: any) => b.type === type).length;
-        const actualDuration = duration || banTimes[type] * previousOffenses;
+        const actualDuration = duration || banTimes[type] * (previousOffenses + 1);
 
-        console.log(actualDuration);
         const now = Date.now();
         const timeoutEnd = now + actualDuration * 60 * 1000;
         const banBody = {
