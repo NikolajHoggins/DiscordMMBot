@@ -211,11 +211,13 @@ export const checkPlayersReady = ({
                             type: BansType.ready,
                             userId: player.id,
                         });
+                        resolve(true);
                     });
                 })
             );
 
             setTimeout(() => {
+                console.log('here');
                 end({ matchNumber: match.match_number, client });
             }, 5000);
             return resolve(true);
@@ -274,7 +276,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: 1 });
-        const count = DEBUG_MODE ? 2 : 10;
+        const count = DEBUG_MODE ? 1 : 10;
         const naPlayers = queue.filter(q => q.queueRegion === 'na');
         const euPlayers = queue.filter(q => q.queueRegion === 'eu');
         const fillPlayers = queue.filter(q => q.queueRegion === 'fill');
@@ -452,9 +454,9 @@ const createSideVotingChannel = async ({
             content: 'Pick a side to start on. Voting ends in 20 seconds',
             components: [row],
         };
-        const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'a').map(
-            p => `<@${p.id}>,`
-        )}`;
+        const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'a')
+            .map(p => `<@${p.id}>`)
+            .join(', ')}`;
         await sendMessage({ channelId: teamAChannel.id, messageContent: teammatesMessage, client });
         await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
         //Set timeout, and check which has more votes
@@ -493,9 +495,9 @@ const createMapVotingChannel = async ({
             content: 'Pick a map to play. Voting ends in 20 seconds',
             components: [row],
         };
-        const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'b').map(
-            p => `<@${p.id}>,`
-        )}`;
+        const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'b')
+            .map(p => `<@${p.id}>`)
+            .join(', ')}`;
         await sendMessage({ channelId: teamBChannel.id, messageContent: teammatesMessage, client });
         await sendMessage({
             channelId: teamBChannel.id,
