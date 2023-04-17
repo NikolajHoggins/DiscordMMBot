@@ -805,7 +805,11 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
         match.status = 'ended';
         await match.save();
         const guild = await getGuild(client);
-        await guild?.roles.delete(match.roleId);
+        try {
+            await guild?.roles.delete(match.roleId);
+        } catch (error) {
+            console.log('error deleting role', match.roleId);
+        }
 
         await Promise.all(
             Object.keys(match.channels).map(
@@ -814,10 +818,14 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
                         const channelId = match.channels[key as keyof IMatchChannels];
                         if (!channelId) return resolve(true);
 
-                        await deleteChannel({
-                            client,
-                            channelId,
-                        });
+                        try {
+                            await deleteChannel({
+                                client,
+                                channelId,
+                            });
+                        } catch (error) {
+                            console.log('error deletint channel', channelId);
+                        }
                         resolve(true);
                     })
             )

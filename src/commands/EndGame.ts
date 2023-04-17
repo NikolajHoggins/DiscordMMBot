@@ -2,21 +2,27 @@ import {
     CommandInteraction,
     Client,
     ApplicationCommandType,
-    TextChannel,
-    Channel,
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
-import { updateStatus } from '../crons/updateQueue';
 import { getGuild } from '../helpers/guild';
 import { botLog } from '../helpers/messages';
 
 import * as matchService from '../services/match.service';
+import Match from '../models/match.schema.js';
 
 export const EndGame: Command = {
     name: 'end_game',
     description: 'Force end game lobby',
     type: ApplicationCommandType.ChatInput,
+    options: [
+        {
+            name: 'match_number',
+            description: 'Match number',
+            type: ApplicationCommandOptionType.Integer,
+            required: false,
+        },
+    ],
     run: async (client: Client, interaction: CommandInteraction) => {
         //fetch player from database
         const { user, channelId } = interaction;
@@ -24,6 +30,7 @@ export const EndGame: Command = {
         if (!process.env.MOD_ROLE_ID || !process.env.SERVER_ID) return;
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
+        const matchNumber = interaction.options.get('match_number')?.value as number;
 
         //Fetch everyone for it to be in cache
         await guild?.roles.fetch(process.env.SERVER_ID);
@@ -39,7 +46,9 @@ export const EndGame: Command = {
             return;
         }
         //find match with channelId
-        const match = await matchService.findByChannelId(channelId);
+        const match = matchNumber
+            ? await Match.findOne({ match_number: matchNumber })
+            : await matchService.findByChannelId(channelId);
 
         const content = match ? 'Deleting' : 'Not in match thread';
 
