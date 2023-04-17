@@ -41,8 +41,6 @@ export const Countdown: Command = {
         const playerList = await Player.find({});
         const sortedPlayerList = playerList.sort((a, b) => b.history.length - a.history.length);
 
-        console.log('playerList', playerList);
-
         const player = await Player.findOne({ discordId: user.id });
         if (!player) throw new Error("You don't have any stats yet!");
 
@@ -56,7 +54,10 @@ export const Countdown: Command = {
         );
 
         const statsEmbed = new EmbedBuilder()
-            .setTitle(`Tournament countdown - <t:${Math.floor(END_TIME / 1000)}:R>`)
+            .setTitle(`Tournament countdown - ends <t:${Math.floor(END_TIME / 1000)}:R>`)
+            .setDescription(
+                "Here's the leaderboards for the opening week tournament! Most games played wins pricepool <#1096210640219156572>"
+            )
             .setColor('#C69B6D')
             .addFields([
                 {
