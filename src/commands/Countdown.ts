@@ -38,63 +38,63 @@ export const Countdown: Command = {
         //     });
         // }
 
-        const playerList = await Player.find(
-            {},
-            { arrayLength: { $size: '$history' }, discordId: 1, history: 1 }
-        ).sort({ arrayLength: -1 });
-        console.log('playerList', playerList);
+        // const playerList = await Player.find(
+        //     {},
+        //     { arrayLength: { $size: '$history' }, discordId: 1 }
+        // ).sort({ arrayLength: -1 });
+        // console.log('playerList', playerList);
 
-        const player = await Player.findOne({ discordId: user.id });
-        if (!player) throw new Error("You don't have any stats yet!");
+        // const player = await Player.findOne({ discordId: user.id });
+        // if (!player) throw new Error("You don't have any stats yet!");
 
-        const START_TIME = 1681411005719;
-        const ONE_WEEK = 604800000;
-        const END_TIME = START_TIME + ONE_WEEK;
+        // const START_TIME = 1681411005719;
+        // const ONE_WEEK = 604800000;
+        // const END_TIME = START_TIME + ONE_WEEK;
 
-        const yourIndex = indexOf(
-            playerList.map(p => p.discordId),
-            player.discordId
-        );
+        // const yourIndex = indexOf(
+        //     playerList.map(p => p.discordId),
+        //     player.discordId
+        // );
 
-        const statsEmbed = new EmbedBuilder()
-            .setTitle(`Tournament countdown - <t:${Math.floor(END_TIME / 1000)}:R>`)
-            .setColor('#C69B6D')
-            .addFields([
-                {
-                    name: 'Current top 2 players',
-                    value:
-                        '' +
-                        playerList
-                            .slice(0, 2)
-                            .map(
-                                (player, i) =>
-                                    `#${i + 1} - <@${player.discordId}> - ${
-                                        player.history?.length || 0
-                                    } matches`
-                            )
-                            .join('\n'),
-                },
-                {
-                    name: '3rd and 4th place (no prize)',
-                    value:
-                        '' +
-                        playerList
-                            .slice(2, 4)
-                            .map(
-                                (player, i) =>
-                                    `#${i + 3} - <@${player.discordId}> - ${
-                                        player.history?.length || 0
-                                    } matches`
-                            )
-                            .join('\n'),
-                },
-                {
-                    name: 'Your matches',
-                    value: `#${yourIndex + 1} - <@${player.discordId}> - ${
-                        player.history?.length || 0
-                    } matches`,
-                },
-            ]);
+        // const statsEmbed = new EmbedBuilder()
+        //     .setTitle(`Tournament countdown - <t:${Math.floor(END_TIME / 1000)}:R>`)
+        //     .setColor('#C69B6D')
+        //     .addFields([
+        //         {
+        //             name: 'Current top 2 players',
+        //             value:
+        //                 '' +
+        //                 playerList
+        //                     .slice(0, 2)
+        //                     .map(
+        //                         (player, i) =>
+        //                             `#${i + 1} - <@${player.discordId}> - ${
+        //                                 player.arrayLength || 0
+        //                             } matches`
+        //                     )
+        //                     .join('\n'),
+        //         },
+        //         {
+        //             name: '3rd and 4th place (no prize)',
+        //             value:
+        //                 '' +
+        //                 playerList
+        //                     .slice(2, 4)
+        //                     .map(
+        //                         (player, i) =>
+        //                             `#${i + 3} - <@${player.discordId}> - ${
+        //                                 player.history?.length || 0
+        //                             } matches`
+        //                     )
+        //                     .join('\n'),
+        //         },
+        //         {
+        //             name: 'Your matches',
+        //             value: `#${yourIndex + 1} - <@${player.discordId}> - ${
+        //                 player.history?.length || 0
+        //             } matches`,
+        //         },
+        //     ]);
 
         // .setDescription(`Map: ${capitalize(match.map)}`)
         //     {
@@ -122,8 +122,12 @@ export const Countdown: Command = {
         //         : []),
         // ]);
 
-        await interaction.reply({
-            embeds: [statsEmbed],
+        // await interaction.reply({
+        //     embeds: [statsEmbed],
+        // });
+        return interaction.reply({
+            content: 'This command is currently disabled',
+            ephemeral: true,
         });
     },
 };
