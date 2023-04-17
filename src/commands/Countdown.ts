@@ -30,104 +30,77 @@ export const Countdown: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
 
-        // const queueChannel = await getChannelId(ChannelsType['bot-commands']);
-        // if (interaction.channelId !== queueChannel) {
-        //     return interaction.reply({
-        //         content: `Keep messages in <#${queueChannel}> channel`,
-        //         ephemeral: true,
-        //     });
-        // }
+        const queueChannel = await getChannelId(ChannelsType['bot-commands']);
+        if (interaction.channelId !== queueChannel) {
+            return interaction.reply({
+                content: `Keep messages in <#${queueChannel}> channel`,
+                ephemeral: true,
+            });
+        }
 
-        // const playerList = await Player.find(
-        //     {},
-        //     { arrayLength: { $size: '$history' }, discordId: 1 }
-        // ).sort({ arrayLength: -1 });
-        // console.log('playerList', playerList);
+        const playerList = await Player.find({});
+        const sortedPlayerList = playerList.sort((a, b) => b.history.length - a.history.length);
 
-        // const player = await Player.findOne({ discordId: user.id });
-        // if (!player) throw new Error("You don't have any stats yet!");
+        console.log('playerList', playerList);
 
-        // const START_TIME = 1681411005719;
-        // const ONE_WEEK = 604800000;
-        // const END_TIME = START_TIME + ONE_WEEK;
+        const player = await Player.findOne({ discordId: user.id });
+        if (!player) throw new Error("You don't have any stats yet!");
 
-        // const yourIndex = indexOf(
-        //     playerList.map(p => p.discordId),
-        //     player.discordId
-        // );
+        const START_TIME = 1681411005719;
+        const ONE_WEEK = 604800000;
+        const END_TIME = START_TIME + ONE_WEEK;
 
-        // const statsEmbed = new EmbedBuilder()
-        //     .setTitle(`Tournament countdown - <t:${Math.floor(END_TIME / 1000)}:R>`)
-        //     .setColor('#C69B6D')
-        //     .addFields([
-        //         {
-        //             name: 'Current top 2 players',
-        //             value:
-        //                 '' +
-        //                 playerList
-        //                     .slice(0, 2)
-        //                     .map(
-        //                         (player, i) =>
-        //                             `#${i + 1} - <@${player.discordId}> - ${
-        //                                 player.arrayLength || 0
-        //                             } matches`
-        //                     )
-        //                     .join('\n'),
-        //         },
-        //         {
-        //             name: '3rd and 4th place (no prize)',
-        //             value:
-        //                 '' +
-        //                 playerList
-        //                     .slice(2, 4)
-        //                     .map(
-        //                         (player, i) =>
-        //                             `#${i + 3} - <@${player.discordId}> - ${
-        //                                 player.history?.length || 0
-        //                             } matches`
-        //                     )
-        //                     .join('\n'),
-        //         },
-        //         {
-        //             name: 'Your matches',
-        //             value: `#${yourIndex + 1} - <@${player.discordId}> - ${
-        //                 player.history?.length || 0
-        //             } matches`,
-        //         },
-        //     ]);
+        const yourIndex = indexOf(
+            playerList.map(p => p.discordId),
+            player.discordId
+        );
 
-        // .setDescription(`Map: ${capitalize(match.map)}`)
-        //     {
-        //         name: 'Rating',
-        //         value: '' + playerRating,
-        //         inline: true,
-        //     },
-        //     {
-        //         name: 'Match History',
-        //         value:
-        //             player.history
-        //                 .slice(-10)
-        //                 .map(h => `${getEmoji(h.result[0])}`)
-        //                 .join('') || 'No matches played',
-        //         inline: false,
-        //     },
-        //     ...(history.length < 10
-        //         ? [
-        //               {
-        //                   name: 'You are unranked',
-        //                   value: "Stats will be available once you've played 10 matches.",
-        //                   inline: false,
-        //               },
-        //           ]
-        //         : []),
-        // ]);
+        const statsEmbed = new EmbedBuilder()
+            .setTitle(`Tournament countdown - <t:${Math.floor(END_TIME / 1000)}:R>`)
+            .setColor('#C69B6D')
+            .addFields([
+                {
+                    name: 'Current top 2 players',
+                    value:
+                        '' +
+                        sortedPlayerList
+                            .slice(0, 2)
+                            .map(
+                                (player, i) =>
+                                    `#${i + 1} - <@${player.discordId}> - ${
+                                        player.history.length || 0
+                                    } matches`
+                            )
+                            .join('\n'),
+                },
+                {
+                    name: '3rd and 4th place (no prize)',
+                    value:
+                        '' +
+                        sortedPlayerList
+                            .slice(2, 4)
+                            .map(
+                                (player, i) =>
+                                    `#${i + 3} - <@${player.discordId}> - ${
+                                        player.history?.length || 0
+                                    } matches`
+                            )
+                            .join('\n'),
+                },
+                {
+                    name: 'Your matches',
+                    value: `#${yourIndex + 1} - <@${player.discordId}> - ${
+                        player.history?.length || 0
+                    } matches`,
+                },
+            ]);
 
-        // await interaction.reply({
-        //     embeds: [statsEmbed],
-        // });
-        return interaction.reply({
-            content: 'This command is currently disabled',
-            ephemeral: true,
+        await interaction.reply({
+            embeds: [statsEmbed],
         });
+        // return interaction.reply({
+        //     content: 'This command is currently disabled',
+        //     ephemeral: true,
+        // });
     },
 };
