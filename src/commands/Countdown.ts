@@ -42,20 +42,10 @@ export const Countdown: Command = {
             {},
             { arrayLength: { $size: '$history' }, discordId: 1, history: 1 }
         ).sort({ arrayLength: -1 });
+        console.log('playerList', playerList);
 
         const player = await Player.findOne({ discordId: user.id });
         if (!player) throw new Error("You don't have any stats yet!");
-
-        const { history } = player;
-
-        const wins = history.filter(match => match.result === 'win').length;
-        const matches = history.length;
-        const losses = matches - wins;
-        const winRate = ceil((wins / (wins + losses)) * 100);
-
-        const isUnranked = player.history.length < 10;
-        const rankName = isUnranked ? 'Unranked' : getRankName(player.rating);
-        const playerRating = isUnranked ? 'Play 10 matches' : floor(player.rating);
 
         const START_TIME = 1681411005719;
         const ONE_WEEK = 604800000;
@@ -131,9 +121,6 @@ export const Countdown: Command = {
         //           ]
         //         : []),
         // ]);
-        const content = `User ${player.name} [${Math.floor(
-            player.rating
-        )}] has ${wins} wins and ${losses} losses. ${!isNaN(winRate) ? winRate : 0}% winrate`;
 
         await interaction.reply({
             embeds: [statsEmbed],
