@@ -3,6 +3,7 @@ import { Abandon } from './commands/Abandon.js';
 import { Bans } from './commands/Bans.js';
 import { Based } from './commands/Based';
 import { Countdown } from './commands/Countdown.js';
+import { DeleteGame } from './commands/DeleteGame.js';
 import { EndGame } from './commands/EndGame';
 import { ForceAbandon } from './commands/ForceAbandon.js';
 import { ForceStart } from './commands/ForceStart.js';
@@ -37,4 +38,5 @@ export const Commands: Command[] = [
     ForceAbandon,
     Bans,
     Countdown,
+    DeleteGame,
 ];
