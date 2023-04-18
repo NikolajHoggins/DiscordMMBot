@@ -289,7 +289,7 @@ export const tryStart = (client: Client): Promise<void> => {
             //start na match
             return await startMatch({
                 client,
-                queue: naPlayers,
+                queue: [...naPlayers, ...fillPlayers],
                 count,
                 queueChannelId,
                 region: 'na',
@@ -298,7 +298,7 @@ export const tryStart = (client: Client): Promise<void> => {
         if (euPlayers.length >= count) {
             return await startMatch({
                 client,
-                queue: euPlayers,
+                queue: [...euPlayers, ...fillPlayers],
                 count,
                 queueChannelId,
                 region: 'eu',
