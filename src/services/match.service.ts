@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { createReadyMessage, sendMessage } from '../helpers/messages';
-import Match, { IMatch, IMatchChannels } from '../models/match.schema';
+import Match, { IMatch, IMatchChannels, MatchStatus } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
@@ -176,6 +176,10 @@ export const checkPlayersReady = ({
 
         const unreadyPlayers = match.players.filter(p => p.ready !== true);
         if (unreadyPlayers.length <= 0) {
+            await Match.updateOne(
+                { match_number: matchNumber },
+                { $set: { status: MatchStatus.voting } }
+            );
             startVotingPhase(client, match);
 
             return resolve(true);

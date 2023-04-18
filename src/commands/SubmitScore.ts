@@ -9,6 +9,7 @@ import * as matchService from '../services/match.service';
 import { capitalize, get } from 'lodash';
 import { getTeam } from '../helpers/players.js';
 import { getTeamBName } from '../helpers/team.js';
+import { MatchStatus } from '../models/match.schema.js';
 
 export const SubmitScore: Command = {
     name: 'submit_score',
@@ -37,7 +38,7 @@ export const SubmitScore: Command = {
             });
             return;
         }
-        if (match.status === 'pending' || match.status === 'ended') {
+        if (match.status !== MatchStatus.started) {
             await interaction.reply({
                 ephemeral: true,
                 content: 'Match not in started state',

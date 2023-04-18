@@ -1,7 +1,7 @@
 import { CommandInteraction, Client, Interaction, ButtonInteraction } from 'discord.js';
 import { Commands } from '../Commands';
 import { findByChannelId } from '../services/match.service.js';
-import Match, { IMatch } from '../models/match.schema.js';
+import Match, { IMatch, MatchStatus } from '../models/match.schema.js';
 import { ButtonInteractionsType } from '../types/interactions.js';
 import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction.js';
 import { handleReadyInteraction } from './buttonInteractions/readyInteraction.js';
@@ -45,7 +45,7 @@ const handleButtonInteraction = async (client: Client, interaction: ButtonIntera
         return;
     }
 
-    if (!match || match.status !== 'pending') {
+    if (!match || match.status !== MatchStatus.voting) {
         interaction.reply({ content: 'Not in pending match channel', ephemeral: true });
         return;
     }

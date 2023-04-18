@@ -23,6 +23,7 @@ export interface IMatchPlayer {
 
 export const MatchStatus = {
     pending: 'pending',
+    voting: 'voting',
     started: 'started',
     ended: 'ended',
 } as const;

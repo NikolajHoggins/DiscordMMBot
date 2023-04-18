@@ -12,6 +12,7 @@ import { getRankName } from '../helpers/rank.js';
 import { getGuild } from '../helpers/guild.js';
 import { findByChannelId, setScore } from '../services/match.service.js';
 import { getTeamBName } from '../helpers/team.js';
+import { MatchStatus } from '../models/match.schema.js';
 
 export const ForceSubmit: Command = {
     name: 'force_submit',
@@ -60,7 +61,7 @@ export const ForceSubmit: Command = {
             });
             return;
         }
-        if (match.status === 'pending' || match.status === 'ended') {
+        if (match.status !== MatchStatus.started) {
             await interaction.reply({
                 ephemeral: true,
                 content: 'Match not in started state',
