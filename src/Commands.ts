@@ -8,6 +8,7 @@ import { EndGame } from './commands/EndGame';
 import { ForceAbandon } from './commands/ForceAbandon.js';
 import { ForceStart } from './commands/ForceStart.js';
 import { ForceSubmit } from './commands/ForceSubmit.js';
+import { ForceVerify } from './commands/ForceVerify.js';
 import { PingPlayers } from './commands/PingPlayers';
 import { QueueCommand } from './commands/Queue';
 import { RatingChange } from './commands/RatingChange.js';
@@ -39,4 +40,5 @@ export const Commands: Command[] = [
     Bans,
     Countdown,
     DeleteGame,
+    ForceVerify,
 ];
