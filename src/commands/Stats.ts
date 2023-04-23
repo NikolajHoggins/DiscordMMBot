@@ -85,6 +85,11 @@ export const Stats: Command = {
                     inline: true,
                 },
                 {
+                    name: 'Win rate',
+                    value: `${!isNaN(winRate) ? winRate : 0}%`,
+                    inline: true,
+                },
+                {
                     name: 'Match History',
                     value:
                         player.history
