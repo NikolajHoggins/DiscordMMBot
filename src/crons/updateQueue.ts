@@ -9,6 +9,7 @@ import { getGuild } from '../helpers/guild.js';
 
 export const updateStatus = async (client: Client) => {
     if (!client.user) return;
+    console.log('Start updateStatus');
 
     const now = Date.now();
     const expired = await Queue.find({ expires: { $lt: now } });
@@ -31,6 +32,7 @@ export const updateStatus = async (client: Client) => {
     const playersInPlayingChannel = await guild.channels.fetch(playersPlayingChannelId);
     if (playersInPlayingChannel) {
         //Get all players in queue and in started matches
+        console.log('found players in playing channel');
         const matches = await Match.find({ status: 'started' });
         const playersInMatches = matches.map(m => m.players).flat();
         await playersInPlayingChannel.setName(`Players playing: ${playersInMatches.length}`);
@@ -39,6 +41,7 @@ export const updateStatus = async (client: Client) => {
     const playersQueueChannelId = await getChannelId(VCType['players-queue']);
     const playersInQueueChannel = await guild.channels.fetch(playersQueueChannelId);
     if (playersInQueueChannel) {
+        console.log('found players in queue channel');
         const playersInQueue = await queueService.get();
         await playersInQueueChannel.setName(`Players in queue: ${playersInQueue.length}`);
     }
@@ -46,9 +49,11 @@ export const updateStatus = async (client: Client) => {
     const matchesPlayedChannelId = await getChannelId(VCType['matches-played']);
     const matchesPlayedChannel = await guild.channels.fetch(matchesPlayedChannelId);
     if (matchesPlayedChannel) {
+        console.log('found matches played channel');
         const matches = await Match.find();
         await matchesPlayedChannel.setName(`Matches played: ${matches.length}`);
     }
+    console.log('End updateStatus');
 };
 
 const initStatusCron = async (client: Client) => {
