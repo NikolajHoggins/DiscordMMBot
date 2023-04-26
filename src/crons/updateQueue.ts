@@ -38,14 +38,6 @@ export const updateStatus = async (client: Client) => {
         await playersInPlayingChannel.setName(`Players playing: ${playersInMatches.length}`);
     }
 
-    const playersQueueChannelId = await getChannelId(VCType['players-queue']);
-    const playersInQueueChannel = await guild.channels.fetch(playersQueueChannelId);
-    if (playersInQueueChannel) {
-        console.log('found players in queue channel');
-        const playersInQueue = await queueService.get();
-        await playersInQueueChannel.setName(`Players in queue: ${playersInQueue.length}`);
-    }
-
     const matchesPlayedChannelId = await getChannelId(VCType['matches-played']);
     console.log('matchesPlayedChannelId', matchesPlayedChannelId);
     const matchesPlayedChannel = await guild.channels.fetch(matchesPlayedChannelId);
@@ -54,6 +46,14 @@ export const updateStatus = async (client: Client) => {
         const matches = await Match.find();
         await matchesPlayedChannel.setName(`Matches played: ${matches.length}`);
     }
+    const playersQueueChannelId = await getChannelId(VCType['players-queue']);
+    const playersInQueueChannel = await guild.channels.fetch(playersQueueChannelId);
+    if (playersInQueueChannel) {
+        console.log('found players in queue channel');
+        const playersInQueue = await queueService.get();
+        await playersInQueueChannel.setName(`Players in queue: ${playersInQueue.length}`);
+    }
+
     console.log('End updateStatus');
 };
 
