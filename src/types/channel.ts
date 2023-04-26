@@ -42,6 +42,7 @@ export const VCType = {
     members: 'members',
     'matches-played': 'matches-played',
     'players-playing': 'players-playing',
+    'players-queue': 'players-queue',
 };
 
 export type VCType = (typeof VCType)[keyof typeof VCType];

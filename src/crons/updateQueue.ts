@@ -27,15 +27,18 @@ export const updateStatus = async (client: Client) => {
     //Set stats on voice channels
     const guild = await getGuild(client);
     const playersPlayingChannelId = await getChannelId(VCType['players-playing']);
-    const playersInQueueChannel = await guild.channels.fetch(playersPlayingChannelId);
-    if (playersInQueueChannel) {
+    const playersQueueChannelId = await getChannelId(VCType['players-queue']);
+    const playersInPlayingChannel = await guild.channels.fetch(playersPlayingChannelId);
+    const playersInQueueChannel = await guild.channels.fetch(playersQueueChannelId);
+    if (playersInPlayingChannel) {
         //Get all players in queue and in started matches
-        const playersInQueue = await queueService.get();
         const matches = await Match.find({ status: 'started' });
         const playersInMatches = matches.map(m => m.players).flat();
-        await playersInQueueChannel?.setName(
-            `Players playing: ${playersInMatches.length + playersInQueue.length}`
-        );
+        await playersInPlayingChannel.setName(`Players playing: ${playersInMatches.length}`);
+    }
+    if (playersInQueueChannel) {
+        const playersInQueue = await queueService.get();
+        await playersInQueueChannel.setName(`Players in queue: ${playersInQueue.length}`);
     }
 };
 
