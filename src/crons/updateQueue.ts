@@ -46,12 +46,12 @@ export const updateStatus = async (client: Client) => {
         const matches = await Match.find();
         matchesPlayedChannel.setName(`Matches played: ${matches.length}`);
     }
-    const playersQueueChannelId = await getChannelId(VCType['players-queue']);
-    const playersInQueueChannel = await guild.channels.fetch(playersQueueChannelId);
-    if (playersInQueueChannel) {
-        console.log('found players in queue channel');
-        playersInQueueChannel.setName(`Players in queue: ${queue.length}`);
-    }
+    // const playersQueueChannelId = await getChannelId(VCType['players-queue']);
+    // const playersInQueueChannel = await guild.channels.fetch(playersQueueChannelId);
+    // if (playersInQueueChannel) {
+    //     console.log('found players in queue channel');
+    //     playersInQueueChannel.setName(`Players in queue: ${queue.length}`);
+    // }
 
     console.log('End updateStatus');
 };
