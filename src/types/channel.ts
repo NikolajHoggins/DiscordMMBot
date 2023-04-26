@@ -9,7 +9,7 @@ export const ChannelsType = {
     'bot-commands': 'bot-commands',
 } as const;
 
-export type ChannelsType = typeof ChannelsType[keyof typeof ChannelsType];
+export type ChannelsType = (typeof ChannelsType)[keyof typeof ChannelsType];
 
 export const RanksType = {
     mod: 'mod',
@@ -30,13 +30,21 @@ export const RanksType = {
     master: 'master',
 } as const;
 
-export type RanksType = typeof RanksType[keyof typeof RanksType];
+export type RanksType = (typeof RanksType)[keyof typeof RanksType];
 
 export const CategoriesType = {
     matches: 'matches',
 } as const;
 
-export type CategoriesType = typeof CategoriesType[keyof typeof CategoriesType];
+export type CategoriesType = (typeof CategoriesType)[keyof typeof CategoriesType];
+
+export const VCType = {
+    members: 'members',
+    'matches-played': 'matches-played',
+    'players-playing': 'players-playing',
+};
+
+export type VCType = (typeof VCType)[keyof typeof VCType];
 
 export type ChannelType = {
     name: string;

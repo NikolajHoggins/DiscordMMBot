@@ -2,6 +2,10 @@ import { ActivityType, Client } from 'discord.js';
 import cron from 'node-cron';
 import Queue, { IQueue } from '../models/queue.schema';
 import * as queueService from '../services/queue.service';
+import { getChannelId, getConfig } from '../services/system.service.js';
+import { VCType } from '../types/channel.js';
+import Match from '../models/match.schema.js';
+import { getGuild } from '../helpers/guild.js';
 
 export const updateStatus = async (client: Client) => {
     if (!client.user) return;
@@ -19,6 +23,20 @@ export const updateStatus = async (client: Client) => {
     await client.user.setActivity(`${queue.length} players in queue`, {
         type: ActivityType.Watching,
     });
+
+    //Set stats on voice channels
+    const guild = await getGuild(client);
+    const playersPlayingChannelId = await getChannelId(VCType['players-playing']);
+    const playersInQueueChannel = await guild.channels.fetch(playersPlayingChannelId);
+    if (playersInQueueChannel) {
+        //Get all players in queue and in started matches
+        const playersInQueue = await queueService.get();
+        const matches = await Match.find({ status: 'started' });
+        const playersInMatches = matches.map(m => m.players).flat();
+        await playersInQueueChannel?.setName(
+            `Players playing: ${playersInMatches.length + playersInQueue.length}`
+        );
+    }
 };
 
 const initStatusCron = async (client: Client) => {
