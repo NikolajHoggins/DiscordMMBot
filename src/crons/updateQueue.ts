@@ -47,6 +47,7 @@ export const updateStatus = async (client: Client) => {
     }
 
     const matchesPlayedChannelId = await getChannelId(VCType['matches-played']);
+    console.log('matchesPlayedChannelId', matchesPlayedChannelId);
     const matchesPlayedChannel = await guild.channels.fetch(matchesPlayedChannelId);
     if (matchesPlayedChannel) {
         console.log('found matches played channel');
