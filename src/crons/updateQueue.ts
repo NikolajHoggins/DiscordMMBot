@@ -50,8 +50,7 @@ export const updateStatus = async (client: Client) => {
     const playersInQueueChannel = await guild.channels.fetch(playersQueueChannelId);
     if (playersInQueueChannel) {
         console.log('found players in queue channel');
-        const playersInQueue = await queueService.get();
-        playersInQueueChannel.setName(`Players in queue: ${playersInQueue.length}`);
+        playersInQueueChannel.setName(`Players in queue: ${queue.length}`);
     }
 
     console.log('End updateStatus');
