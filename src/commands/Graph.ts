@@ -56,6 +56,13 @@ export const Graph: Command = {
             });
         }
 
+        if (!isMod && mention) {
+            return await interaction.reply({
+                ephemeral: true,
+                content: 'You can only see your own graph',
+            });
+        }
+
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
             return interaction.reply({
