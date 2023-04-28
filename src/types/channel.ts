@@ -13,6 +13,7 @@ export type ChannelsType = (typeof ChannelsType)[keyof typeof ChannelsType];
 
 export const RanksType = {
     mod: 'mod',
+    patreon: 'patreon',
     ping: 'ping',
     eu: 'eu',
     naw: 'naw',
