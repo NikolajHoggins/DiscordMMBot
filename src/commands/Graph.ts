@@ -10,6 +10,7 @@ import * as playerService from '../services/player.service';
 import { getChannelId } from '../services/system.service.js';
 import { ChannelsType } from '../types/channel.js';
 import axios from 'axios';
+import { getGuild } from '../helpers/guild.js';
 export const Graph: Command = {
     name: 'graph',
     description: 'Get player graph?',
@@ -25,7 +26,17 @@ export const Graph: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
+        const guild = await getGuild(client);
+        const member = await guild?.members.fetch(user.id);
 
+        const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
+        if (!isMod) {
+            await interaction.reply({
+                ephemeral: true,
+                content: 'no perms',
+            });
+            return;
+        }
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
             return interaction.reply({
@@ -71,15 +82,17 @@ export const Graph: Command = {
         const wins = correctRatings
 
             .map(({ rating }, i) => {
+                if (i === 0 && correctRatings[i + 1].result !== 'win') return null;
                 if (correctRatings[i + 1]?.result === 'win' || correctRatings[i]?.result === 'win')
                     return rating;
                 return null;
             })
             .join(',');
-        console.log('wins', wins);
+
         const losses = correctRatings
 
             .map(({ rating }, i) => {
+                if (i === 0 && correctRatings[i + 1].result !== 'loss') return null;
                 if (
                     correctRatings[i + 1]?.result === 'loss' ||
                     correctRatings[i]?.result === 'loss'
@@ -91,6 +104,7 @@ export const Graph: Command = {
         const draws = correctRatings
 
             .map(({ rating }, i) => {
+                if (i === 0 && correctRatings[i + 1].result !== 'draw') return null;
                 if (
                     correctRatings[i + 1]?.result === 'draw' ||
                     correctRatings[i]?.result === 'draw'
@@ -108,8 +122,6 @@ export const Graph: Command = {
         const attachment = new AttachmentBuilder(image.data);
 
         await interaction.reply({
-            content:
-                'Graph is open for now, but will be limited to select user group in the future',
             files: [attachment],
         });
     },
