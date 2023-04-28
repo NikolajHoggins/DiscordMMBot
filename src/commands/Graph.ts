@@ -11,6 +11,9 @@ import { getChannelId } from '../services/system.service.js';
 import { ChannelsType } from '../types/channel.js';
 import axios from 'axios';
 import { getGuild } from '../helpers/guild.js';
+import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
+import { ChartConfiguration } from 'chart.js';
+
 export const Graph: Command = {
     name: 'graph',
     description: 'Get player graph?',
@@ -78,48 +81,44 @@ export const Graph: Command = {
             });
         });
         const correctRatings = ratings.reverse();
-        const labels = correctRatings.map(({ match }) => match).join(',');
-        const wins = correctRatings
+        const labels = correctRatings.map(({ match }) => match);
+        const wins = correctRatings.map(({ rating }, i) => {
+            if (i === 0 && correctRatings[i + 1].result !== 'win') return null;
+            if (correctRatings[i + 1]?.result === 'win' || correctRatings[i]?.result === 'win')
+                return rating;
+            return null;
+        });
+        const losses = correctRatings.map(({ rating }, i) => {
+            //handle first spot
+            if (i === 0 && correctRatings[i + 1].result !== 'loss') return null;
+            if (correctRatings[i + 1]?.result === 'loss' || correctRatings[i]?.result === 'loss')
+                return rating;
+            return null;
+        });
+        const draws = correctRatings.map(({ rating }, i) => {
+            if (i === 0 && correctRatings[i + 1].result !== 'draw') return null;
+            if (correctRatings[i + 1]?.result === 'draw' || correctRatings[i]?.result === 'draw')
+                return rating;
+            return null;
+        });
 
-            .map(({ rating }, i) => {
-                if (i === 0 && correctRatings[i + 1].result !== 'win') return null;
-                if (correctRatings[i + 1]?.result === 'win' || correctRatings[i]?.result === 'win')
-                    return rating;
-                return null;
-            })
-            .join(',');
+        const config: ChartConfiguration = {
+            type: 'line',
+            options: { scales: {} },
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Wins', fill: false, borderColor: 'rgb(0,255,0)', data: wins },
+                    { label: 'Losses', fill: false, borderColor: 'rgb(255,0,0)', data: losses },
+                    { label: 'Draws', fill: false, borderColor: 'rgb(122,122,122)', data: draws },
+                ],
+            },
+        };
 
-        const losses = correctRatings
+        const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 500, height: 300 });
 
-            .map(({ rating }, i) => {
-                if (i === 0 && correctRatings[i + 1].result !== 'loss') return null;
-                if (
-                    correctRatings[i + 1]?.result === 'loss' ||
-                    correctRatings[i]?.result === 'loss'
-                )
-                    return rating;
-                return null;
-            })
-            .join(',');
-        const draws = correctRatings
-
-            .map(({ rating }, i) => {
-                if (i === 0 && correctRatings[i + 1].result !== 'draw') return null;
-                if (
-                    correctRatings[i + 1]?.result === 'draw' ||
-                    correctRatings[i]?.result === 'draw'
-                )
-                    return rating;
-                return null;
-            })
-            .join(',');
-
-        let image = await axios.get(
-            `https://quickchart.io/chart?c={type:%27line%27,options:{scales:{}},data:{labels:[${labels}],datasets:[{label:%27Wins%27,fill:false,borderColor:'rgb(0,255,0)',data:[${wins}]},{label:%27Losses%27,fill:false,borderColor:'rgb(255,0,0)',data:[${losses}]},{label:%27Draws%27,fill:false,borderColor:'rgb(122,122,122)',data:[${draws}]}]}}`,
-            { responseType: 'arraybuffer' }
-        );
-
-        const attachment = new AttachmentBuilder(image.data);
+        const image = await chartJSNodeCanvas.renderToBuffer(config);
+        const attachment = new AttachmentBuilder(image);
 
         await interaction.reply({
             files: [attachment],
