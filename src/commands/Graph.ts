@@ -11,7 +11,14 @@ import { getChannelId } from '../services/system.service.js';
 import { ChannelsType } from '../types/channel.js';
 import { getGuild } from '../helpers/guild.js';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
-import { ChartConfiguration } from 'chart.js';
+import { ChartConfiguration, ScriptableLineSegmentContext } from 'chart.js';
+
+const up = (ctx: ScriptableLineSegmentContext, value: string) =>
+    ctx.p0.parsed.y < ctx.p1.parsed.y ? value : undefined;
+const down = (ctx: ScriptableLineSegmentContext, value: string) =>
+    ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined;
+const same = <T = string>(ctx: ScriptableLineSegmentContext, value: T) =>
+    ctx.p0.parsed.y === ctx.p1.parsed.y ? value : undefined;
 
 export const Graph: Command = {
     name: 'graph',
@@ -81,25 +88,6 @@ export const Graph: Command = {
         });
         const correctRatings = ratings.reverse();
         const labels = correctRatings.map(({ match }) => match);
-        const wins = correctRatings.map(({ rating }, i) => {
-            if (i === 0 && correctRatings[i + 1].result !== 'win') return null;
-            if (correctRatings[i + 1]?.result === 'win' || correctRatings[i]?.result === 'win')
-                return rating;
-            return null;
-        });
-        const losses = correctRatings.map(({ rating }, i) => {
-            //handle first spot
-            if (i === 0 && correctRatings[i + 1].result !== 'loss') return null;
-            if (correctRatings[i + 1]?.result === 'loss' || correctRatings[i]?.result === 'loss')
-                return rating;
-            return null;
-        });
-        const draws = correctRatings.map(({ rating }, i) => {
-            if (i === 0 && correctRatings[i + 1].result !== 'draw') return null;
-            if (correctRatings[i + 1]?.result === 'draw' || correctRatings[i]?.result === 'draw')
-                return rating;
-            return null;
-        });
 
         const config: ChartConfiguration = {
             type: 'line',
@@ -107,9 +95,19 @@ export const Graph: Command = {
             data: {
                 labels: labels,
                 datasets: [
-                    { label: 'Wins', fill: false, borderColor: 'rgb(0,255,0)', data: wins },
-                    { label: 'Losses', fill: false, borderColor: 'rgb(255,0,0)', data: losses },
-                    { label: 'Draws', fill: false, borderColor: 'rgb(122,122,122)', data: draws },
+                    {
+                        label: 'Match played',
+                        fill: false,
+                        borderColor: 'rgb(125,125,125)',
+                        data: correctRatings.map(({ rating }) => rating),
+                        segment: {
+                            borderColor: ctx =>
+                                up(ctx, 'rgb(0,255,0)') ||
+                                down(ctx, 'rgb(255,0,0)') ||
+                                same(ctx, 'rgb(125,125,125)'),
+                            // borderDash: ctx => same(ctx, [4, 4]),
+                        },
+                    },
                 ],
             },
         };
