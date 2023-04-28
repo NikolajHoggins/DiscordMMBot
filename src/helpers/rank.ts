@@ -50,6 +50,7 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
         const currentRankRole: RanksType = rankCutoffs[closestEloCutoff];
 
         const roleId = config.roles.find(({ name }) => name === currentRankRole)?.id;
+
         const unrankedId = config.roles.find(({ name }) => name === RanksType.unranked)?.id;
 
         if (!roleId || !unrankedId) throw new Error('Role not found');

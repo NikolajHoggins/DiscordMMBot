@@ -7,8 +7,8 @@ import {
 } from 'discord.js';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
-import { getChannelId } from '../services/system.service.js';
-import { ChannelsType } from '../types/channel.js';
+import { getChannelId, getConfig } from '../services/system.service.js';
+import { ChannelsType, RanksType } from '../types/channel.js';
 import { getGuild } from '../helpers/guild.js';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartConfiguration, ScriptableLineSegmentContext } from 'chart.js';
@@ -44,15 +44,18 @@ export const Graph: Command = {
         const length = (interaction.options.get('length')?.value as number) || 10;
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
+        const config = await getConfig();
+        const patreonRoleId = config.roles.find(({ name }) => name === RanksType.patreon)?.id;
+        const isPatreon = await member.roles.cache.some(r => r.id === patreonRoleId);
 
         const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
-        if (!isMod) {
-            await interaction.reply({
+        if (!isPatreon && !isMod) {
+            return await interaction.reply({
                 ephemeral: true,
-                content: 'no perms',
+                content: 'This command is only for patreons',
             });
-            return;
         }
+
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
             return interaction.reply({
@@ -96,7 +99,7 @@ export const Graph: Command = {
         const correctRatings = ratings.reverse();
         const labels = correctRatings.map(({ match }) => match);
 
-        const config: ChartConfiguration = {
+        const chartConfig: ChartConfiguration = {
             type: 'line',
             options: { scales: {} },
             data: {
@@ -121,7 +124,7 @@ export const Graph: Command = {
 
         const chartJSNodeCanvas = new ChartJSNodeCanvas({ width: 500, height: 300 });
 
-        const image = await chartJSNodeCanvas.renderToBuffer(config);
+        const image = await chartJSNodeCanvas.renderToBuffer(chartConfig);
         const attachment = new AttachmentBuilder(image);
 
         await interaction.reply({
