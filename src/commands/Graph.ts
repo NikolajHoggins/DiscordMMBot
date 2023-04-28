@@ -31,10 +31,17 @@ export const Graph: Command = {
             description: 'User to get stats for',
             required: false,
         },
+        {
+            type: ApplicationCommandOptionType.Number,
+            name: 'length',
+            description: 'How many matches it should show',
+            required: false,
+        },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
+        const length = (interaction.options.get('length')?.value as number) || 10;
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
 
@@ -73,7 +80,7 @@ export const Graph: Command = {
             result: 'win' | 'loss' | 'draw';
             change: number;
         }[] = [];
-        const graphHistory = history.length > 10 ? history.slice(-10) : history;
+        const graphHistory = history.length > length ? history.slice(length * -1) : history;
 
         graphHistory.reverse().forEach((match, i) => {
             const previousRating = i === 0 ? player.rating : ratings[i - 1].rating;
@@ -96,7 +103,7 @@ export const Graph: Command = {
                 labels: labels,
                 datasets: [
                     {
-                        label: `Last 10 matches by ${userToCheck.username}`,
+                        label: `Last ${length} matches by ${userToCheck.username}`,
                         fill: false,
                         borderColor: 'rgb(125,125,125)',
                         data: correctRatings.map(({ rating }) => rating),
