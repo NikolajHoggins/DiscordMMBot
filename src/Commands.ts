@@ -9,6 +9,7 @@ import { ForceAbandon } from './commands/ForceAbandon.js';
 import { ForceStart } from './commands/ForceStart.js';
 import { ForceSubmit } from './commands/ForceSubmit.js';
 import { ForceVerify } from './commands/ForceVerify.js';
+import { Graph } from './commands/Graph.js';
 import { PingPlayers } from './commands/PingPlayers';
 import { QueueCommand } from './commands/Queue';
 import { RatingChange } from './commands/RatingChange.js';
@@ -30,6 +31,7 @@ export const Commands: Command[] = [
     SubmitScore,
     Abandon,
     RatingChange,
+    Graph,
     //mod commands
     EndGame,
     RestartBot,
