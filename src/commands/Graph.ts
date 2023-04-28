@@ -96,7 +96,7 @@ export const Graph: Command = {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Match played',
+                        label: `Last 10 matches by ${userToCheck.username}`,
                         fill: false,
                         borderColor: 'rgb(125,125,125)',
                         data: correctRatings.map(({ rating }) => rating),
