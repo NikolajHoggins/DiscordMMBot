@@ -9,7 +9,6 @@ import { Command } from '../Command';
 import * as playerService from '../services/player.service';
 import { getChannelId } from '../services/system.service.js';
 import { ChannelsType } from '../types/channel.js';
-import axios from 'axios';
 import { getGuild } from '../helpers/guild.js';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartConfiguration } from 'chart.js';
