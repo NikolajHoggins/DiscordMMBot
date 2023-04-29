@@ -38,7 +38,7 @@ export const ForceSubmit: Command = {
         const { user, channelId } = interaction;
         const mention = interaction.options.get('captain')?.user;
         const score = interaction.options.get('score')?.value as number;
-        if (!score) return interaction.reply({ content: 'provide score' });
+        if (score === undefined) return interaction.reply({ content: 'provide score' });
 
         if (!mention) return interaction.reply({ content: 'no mention' });
         const guild = await getGuild(client);

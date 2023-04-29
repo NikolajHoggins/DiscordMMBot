@@ -49,7 +49,7 @@ export const ForceVerify: Command = {
             });
             return;
         }
-        if (!match.teamARounds || !match.teamBRounds) {
+        if (match.teamARounds === undefined || match.teamBRounds === undefined) {
             await interaction.reply({
                 ephemeral: true,
                 content: 'Match scores not submitted',
