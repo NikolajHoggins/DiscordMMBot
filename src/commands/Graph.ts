@@ -47,8 +47,9 @@ export const Graph: Command = {
         const config = await getConfig();
         const patreonRoleId = config.roles.find(({ name }) => name === RanksType.patreon)?.id;
         const isPatreon = await member.roles.cache.some(r => r.id === patreonRoleId);
+        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
+        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
 
-        const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
         if (!isPatreon && !isMod) {
             return await interaction.reply({
                 ephemeral: true,
