@@ -1,5 +1,7 @@
 import { Channel, ChannelType, Client, PermissionsBitField } from 'discord.js';
 import { getEveryoneRole, getGuild } from './guild.js';
+import { getConfig } from '../services/system.service.js';
+import { RanksType } from '../types/channel.js';
 
 export const createChannel = ({
     client,
@@ -19,6 +21,8 @@ export const createChannel = ({
 
         const everyoneRole = await getEveryoneRole(client);
 
+        const config = await getConfig();
+        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
         const channel = await guild.channels.create({
             name: name,
             type: type,
@@ -37,10 +41,10 @@ export const createChannel = ({
                             ? [PermissionsBitField.Flags.Connect]
                             : [PermissionsBitField.Flags.ViewChannel],
                 })),
-                ...(process.env.MOD_ROLE_ID
+                ...(modRoleId
                     ? [
                           {
-                              id: process.env.MOD_ROLE_ID,
+                              id: modRoleId,
                               allow:
                                   type === ChannelType.GuildVoice
                                       ? [PermissionsBitField.Flags.Connect]

@@ -10,6 +10,8 @@ import { botLog } from '../helpers/messages';
 
 import * as matchService from '../services/match.service';
 import Match from '../models/match.schema.js';
+import { RanksType } from '../types/channel.js';
+import { getConfig } from '../services/system.service.js';
 
 export const EndGame: Command = {
     name: 'end_game',
@@ -27,17 +29,15 @@ export const EndGame: Command = {
         //fetch player from database
         const { user, channelId } = interaction;
 
-        if (!process.env.MOD_ROLE_ID || !process.env.SERVER_ID) return;
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
         const matchNumber = interaction.options.get('match_number')?.value as number;
 
-        //Fetch everyone for it to be in cache
-        await guild?.roles.fetch(process.env.SERVER_ID);
-
         if (!member) return;
 
-        const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
+        const config = await getConfig();
+        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
+        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
         if (!isMod) {
             await interaction.reply({
                 ephemeral: true,

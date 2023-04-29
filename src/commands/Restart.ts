@@ -1,6 +1,8 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
 import { getGuild } from '../helpers/guild';
+import { getConfig } from '../services/system.service.js';
+import { RanksType } from '../types/channel.js';
 
 export const RestartBot: Command = {
     name: 'restart_bot',
@@ -8,18 +10,16 @@ export const RestartBot: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
         //fetch player from database
-        const { user, channelId } = interaction;
+        const { user } = interaction;
 
-        if (!process.env.MOD_ROLE_ID || !process.env.SERVER_ID) return;
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
 
-        //Fetch everyone for it to be in cache
-        await guild?.roles.fetch(process.env.SERVER_ID);
-
         if (!member) return;
 
-        const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
+        const config = await getConfig();
+        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
+        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
         if (!isMod) {
             await interaction.reply({
                 ephemeral: true,
@@ -27,7 +27,7 @@ export const RestartBot: Command = {
             });
             return;
         }
-        //find match with channelId
+
         throw new Error('Restarting bot');
     },
 };

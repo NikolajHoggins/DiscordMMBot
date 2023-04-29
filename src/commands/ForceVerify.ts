@@ -14,6 +14,8 @@ import { findByChannelId, setScore } from '../services/match.service.js';
 import { getTeamBName } from '../helpers/team.js';
 import { MatchStatus } from '../models/match.schema.js';
 import { finishMatch } from '../services/match.service.js';
+import { getConfig } from '../services/system.service.js';
+import { RanksType } from '../types/channel.js';
 
 export const ForceVerify: Command = {
     name: 'force_verify',
@@ -25,7 +27,10 @@ export const ForceVerify: Command = {
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
 
-        const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
+        const config = await getConfig();
+        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
+        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
+
         if (!isMod) {
             await interaction.reply({
                 ephemeral: true,

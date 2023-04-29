@@ -11,6 +11,8 @@ import { sendMessage } from '../helpers/messages.js';
 import { addBan } from '../services/player.service.js';
 import { BansType } from '../types/bans.js';
 import { getGuild } from '../helpers/guild.js';
+import { getConfig } from '../services/system.service.js';
+import { RanksType } from '../types/channel.js';
 
 export const ForceAbandon: Command = {
     name: 'force_abandon',
@@ -30,13 +32,13 @@ export const ForceAbandon: Command = {
 
         if (!mention) return interaction.reply({ content: 'No user mentioned', ephemeral: true });
 
-        if (!process.env.MOD_ROLE_ID || !process.env.SERVER_ID) return;
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
-
         if (!member) return;
+        const config = await getConfig();
+        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
 
-        const isMod = await member.roles.cache.some(r => r.id === process.env.MOD_ROLE_ID);
+        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
         if (!isMod) {
             await interaction.reply({
                 ephemeral: true,
