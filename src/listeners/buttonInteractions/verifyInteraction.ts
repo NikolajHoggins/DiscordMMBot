@@ -36,7 +36,7 @@ const setPlayerVerified = async ({
             { $set: { 'players.$.verifiedScore': true }, $inc: { version: 1 } }
         );
         if (result.modifiedCount === 0) {
-            console.log('Verify score conflict, retrying');
+            console.log('Verify score conflict, retrying', result);
             setTimeout(() => {
                 setPlayerVerified({ interaction, matchNumber });
             }, 1000);

@@ -799,6 +799,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
                 }, 5000);
             }, 5000);
         }
+        resolve(null);
     });
 };
 
