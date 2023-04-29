@@ -1,13 +1,18 @@
 import { Client, Events, MessageReaction } from 'discord.js';
 import { getConfig } from '../services/system.service';
-import { ChannelsType } from '../types/channel';
+import { ChannelsType, RanksType } from '../types/channel';
+import { ISystem } from '../models/system.schema.js';
 
-const handlePingRoleReaction = async (reaction: MessageReaction, user: any) => {
+const handlePingRoleReaction = async (reaction: MessageReaction, user: any, config: ISystem) => {
     if (!process.env.PING_TO_PLAY_ROLE_ID) return;
 
-    const pingRole = await reaction.message.guild?.roles.fetch(process.env.PING_TO_PLAY_ROLE_ID); //@TODO make roles with scaffolding instead of hardcoding
     const sender = await reaction.message.guild?.members.fetch(user.id);
-    if (!pingRole || !sender) return;
+    if (!sender) throw new Error("Couldn't get sender");
+
+    const pingRoleId = config.roles.find(({ name }) => name === RanksType.ping)?.id;
+    if (!pingRoleId) throw new Error("Couldn't get ping role id");
+    const pingRole = await reaction.message.guild?.roles.fetch(pingRoleId); //@TODO make roles with scaffolding instead of hardcoding
+    if (!pingRole) throw new Error("Couldn't get ping role");
 
     if (reaction.emoji.name === '✅') {
         sender.roles.add(pingRole);
@@ -35,7 +40,7 @@ export default (client: Client): void => {
         if (!roleChannelId) throw new Error("Couldn't get role channel id");
 
         if (reaction.message.channelId === roleChannelId)
-            handlePingRoleReaction(reaction as MessageReaction, user);
+            handlePingRoleReaction(reaction as MessageReaction, user, config);
         return;
     });
 };
