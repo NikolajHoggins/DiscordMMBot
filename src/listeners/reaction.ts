@@ -4,8 +4,6 @@ import { ChannelsType, RanksType } from '../types/channel';
 import { ISystem } from '../models/system.schema.js';
 
 const handlePingRoleReaction = async (reaction: MessageReaction, user: any, config: ISystem) => {
-    if (!process.env.PING_TO_PLAY_ROLE_ID) return;
-
     const sender = await reaction.message.guild?.members.fetch(user.id);
     if (!sender) throw new Error("Couldn't get sender");
 
