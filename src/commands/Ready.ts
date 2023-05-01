@@ -70,10 +70,12 @@ export const handleReady = async ({
     }
 
     await ready({ player, time: time, region: regionRanks, queueRegion: region });
-    await updateStatus(client);
+
+    updateStatus(client);
 
     const content = `You have been set to be ready for a match for ${time} minutes.`;
 
+    console.log('Responding to ready message');
     await interaction.reply({
         ephemeral: true,
         content,
