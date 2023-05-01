@@ -48,22 +48,22 @@ export const Stats: Command = {
         }
 
         const userToCheck = mention || user;
+        const player = await playerService.findOrCreate(userToCheck);
         const playerList = await Player.find({
             $expr: {
                 $gte: [{ $size: '$history' }, 10],
             },
-        }).sort({ rating: -1 });
+            rating: { $gt: player.rating },
+        });
 
-        const player = await playerService.findOrCreate(userToCheck);
         const { history } = player;
-        const eloPosition =
-            history.length > 9 ? findIndex(playerList, { discordId: userToCheck.id }) + 1 : '?';
+        const isUnranked = history.length < 10;
+        const eloPosition = isUnranked ? '?' : playerList.length + 1;
         const wins = history.filter(match => match.result === 'win').length;
         const matches = history.length;
         const losses = matches - wins;
         const winRate = ceil((wins / (wins + losses)) * 100);
 
-        const isUnranked = player.history.length < 10;
         const rankName = isUnranked ? 'Unranked' : getRankName(player.rating);
         const playerRating = isUnranked ? 'Play 10 matches' : floor(player.rating);
 
@@ -92,7 +92,7 @@ export const Stats: Command = {
                 {
                     name: 'Match History',
                     value:
-                        player.history
+                        history
                             .slice(-10)
                             .map(h => `${getEmoji(h.result[0])}`)
                             .join('') || 'No matches played',

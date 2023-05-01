@@ -2,7 +2,7 @@ import { ActivityType, Client } from 'discord.js';
 import cron from 'node-cron';
 import Queue, { IQueue } from '../models/queue.schema';
 import * as queueService from '../services/queue.service';
-import { getChannelId, getConfig } from '../services/system.service.js';
+import { getChannelId } from '../services/system.service.js';
 import { VCType } from '../types/channel.js';
 import Match from '../models/match.schema.js';
 import { getGuild } from '../helpers/guild.js';
