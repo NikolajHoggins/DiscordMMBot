@@ -13,6 +13,7 @@ import { BansType } from '../types/bans.js';
 import { getGuild } from '../helpers/guild.js';
 import { getConfig } from '../services/system.service.js';
 import { RanksType } from '../types/channel.js';
+import { handleAbandon } from './Abandon.js';
 
 export const ForceAbandon: Command = {
     name: 'force_abandon',
@@ -48,63 +49,6 @@ export const ForceAbandon: Command = {
         }
 
         //check if in match channel
-        const match = await findByChannelId(channelId);
-        if (!match) {
-            return interaction.reply({
-                content: 'Command only works in match thread',
-            });
-        }
-        if (match.status === 'pending') {
-            await interaction.reply({
-                content: `<@${mention.id}> has denied the match. Match has been cancelled. Player has been given a timeout from queueing.`,
-            });
-            const player = await Player.findOne({ discordId: mention.id });
-            if (!player) return interaction.reply({ content: `User not found`, ephemeral: true });
-
-            const reason = `Denied match ${match.match_number} before it started`;
-
-            addBan({
-                userId: user.id,
-                reason,
-                client,
-                type: BansType.preAbandon,
-            });
-
-            setTimeout(() => {
-                end({ matchNumber: match.match_number, client });
-            }, 3000);
-            return;
-        }
-
-        //remove player from match
-
-        //add a loss to player history
-
-        //set some sort of flag to indicate player has abandoned and from which team. This will be used in elo calculation
-
-        //set a timeout on player, and add a timeout history
-        const player = await Player.findOne({ discordId: mention.id });
-        if (!player) return interaction.reply({ content: `User not found` });
-
-        const reason = `Abandoned match ${match.match_number}`;
-
-        addBan({
-            userId: mention.id,
-            reason,
-            client,
-            type: BansType.abandon,
-        });
-
-        await sendMessage({
-            channelId: channelId,
-            messageContent: `<@&${match.roleId}> <@${mention.id}> has abandoned the match. They are not allowed to join the game again, and has been given a timeout from playing. \nYou will keep playing with the remaining players. \nSince one team is at a disadvantage, the team with a missing player will lose less elo for a loss, and win more from a win (WIP, dm hoggins).>`,
-            client,
-        });
-
-        await interaction.reply({
-            ephemeral: true,
-            content:
-                'You have abandoned the match. You are not allowed to join the game again, and have been timed out.',
-        });
+        handleAbandon({ interaction, user: mention, channelId, client });
     },
 };
