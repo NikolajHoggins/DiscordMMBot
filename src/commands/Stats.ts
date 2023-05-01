@@ -49,10 +49,11 @@ export const Stats: Command = {
 
         const userToCheck = mention || user;
         const player = await playerService.findOrCreate(userToCheck);
-        const playerList = await Player.find({
-            'history.9': { $exists: true },
-            rating: { $gt: player.rating },
-        });
+        const playerList = await Player.aggregate([
+            { $match: { 'history.9': { $exists: true }, rating: { $gt: player.rating } } },
+            { $group: { _id: null, count: { $sum: 1 } } },
+        ]);
+
         const { history } = player;
         const isUnranked = history.length < 10;
         const ratingPosition = isUnranked ? '?' : playerList.length + 1;
