@@ -57,7 +57,9 @@ export const handleReady = async ({
     }
 
     //Check if match with player on it is in progress
-    const match = await Match.findOne({ 'players.id': user.id, status: { $ne: 'ended' } });
+    const match = await Match.find({ status: { $ne: 'ended' } }).findOne({
+        'players.id': user.id,
+    });
 
     if (match) {
         interaction.reply({
