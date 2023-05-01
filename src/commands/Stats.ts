@@ -50,15 +50,13 @@ export const Stats: Command = {
         const userToCheck = mention || user;
         const player = await playerService.findOrCreate(userToCheck);
         const playerList = await Player.find({
-            $expr: {
-                $gte: [{ $size: '$history' }, 10],
-            },
+            'history.9': { $exists: true },
             rating: { $gt: player.rating },
         });
-
         const { history } = player;
         const isUnranked = history.length < 10;
-        const eloPosition = isUnranked ? '?' : playerList.length + 1;
+        const ratingPosition = isUnranked ? '?' : playerList.length + 1;
+
         const wins = history.filter(match => match.result === 'win').length;
         const matches = history.length;
         const losses = matches - wins;
@@ -68,7 +66,7 @@ export const Stats: Command = {
         const playerRating = isUnranked ? 'Play 10 matches' : floor(player.rating);
 
         const statsEmbed = new EmbedBuilder()
-            .setTitle(`#${eloPosition} - ${player.name}`)
+            .setTitle(`#${ratingPosition} - ${player.name}`)
             .setColor('#C69B6D')
             .setThumbnail(userToCheck.avatarURL())
             .setDescription(`${rankName} \nGames played - ${player.history.length}`)
