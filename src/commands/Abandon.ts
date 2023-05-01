@@ -5,6 +5,7 @@ import Player from '../models/player.schema.js';
 import { sendMessage } from '../helpers/messages.js';
 import { addBan } from '../services/player.service.js';
 import { BansType } from '../types/bans.js';
+import Match from '../models/match.schema.js';
 
 export const handleAbandon = async ({
     client,
@@ -45,7 +46,14 @@ export const handleAbandon = async ({
         return;
     }
 
-    //remove player from match
+    await Match.updateOne(
+        {
+            match_number: match.match_number,
+            'players.id': interaction.user.id,
+            version: match.version,
+        },
+        { $set: { 'players.$.abandon': true }, $inc: { version: 1 } }
+    );
 
     //add a loss to player history
 

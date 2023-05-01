@@ -19,6 +19,7 @@ export interface IMatchPlayer {
     vote?: string;
     ready?: boolean;
     verifiedScore?: boolean;
+    abandon?: boolean;
 }
 
 export const MatchStatus = {
@@ -28,7 +29,7 @@ export const MatchStatus = {
     ended: 'ended',
 } as const;
 
-export type MatchStatus = typeof MatchStatus[keyof typeof MatchStatus];
+export type MatchStatus = (typeof MatchStatus)[keyof typeof MatchStatus];
 
 export interface IMatch {
     start: number;
