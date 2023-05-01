@@ -56,7 +56,7 @@ export const Stats: Command = {
 
         const { history } = player;
         const isUnranked = history.length < 10;
-        const ratingPosition = isUnranked ? '?' : playerList.length + 1;
+        const ratingPosition = isUnranked ? '?' : playerList[0]?.count + 1 || 1;
 
         const wins = history.filter(match => match.result === 'win').length;
         const matches = history.length;
