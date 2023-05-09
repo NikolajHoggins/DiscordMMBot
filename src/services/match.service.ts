@@ -306,27 +306,6 @@ export const tryStart = (client: Client): Promise<void> => {
             //start eu match
         }
 
-        const euFill = fillPlayers.filter(p => p.region === 'eu');
-        if (euFill.length + euPlayers.length >= count) {
-            return await startMatch({
-                client,
-                queue: [...euPlayers, ...euFill],
-                count,
-                queueChannelId,
-                region: 'eu',
-            });
-        }
-        const naFill = fillPlayers.filter(p => p.region !== 'eu');
-        if (naFill.length + naPlayers.length >= count) {
-            return await startMatch({
-                client,
-                queue: [...naPlayers, ...naFill],
-                count,
-                queueChannelId,
-                region: 'na',
-            });
-        }
-
         if (euPlayers.length + fillPlayers.length >= count) {
             return await startMatch({
                 client,
