@@ -784,44 +784,46 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
 
 export const end = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
     return new Promise(async resolve => {
-        const match = await Match.findOne({ match_number: matchNumber });
-        if (!match) return;
-        match.status = 'ended';
-        await match.save();
-        const guild = await getGuild(client);
-        try {
-            await guild?.roles.delete(match.roleId);
-        } catch (error) {
-            console.log('error deleting role', match.roleId);
-        }
+        const matches = await Match.find({ match_number: matchNumber });
+        if (matches.length === 0) return;
+        matches.forEach(async match => {
+            match.status = 'ended';
+            await match.save();
+            const guild = await getGuild(client);
+            try {
+                await guild?.roles.delete(match.roleId);
+            } catch (error) {
+                console.log('error deleting role', match.roleId);
+            }
 
-        await Promise.all(
-            Object.keys(match.channels).map(
-                (key: string) =>
-                    new Promise(async resolve => {
-                        const channelId = match.channels[key as keyof IMatchChannels];
-                        if (!channelId) return resolve(true);
+            await Promise.all(
+                Object.keys(match.channels).map(
+                    (key: string) =>
+                        new Promise(async resolve => {
+                            const channelId = match.channels[key as keyof IMatchChannels];
+                            if (!channelId) return resolve(true);
 
-                        try {
-                            await deleteChannel({
-                                client,
-                                channelId,
-                            });
-                        } catch (error) {
-                            console.log('error deletint channel', channelId);
-                        }
-                        resolve(true);
-                    })
-            )
-        );
-        //post match results in match-results channel
-        const matchResultsChannel = await getChannelId(ChannelsType['match-results']);
-        if (!matchResultsChannel) throw new Error('No match results channel found');
-        const embed = await createMatchResultEmbed({ matchNumber: match.match_number });
-        await sendMessage({
-            channelId: matchResultsChannel,
-            messageContent: { embeds: [embed] },
-            client,
+                            try {
+                                await deleteChannel({
+                                    client,
+                                    channelId,
+                                });
+                            } catch (error) {
+                                console.log('error deletint channel', channelId);
+                            }
+                            resolve(true);
+                        })
+                )
+            );
+            //post match results in match-results channel
+            const matchResultsChannel = await getChannelId(ChannelsType['match-results']);
+            if (!matchResultsChannel) throw new Error('No match results channel found');
+            const embed = await createMatchResultEmbed({ matchNumber: match.match_number });
+            await sendMessage({
+                channelId: matchResultsChannel,
+                messageContent: { embeds: [embed] },
+                client,
+            });
         });
     });
 };
