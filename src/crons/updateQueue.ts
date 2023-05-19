@@ -2,10 +2,10 @@ import { ActivityType, Client } from 'discord.js';
 import cron from 'node-cron';
 import Queue, { IQueue } from '../models/queue.schema';
 import * as queueService from '../services/queue.service';
-import { getChannelId } from '../services/system.service.js';
-import { VCType } from '../types/channel.js';
-import Match from '../models/match.schema.js';
-import { getGuild } from '../helpers/guild.js';
+import { getChannelId } from '../services/system.service';
+import { VCType } from '../types/channel';
+import Match from '../models/match.schema';
+import { getGuild } from '../helpers/guild';
 
 export const updateStatus = async (client: Client) => {
     if (!client.user) return;

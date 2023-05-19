@@ -1,11 +1,11 @@
 import { CommandInteraction, Client, ApplicationCommandType, User } from 'discord.js';
 import { Command } from '../Command';
-import { end, findByChannelId } from '../services/match.service.js';
-import Player from '../models/player.schema.js';
-import { sendMessage } from '../helpers/messages.js';
-import { addBan } from '../services/player.service.js';
-import { BansType } from '../types/bans.js';
-import Match from '../models/match.schema.js';
+import { end, findByChannelId } from '../services/match.service';
+import Player from '../models/player.schema';
+import { sendMessage } from '../helpers/messages';
+import { addBan } from '../services/player.service';
+import { BansType } from '../types/bans';
+import Match from '../models/match.schema';
 
 export const handleAbandon = async ({
     client,

@@ -29,7 +29,7 @@ import { getTeamBName } from '../helpers/team.js';
 import { addBan, addWinLoss } from './player.service.js';
 import { MatchResultType } from '../models/player.schema.js';
 import { BansType } from '../types/bans.js';
-const DEBUG_MODE = false;
+const DEBUG_MODE = true;
 
 const SECOND_IN_MS = 1000;
 const MINUTE_IN_MS = 60 * SECOND_IN_MS;
@@ -142,7 +142,7 @@ const sendReadyMessage = async ({
         const readyMessageContent = await createReadyMessage({
             matchNumber: match.match_number,
         });
-        const playersMessage = await sendMessage({
+        await sendMessage({
             channelId: match.channels.ready,
             client,
             messageContent:
@@ -719,6 +719,16 @@ export const setScore = async ({
                 embeds: [scoreEmbed],
                 components: [row],
             };
+            await sendMessage({
+                channelId: match.channels.matchChannel,
+                client,
+                messageContent:
+                    'Missing verify: ' +
+                    match.players
+                        .filter(p => !p.verifiedScore)
+                        .map(p => `<@${p.id}>`)
+                        .join(' '),
+            });
 
             await sendMessage({
                 channelId: match.channels.matchChannel,

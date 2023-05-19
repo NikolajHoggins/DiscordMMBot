@@ -53,6 +53,27 @@ const setPlayerVerified = async ({
             ephemeral: true,
         });
 
+        const messages = await interaction.channel?.messages.fetch();
+
+        if (!messages) throw new Error('No messages found');
+
+        for (const message of messages) {
+            if (message[1].author.id === interaction.client.user?.id) {
+                if (message[1].content.includes('Missing verify')) {
+                    setTimeout(async () => {
+                        const newMatch = await Match.findOne({ match_number: match.match_number });
+                        if (!newMatch) throw new Error('Match not found');
+                        await message[1].edit(
+                            'Missing players: ' +
+                                newMatch.players
+                                    .filter(p => !p.verifiedScore)
+                                    .map(p => `<@${p.id}>`)
+                                    .join(' ')
+                        );
+                    }, 2000);
+                }
+            }
+        }
         resolve(true);
     });
 };
