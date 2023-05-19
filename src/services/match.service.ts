@@ -29,7 +29,7 @@ import { getTeamBName } from '../helpers/team.js';
 import { addBan, addWinLoss } from './player.service.js';
 import { MatchResultType } from '../models/player.schema.js';
 import { BansType } from '../types/bans.js';
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 const SECOND_IN_MS = 1000;
 const MINUTE_IN_MS = 60 * SECOND_IN_MS;
