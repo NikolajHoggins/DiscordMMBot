@@ -35,7 +35,7 @@ const SECOND_IN_MS = 1000;
 const MINUTE_IN_MS = 60 * SECOND_IN_MS;
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async resolve => {
-        const latest = await Match.find()
+        const latest = await Match.find({}, { _id: 0, match_number: 1 })
             .sort({ match_number: -1 })
             .then(matches => matches[0]);
         resolve(latest ? latest.match_number + 1 : 1);
