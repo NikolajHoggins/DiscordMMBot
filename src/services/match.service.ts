@@ -603,10 +603,11 @@ export const startGame = ({
 
         const regions = groupBy(match.players.map(p => p.region));
 
-        const regionString =
-            map(regions, (value, key) => {
-                return `${upperCase(key)} - ${value.length}\n`;
-            }).join('') + `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
+        // const regionString =
+        //     map(regions, (value, key) => {
+        //         return `${upperCase(key)} - ${value.length}\n`;
+        //     }).join('') + `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
+        const regionString = `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
 
         await sendMessage({
             channelId: matchChannel.id,
