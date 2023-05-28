@@ -398,7 +398,7 @@ const startMatch = ({
 
         //Remove players from queue
         await removePlayersFromQueue(queuePlayers);
-        await updateStatus(client);
+        updateStatus(client);
         await sendReadyMessage({ client, channelId, queuePlayers, match: newMatch });
 
         resolve(true);
