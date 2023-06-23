@@ -36,6 +36,7 @@ export const createTeams = (queuePlayers: IQueue[]): IMatchPlayer[] => {
         name: q.name,
         rating: q.rating,
         region: q.region,
+        queueTime: q.signup_time,
         ...(i === 0 ? { captain: true } : {}),
     }));
     const teamB: IMatchPlayer[] = fairTeams[1].map((q, i) => ({
@@ -44,6 +45,7 @@ export const createTeams = (queuePlayers: IQueue[]): IMatchPlayer[] => {
         name: q.name,
         rating: q.rating,
         region: q.region,
+        queueTime: q.signup_time,
         ...(i === 0 ? { captain: true } : {}),
     }));
 

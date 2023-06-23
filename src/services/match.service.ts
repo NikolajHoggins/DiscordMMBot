@@ -186,7 +186,7 @@ export const checkPlayersReady = ({
         }
 
         //if it's been more than 3 minutes since the match started, end game
-        if (Date.now() - match.start > 3 * 60 * SECOND_IN_MS) {
+        if (Date.now() - match.start > 3 * 5 * SECOND_IN_MS) {
             sendMessage({
                 channelId: match.channels.ready,
                 messageContent: `${unreadyPlayers.map(
@@ -220,9 +220,28 @@ export const checkPlayersReady = ({
                 })
             );
 
-            setTimeout(() => {
-                console.log('here');
+            setTimeout(async () => {
                 end({ matchNumber: match.match_number, client });
+
+                // Put players that has reQueue back in queue
+                await Promise.all(
+                    match.players.map(async player => {
+                        return new Promise(async resolve => {
+                            if (player.reQueue && player.ready) {
+                                await Queue.create({
+                                    discordId: player.id,
+                                    expires: Date.now() + MINUTE_IN_MS * 5,
+                                    signup_time: player.queueTime,
+                                    name: player.name,
+                                    rating: player.rating,
+                                    region: 'requeu',
+                                    queueRegion: 'fill',
+                                });
+                            }
+                            resolve(true);
+                        });
+                    })
+                );
             }, 5000);
             return resolve(true);
         }
@@ -280,7 +299,7 @@ export const tryStart = (client: Client): Promise<void> => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: 1 });
-        const count = DEBUG_MODE ? 1 : 10;
+        const count = DEBUG_MODE ? 2 : 10;
         const naPlayers = queue.filter(q => q.queueRegion === 'na');
         const euPlayers = queue.filter(q => q.queueRegion === 'eu');
         const fillPlayers = queue.filter(q => q.queueRegion === 'fill');
@@ -835,6 +854,7 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
                 messageContent: { embeds: [embed] },
                 client,
             });
+            resolve(true);
         });
     });
 };

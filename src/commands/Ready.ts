@@ -11,7 +11,6 @@ import * as playerService from '../services/player.service';
 import { ready } from '../services/queue.service';
 import { getConfig } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
-import Match from '../models/match.schema.js';
 import { sendMessage } from '../helpers/messages.js';
 import { ceil } from 'lodash';
 import { RegionsType } from '../types/queue.js';
@@ -51,19 +50,6 @@ export const handleReady = async ({
             content: `You are banned from queue for ${ceil(
                 (player.banEnd - Date.now()) / 1000 / 60
             )} minutes`,
-            ephemeral: true,
-        });
-        return;
-    }
-
-    //Check if match with player on it is in progress
-    const match = await Match.find({ status: { $ne: 'ended' } }).findOne({
-        'players.id': user.id,
-    });
-
-    if (match) {
-        interaction.reply({
-            content: `You are already in a match`,
             ephemeral: true,
         });
         return;

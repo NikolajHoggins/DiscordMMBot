@@ -20,6 +20,8 @@ export interface IMatchPlayer {
     ready?: boolean;
     verifiedScore?: boolean;
     abandon?: boolean;
+    reQueue?: boolean; //Allows user to ready up while in a match
+    queueTime: number;
 }
 
 export const MatchStatus = {
