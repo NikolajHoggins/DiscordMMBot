@@ -186,7 +186,7 @@ export const checkPlayersReady = ({
         }
 
         //if it's been more than 3 minutes since the match started, end game
-        if (Date.now() - match.start > 3 * 5 * SECOND_IN_MS) {
+        if (Date.now() - match.start > 3 * 60 * SECOND_IN_MS) {
             sendMessage({
                 channelId: match.channels.ready,
                 messageContent: `${unreadyPlayers.map(
