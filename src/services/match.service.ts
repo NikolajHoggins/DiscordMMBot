@@ -234,7 +234,7 @@ export const checkPlayersReady = ({
                                     signup_time: player.queueTime,
                                     name: player.name,
                                     rating: player.rating,
-                                    region: 'requeu',
+                                    region: 'requeue',
                                     queueRegion: 'fill',
                                 });
                             }

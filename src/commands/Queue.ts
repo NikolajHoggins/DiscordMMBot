@@ -14,10 +14,12 @@ export const QueueCommand: Command = {
         const naPlayers = queuePlayers.filter(q => q.queueRegion === 'na');
         const euPlayers = queuePlayers.filter(q => q.queueRegion === 'eu');
         const fillPlayers = queuePlayers.filter(q => q.queueRegion === 'fill');
+        const requeuePlayers = queuePlayers.filter(q => q.region === 'requeue');
 
         const euString = euPlayers.map(p => p.name).join(', ');
         const naString = naPlayers.map(p => p.name).join(', ');
         const fillString = fillPlayers.map(p => p.name).join(', ');
+        const requeueString = requeuePlayers.map(p => p.name).join(', ');
         // const regionString = map(regions, (value, key) => {
         //     return `${value.length} - ${upperCase(key)}`;
         // }).join(', ');
@@ -26,6 +28,7 @@ export const QueueCommand: Command = {
         // queuePlayersPlayers.forEach(queue => {
         //     content = `${content} ${queue.name},`;
         // });
+        content = `${content}\n**Requeue** - [${requeuePlayers.length}] - ${requeueString}`;
         content = `${content}\n**Fill** - [${fillPlayers.length}] - ${fillString}`;
         content = `${content}\n**EU** -[${euPlayers.length}] - ${euString}`;
         content = `${content}\n**NA** -[${naPlayers.length}] - ${naString}`;
