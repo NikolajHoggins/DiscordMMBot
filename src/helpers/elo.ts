@@ -64,8 +64,20 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
 
     const winner = match.teamARounds === 7 ? 'a' : 'b';
     const loser = winner === 'a' ? 'b' : 'a';
-    const winningTeam = await Promise.all(idsToObjects(getTeam(players, winner).map(p => p.id)));
-    const losingTeam = await Promise.all(idsToObjects(getTeam(players, loser).map(p => p.id)));
+    const winningTeam = await Promise.all(
+        idsToObjects(
+            getTeam(players, winner)
+                .filter(p => !p.abandon)
+                .map(p => p.id)
+        )
+    );
+    const losingTeam = await Promise.all(
+        idsToObjects(
+            getTeam(players, loser)
+                .filter(p => !p.abandon)
+                .map(p => p.id)
+        )
+    );
     const winnerRounds = (winner === 'a' ? match.teamARounds : match.teamBRounds) || 0;
     const loserRounds = (loser === 'a' ? match.teamARounds : match.teamBRounds) || 0;
 

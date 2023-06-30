@@ -46,6 +46,7 @@ export const handleAbandon = async ({
         return;
     }
 
+    // set flag on match, will be used in elo calculation
     await Match.updateOne(
         {
             match_number: match.match_number,
@@ -54,10 +55,6 @@ export const handleAbandon = async ({
         },
         { $set: { 'players.$.abandon': true }, $inc: { version: 1 } }
     );
-
-    //add a loss to player history
-
-    //set some sort of flag to indicate player has abandoned and from which team. This will be used in elo calculation
 
     //set a timeout on player, and add a timeout history
     const player = await Player.findOne({ discordId: user.id });
@@ -71,6 +68,19 @@ export const handleAbandon = async ({
         client,
         type: BansType.abandon,
     });
+
+    //add a loss to player history
+    const ABANDON_ELO_CHANGE = -10;
+    await Player.updateOne(
+        { discordId: user.id },
+        {
+            history: [
+                ...player.history,
+                { matchNumber: match.match_number, result: 'abandon', change: ABANDON_ELO_CHANGE },
+            ],
+            rating: player.rating + ABANDON_ELO_CHANGE,
+        }
+    );
 
     await sendMessage({
         channelId: channelId,
