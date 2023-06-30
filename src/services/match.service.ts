@@ -773,6 +773,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
             });
             await Promise.all(
                 match.players.map(p => {
+                    if (p.abandon) return resolve(true);
                     return new Promise(async resolve => {
                         await addWinLoss({
                             client,
