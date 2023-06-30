@@ -67,6 +67,13 @@ export const addWinLoss = async ({
             {
                 history: [...player.history, { matchNumber, result, change: ratingChange }],
                 rating: player.rating + Math.round(ratingChange * 100) / 100,
+                ratingHistory: [
+                    ...(player.ratingHistory || []),
+                    {
+                        rating: player.rating + Math.round(ratingChange * 100) / 100,
+                        date: Date.now(),
+                    },
+                ],
             }
         );
 

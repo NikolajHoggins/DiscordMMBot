@@ -7,9 +7,11 @@ export const MatchResultType = {
     draw: 'draw',
 } as const;
 
-export type MatchResultType = typeof MatchResultType[keyof typeof MatchResultType];
+export type MatchResultType = (typeof MatchResultType)[keyof typeof MatchResultType];
 
 type MatchHistory = { matchNumber: number; result: MatchResultType; change: number }[];
+
+type RatingHistory = { rating: number; date: number; reason: string }[];
 
 type BanHistory = {
     timeoutInMinutes: number;
@@ -24,6 +26,7 @@ export interface IPlayer {
     name: string;
     rating: number;
     history: MatchHistory;
+    ratingHistory: RatingHistory;
     bans: BanHistory;
     banStart: number;
     banEnd: number;
@@ -35,6 +38,7 @@ const playerSchema = new Schema<IPlayer>({
     name: { type: String, required: true },
     rating: { type: Number, required: true },
     history: { type: [], required: true },
+    ratingHistory: { type: [], required: true },
     bans: { type: [] },
     banStart: { type: Number },
     banEnd: { type: Number },
