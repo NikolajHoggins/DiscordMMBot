@@ -63,6 +63,7 @@ const setPermissions = async ({
         resolve(role.id);
     });
 };
+//Disabled as ingame comms is better for quest players
 const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
@@ -206,7 +207,7 @@ export const checkPlayersReady = ({
             });
 
             //ban players not ready
-            await Promise.all(
+            Promise.all(
                 unreadyPlayers.map(player => {
                     return new Promise(async resolve => {
                         addBan({
@@ -410,8 +411,6 @@ const startMatch = ({
             version: 0,
         });
         await newMatch.save();
-
-        await createVCs({ client, match: newMatch });
 
         logMatch({ match: newMatch, client });
 
