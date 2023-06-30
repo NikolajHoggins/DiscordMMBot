@@ -115,7 +115,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
             console.log(player.name, 'isUnranked', isUnranked);
             console.log(player.name, 'elo before unranked', eloChange);
             if (isUnranked) {
-                eloChange *= 2;
+                eloChange *= 1 + (10 - player.history.length + 2) / 10;
             }
             console.log(player.name, 'elo after unranked', eloChange);
 
@@ -146,7 +146,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
             const isUnranked = player.history.length < 10;
 
             if (isUnranked) {
-                eloChange *= 2;
+                eloChange *= 1 + (10 - player.history.length + 2) / 10;
             }
             console.log(player.name, 'elo after unranked', eloChange);
             addWinLoss({
