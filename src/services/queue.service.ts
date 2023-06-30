@@ -28,12 +28,19 @@ export const ready = ({
             return resolve(true);
         }
 
+        // Good chance new unranked players suck.
+        // Now they count for 0.5 of their rating for the first match, and then for the next 4 matches their multiplier moves towards 1. So 0.5 - 0.625 - 0.75 - 0.825 - 1.0
+        const effectiveRating =
+            player.history.length >= 4
+                ? player.rating
+                : player.rating * (0.5 + player.history.length / 8);
+
         const newSpot = new Queue({
             discordId: player.discordId,
             expires: Date.now() + ONE_MINUTE * time,
             signup_time: Date.now(),
             name: player.name,
-            rating: player.rating,
+            rating: effectiveRating,
             region: region,
             queueRegion: queueRegion,
         });

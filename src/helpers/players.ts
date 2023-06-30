@@ -8,19 +8,19 @@ export interface ICreateTeamsResponse {
     teamB: string[];
 }
 
-export const splitObjects = (players: IQueue[]) => {
-    const sortedObjects = players.slice().sort((a, b) => b.rating - a.rating);
+export const splitTeams = (players: IQueue[]) => {
+    const sortedPlayers = players.slice().sort((a, b) => b.rating - a.rating);
     const group1 = [];
     const group2 = [];
 
-    for (const obj of sortedObjects) {
+    for (const player of sortedPlayers) {
         if (
             group1.reduce((sum, o) => sum + o.rating, 0) <=
             group2.reduce((sum, o) => sum + o.rating, 0)
         ) {
-            group1.push(obj);
+            group1.push(player);
         } else {
-            group2.push(obj);
+            group2.push(player);
         }
     }
 
@@ -29,7 +29,7 @@ export const splitObjects = (players: IQueue[]) => {
 
 export const createTeams = (queuePlayers: IQueue[]): IMatchPlayer[] => {
     const players = shuffle(queuePlayers);
-    const fairTeams = splitObjects(players);
+    const fairTeams = splitTeams(players);
     const teamA: IMatchPlayer[] = fairTeams[0].map((q, i) => ({
         id: q.discordId,
         team: 'a',
