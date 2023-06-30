@@ -72,6 +72,7 @@ export const addWinLoss = async ({
                     {
                         rating: player.rating + Math.round(ratingChange * 100) / 100,
                         date: Date.now(),
+                        reason: `Match ${matchNumber} ${result}`,
                     },
                 ],
             }
