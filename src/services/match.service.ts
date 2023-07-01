@@ -15,7 +15,7 @@ import Match, { IMatch, IMatchChannels, MatchStatus } from '../models/match.sche
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
-import { createTeams, getTeam } from '../helpers/players';
+import { createTeams, getClosestNumbers, getTeam } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
@@ -376,9 +376,31 @@ const startMatch = ({
         });
         const queuePlayers = sortedPlayers.slice(0, count);
 
-        // const ratingDiff =
-        //     sortedPlayers.length > 2 ? sortedPlayers[-1].rating - sortedPlayers[0].rating : 0;
+        const firstQueuePlayerRating = sortedPlayers[0].rating;
+        const ratingSortedPlayers = queue.sort((a, b) => b.rating - a.rating);
+        const queuePlayersSortedRating = queuePlayers.sort((a, b) => b.rating - a.rating);
+        const ratingDiff =
+            queuePlayersSortedRating.length > 2
+                ? queuePlayersSortedRating[-1].rating - queuePlayersSortedRating[0].rating
+                : 0;
 
+        console.log('====================================================');
+        console.log('starting match with rating diff', ratingDiff);
+        console.log('highest rating:', ratingSortedPlayers[0].rating);
+        console.log('lowest rating:', ratingSortedPlayers[-1].rating);
+        console.log('first player in queue rating', firstQueuePlayerRating);
+        const closestPossible = getClosestNumbers(
+            queue.map(q => q.rating),
+            firstQueuePlayerRating
+        );
+        const closestPossibleSorted = closestPossible.sort((a, b) => b - a);
+        const closestRatingDiff =
+            closestPossibleSorted.length > 2
+                ? closestPossibleSorted[-1] - closestPossibleSorted[0]
+                : 0;
+        console.log('closest team', closestPossible);
+        console.log('rating diff', closestRatingDiff);
+        console.log('====================================================');
         await sendMessage({
             channelId: queueChannelId,
             messageContent:

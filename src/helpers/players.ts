@@ -9,7 +9,7 @@ export interface ICreateTeamsResponse {
 }
 
 export const splitTeams = (players: IQueue[]) => {
-    const sortedPlayers = players.slice().sort((a, b) => b.rating - a.rating);
+    const sortedPlayers = players.sort((a, b) => b.rating - a.rating);
     const group1 = [];
     const group2 = [];
 
@@ -54,4 +54,12 @@ export const createTeams = (queuePlayers: IQueue[]): IMatchPlayer[] => {
 
 export const getTeam = (players: IMatchPlayer[], team: 'a' | 'b'): IMatchPlayer[] => {
     return players.filter(p => p.team === team);
+};
+
+export const getClosestNumbers = (numbers: number[], target: number) => {
+    // sort numbers by their absolute difference from the target
+    numbers.sort((a: number, b: number) => Math.abs(target - a) - Math.abs(target - b));
+
+    // return the first 10 numbers
+    return numbers.slice(0, 10);
 };
