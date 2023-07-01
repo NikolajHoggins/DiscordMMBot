@@ -18,7 +18,6 @@ export const ready = ({
     queueRegion: RegionsType;
 }): Promise<boolean> => {
     return new Promise(async (resolve, reject) => {
-        return resolve(true);
         const queueSpot = await getSpot(player.discordId);
         if (queueSpot) {
             //update
