@@ -18,7 +18,7 @@ export const findOrCreate = (user: User): Promise<IPlayer> => {
         const newPlayer = new Player({
             discordId: user.id,
             name: user.username,
-            rating: 1250,
+            rating: 1400,
             ratingHistory: [],
             history: [],
         });
