@@ -38,13 +38,13 @@ export const Countdown: Command = {
             });
         }
 
-        const playerList = await Player.find({});
+        const playerList = await Player.find({ $expr: { $gt: [{ $size: '$history' }, 0] } });
         const sortedPlayerList = playerList.sort((a, b) => b.history.length - a.history.length);
 
         const player = await Player.findOne({ discordId: user.id });
         if (!player) throw new Error("You don't have any stats yet!");
 
-        const START_TIME = 1681411005719;
+        const START_TIME = 1688222700000;
         const ONE_WEEK = 604800000;
         const END_TIME = START_TIME + ONE_WEEK;
 
@@ -60,6 +60,10 @@ export const Countdown: Command = {
             )
             .setColor('#C69B6D')
             .addFields([
+                {
+                    name: 'Unique players played:',
+                    value: `${playerList.length} players`,
+                },
                 {
                     name: 'Current top 2 players',
                     value:
