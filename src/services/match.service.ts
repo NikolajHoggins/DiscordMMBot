@@ -10,7 +10,7 @@ import {
     User,
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
-import { createReadyMessage, sendMessage } from '../helpers/messages';
+import { createReadyMessage, sendMatchFoundMessage, sendMessage } from '../helpers/messages';
 import Match, { IMatch, IMatchChannels, MatchStatus } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
@@ -143,6 +143,7 @@ const sendReadyMessage = async ({
         const readyMessageContent = await createReadyMessage({
             matchNumber: match.match_number,
         });
+
         await sendMessage({
             channelId: match.channels.ready,
             client,
@@ -439,6 +440,7 @@ const startMatch = ({
         //Remove players from queue
         await removePlayersFromQueue(queuePlayers);
         updateStatus(client);
+        sendMatchFoundMessage({ client, match: newMatch });
         await sendReadyMessage({ client, channelId, queuePlayers, match: newMatch });
 
         resolve(true);

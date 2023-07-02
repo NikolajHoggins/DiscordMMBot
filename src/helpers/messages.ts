@@ -12,6 +12,7 @@ import {
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import Match, { IMatch } from '../models/match.schema.js';
+import { getGuild } from './guild.js';
 
 export const sendMessage = async ({
     channelId,
@@ -74,5 +75,16 @@ export const createReadyMessage = ({
         };
 
         resolve(confirmMessageContent);
+    });
+};
+
+export const sendMatchFoundMessage = ({ client, match }: { client: Client; match: IMatch }) => {
+    const guild = getGuild(client);
+    match.players.forEach(async p => {
+        //find guild member
+        const user = await client.users?.fetch(p.id);
+
+        if (!user) return;
+        user.send('Your queue has expired');
     });
 };
