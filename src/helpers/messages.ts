@@ -83,8 +83,9 @@ export const sendMatchFoundMessage = ({ client, match }: { client: Client; match
     match.players.forEach(async p => {
         //find guild member
         const user = await client.users?.fetch(p.id);
+        const readyChannel = match.channels.ready;
 
         if (!user) return;
-        user.send('Your queue has expired');
+        user.send(`Your match was found, go ready in <#${readyChannel}>`);
     });
 };
