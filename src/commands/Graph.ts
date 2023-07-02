@@ -12,6 +12,7 @@ import { ChannelsType, RanksType } from '../types/channel.js';
 import { getGuild } from '../helpers/guild.js';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartConfiguration, ScriptableLineSegmentContext } from 'chart.js';
+import { MatchResultType } from '../models/player.schema.js';
 
 const up = (ctx: ScriptableLineSegmentContext, value: string) =>
     ctx.p0.parsed.y < ctx.p1.parsed.y ? value : undefined;
@@ -88,7 +89,7 @@ export const Graph: Command = {
         const ratings: {
             match: string;
             rating: number;
-            result: 'win' | 'loss' | 'draw';
+            result: MatchResultType;
             change: number;
         }[] = [];
         const graphHistory = history.length > length ? history.slice(length * -1) : history;
