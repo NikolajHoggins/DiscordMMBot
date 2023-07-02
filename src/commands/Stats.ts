@@ -58,8 +58,9 @@ export const Stats: Command = {
         const isUnranked = history.length < 10;
         const ratingPosition = isUnranked ? '?' : playerList[0]?.count + 1 || 1;
 
-        const wins = history.filter(match => match.result === 'win').length;
-        const matches = history.length;
+        const historyNoAbandon = history.filter(match => match.result !== 'abandon');
+        const wins = historyNoAbandon.filter(match => match.result === 'win').length;
+        const matches = historyNoAbandon.length;
         const losses = matches - wins;
         const winRate = ceil((wins / (wins + losses)) * 100);
 
@@ -75,7 +76,7 @@ export const Stats: Command = {
             .addFields([
                 {
                     name: 'Wins',
-                    value: '' + player.history.filter(match => match.result === 'win').length,
+                    value: '' + historyNoAbandon.filter(match => match.result === 'win').length,
                     inline: true,
                 },
                 {
@@ -91,13 +92,13 @@ export const Stats: Command = {
                 {
                     name: 'Match History',
                     value:
-                        history
+                        historyNoAbandon
                             .slice(-10)
                             .map(h => `${getEmoji(h.result[0])}`)
                             .join('') || 'No matches played',
                     inline: false,
                 },
-                ...(history.length < 10
+                ...(historyNoAbandon.length < 10
                     ? [
                           {
                               name: 'You are unranked',
@@ -107,9 +108,6 @@ export const Stats: Command = {
                       ]
                     : []),
             ]);
-        const content = `User ${player.name} [${Math.floor(
-            player.rating
-        )}] has ${wins} wins and ${losses} losses. ${!isNaN(winRate) ? winRate : 0}% winrate`;
 
         await interaction.reply({
             embeds: [statsEmbed],

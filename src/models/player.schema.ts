@@ -5,6 +5,7 @@ export const MatchResultType = {
     win: 'win',
     loss: 'loss',
     draw: 'draw',
+    abandon: 'abandon',
 } as const;
 
 export type MatchResultType = (typeof MatchResultType)[keyof typeof MatchResultType];

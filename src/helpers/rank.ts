@@ -35,7 +35,10 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
         const player = await Player.findOne({ discordId: playerId });
         if (!player) throw new Error('Player not found');
 
-        if (player.history.length < 10) {
+        const { history } = player;
+        const historyNoAbandon = history.filter(match => match.result !== 'abandon');
+
+        if (historyNoAbandon.length < 10) {
             resolve(true);
             return;
         }
