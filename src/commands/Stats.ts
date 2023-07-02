@@ -71,7 +71,7 @@ export const Stats: Command = {
             .setTitle(`#${ratingPosition} - ${player.name}`)
             .setColor('#C69B6D')
             .setThumbnail(userToCheck.avatarURL())
-            .setDescription(`${rankName} \nGames played - ${player.history.length}`)
+            .setDescription(`${rankName} \nGames played - ${historyNoAbandon.length}`)
             // .setDescription(`Map: ${capitalize(match.map)}`)
             .addFields([
                 {
