@@ -50,6 +50,7 @@ const playerSchema = new Schema<IPlayer>({
     bans: { type: [] },
     banStart: { type: Number },
     banEnd: { type: Number },
+    notes: { type: [] },
 });
 
 const Player = model<IPlayer>('Player', playerSchema);
