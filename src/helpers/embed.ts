@@ -1,4 +1,4 @@
-import { EmbedBuilder } from 'discord.js';
+import { APIEmbedField, EmbedBuilder, RestOrArray } from 'discord.js';
 import Match, { IMatch } from '../models/match.schema.js';
 import { getTeam } from './players.js';
 import { getTeamBName } from './team.js';
@@ -120,25 +120,54 @@ export const createMatchResultEmbed = async ({
     });
 };
 
-export const createScoreCardEmbed = async ({ match }: { match: IMatch }): Promise<EmbedBuilder> => {
-    return new Promise(async resolve => {
-        resolve(
-            new EmbedBuilder()
-                .setTitle('Scores')
-                .setColor('#C69B6D')
-                .setDescription('Verify the scores below by hitting "Verify"')
-                .addFields(
-                    {
-                        name: capitalize(match.teamASide),
-                        value: `${match.teamARounds}`,
-                        inline: true,
-                    },
-                    {
-                        name: capitalize(getTeamBName(match.teamASide)),
-                        value: `${match.teamBRounds}`,
-                        inline: true,
-                    }
-                )
+export const createScoreCardEmbed = ({ match }: { match: IMatch }): EmbedBuilder =>
+    new EmbedBuilder()
+        .setTitle('Scores')
+        .setColor('#C69B6D')
+        .setDescription('Verify the scores below by hitting "Verify"')
+        .addFields(
+            {
+                name: capitalize(match.teamASide),
+                value: `${match.teamARounds}`,
+                inline: true,
+            },
+            {
+                name: capitalize(getTeamBName(match.teamASide)),
+                value: `${match.teamBRounds}`,
+                inline: true,
+            }
         );
+
+export const createMatchListEmbed = async ({
+    matches,
+}: {
+    matches: IMatch[];
+}): Promise<EmbedBuilder> => {
+    const fields: RestOrArray<APIEmbedField> = [];
+    matches.forEach(match => {
+        fields.push({
+            name: `Match ${match.match_number}`,
+            value: `Started <t:${Math.floor(match.start / 1000)}:t>\nEnding: <t:${
+                Math.floor(match.start / 1000) + 2700
+            }:R>`,
+            inline: true,
+        });
+        fields.push({
+            name: 'Team A',
+            value: `${match.players
+                .filter(p => p.team === 'a')
+                .map(p => `${p.name}`)
+                .join('\n')}`,
+            inline: true,
+        });
+        fields.push({
+            name: 'Team B',
+            value: `${match.players
+                .filter(p => p.team === 'b')
+                .map(p => `${p.name}`)
+                .join('\n')}`,
+            inline: true,
+        });
     });
+    return new EmbedBuilder().setTitle('Running matches').setColor('#C69B6D').addFields(fields);
 };

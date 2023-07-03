@@ -11,6 +11,7 @@ import { ForceSubmit } from './commands/ForceSubmit';
 import { ForceVerify } from './commands/ForceVerify';
 import { Graph } from './commands/Graph';
 import { PingPlayers } from './commands/PingPlayers';
+import { PlayingCommand } from './commands/Playing.js';
 import { QueueCommand } from './commands/Queue';
 import { RatingChange } from './commands/RatingChange';
 import { Ready } from './commands/Ready';
@@ -32,6 +33,7 @@ export const Commands: Command[] = [
     Abandon,
     RatingChange,
     Graph,
+    PlayingCommand,
     //mod commands
     EndGame,
     RestartBot,
