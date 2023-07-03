@@ -33,8 +33,6 @@ export const AddNote: Command = {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
         const note = interaction.options.get('note')?.value;
-        const durationValue = interaction.options.get('duration')?.value as number;
-        if (!durationValue) return interaction.reply({ content: 'provide timeout time' });
 
         if (!mention) return interaction.reply({ content: 'no mention' });
         const guild = await getGuild(client);
