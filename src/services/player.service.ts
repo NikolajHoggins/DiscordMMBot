@@ -157,3 +157,42 @@ export const addBan = ({
         resolve(true);
     });
 };
+
+export const addNote = ({
+    note,
+    userId,
+    modId,
+}: {
+    note: string;
+    userId: string;
+    modId?: string;
+}) => {
+    return new Promise(async (resolve, reject) => {
+        const player = (await Player.findOne({ discordId: userId })) as IPlayer;
+        if (!player) {
+            reject('Player not found');
+            return;
+        }
+
+        const now = Date.now();
+        const noteBody = {
+            time: now,
+            note: note,
+            modId: modId,
+        };
+        await Player.updateOne(
+            { discordId: userId },
+            {
+                ...(player.notes
+                    ? {
+                          $push: {
+                              notes: noteBody,
+                          },
+                      }
+                    : { $set: { notes: [noteBody] } }),
+            }
+        );
+
+        resolve(true);
+    });
+};

@@ -21,6 +21,12 @@ type BanHistory = {
     modId?: string;
     type: BansType;
 }[];
+
+type Notes = {
+    note: string;
+    time: number;
+    modId: string;
+}[];
 // 1. Create an interface representing a document in MongoDB.
 export interface IPlayer {
     discordId: string;
@@ -31,6 +37,7 @@ export interface IPlayer {
     bans: BanHistory;
     banStart: number;
     banEnd: number;
+    notes: Notes;
 }
 
 // 2. Create a Schema corresponding to the document interface.

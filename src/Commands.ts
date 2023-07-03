@@ -1,5 +1,6 @@
 import { Command } from './Command';
 import { Abandon } from './commands/Abandon';
+import { AddNote } from './commands/AddNote.js';
 import { Bans } from './commands/Bans';
 import { Based } from './commands/Based';
 import { Countdown } from './commands/Countdown';
@@ -10,6 +11,7 @@ import { ForceStart } from './commands/ForceStart';
 import { ForceSubmit } from './commands/ForceSubmit';
 import { ForceVerify } from './commands/ForceVerify';
 import { Graph } from './commands/Graph';
+import { Notes } from './commands/Notes.js';
 import { PingPlayers } from './commands/PingPlayers';
 import { PlayingCommand } from './commands/Playing.js';
 import { QueueCommand } from './commands/Queue';
@@ -36,12 +38,14 @@ export const Commands: Command[] = [
     PlayingCommand,
     //mod commands
     EndGame,
+    AddNote,
     RestartBot,
     Timeout,
     ForceSubmit,
     ForceStart,
     ForceAbandon,
     Bans,
+    Notes,
     Countdown,
     DeleteGame,
     ForceVerify,
