@@ -99,35 +99,39 @@ export const Ready: Command = {
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
         const config = await getConfig();
-
-        const TESTING_CHANNEL = '1063592233779073105';
-        if (
-            interaction.channelId !== TESTING_CHANNEL &&
-            interaction.channelId !==
-                config.channels.filter((c: any) => c.name === ChannelsType['ranked-queue'])[0].id
-        ) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'Keep queue commands in queue',
-            });
-            return;
-        }
-        const option = interaction.options.get('time');
-        const isNumber = typeof option?.value == 'number';
-        const readyTime = isNumber ? (option.value as number) : 30;
-        const region = interaction.options.get('region');
-        if (region && !['na', 'eu', 'fill'].includes((region.value as string)?.toLowerCase())) {
-            return interaction.reply({
-                content: 'Region must be NA, EU, or FILL',
-            });
-        }
-
-        handleReady({
-            interaction,
-            time: readyTime,
-            client,
-            region: ((region?.value as string)?.toLowerCase() as RegionsType) || 'fill',
+        await interaction.reply({
+            ephemeral: true,
+            content: 'Command disabled',
         });
+        return;
+        // const TESTING_CHANNEL = '1063592233779073105';
+        // if (
+        //     interaction.channelId !== TESTING_CHANNEL &&
+        //     interaction.channelId !==
+        //         config.channels.filter((c: any) => c.name === ChannelsType['ranked-queue'])[0].id
+        // ) {
+        //     await interaction.reply({
+        //         ephemeral: true,
+        //         content: 'Keep queue commands in queue',
+        //     });
+        //     return;
+        // }
+        // const option = interaction.options.get('time');
+        // const isNumber = typeof option?.value == 'number';
+        // const readyTime = isNumber ? (option.value as number) : 30;
+        // const region = interaction.options.get('region');
+        // if (region && !['na', 'eu', 'fill'].includes((region.value as string)?.toLowerCase())) {
+        //     return interaction.reply({
+        //         content: 'Region must be NA, EU, or FILL',
+        //     });
+        // }
+
+        // handleReady({
+        //     interaction,
+        //     time: readyTime,
+        //     client,
+        //     region: ((region?.value as string)?.toLowerCase() as RegionsType) || 'fill',
+        // });
 
         //If all players are in queue, send a "stratingw within the next minute message" maybe even seconds (in x seconds)
     },
