@@ -101,7 +101,7 @@ export const Ready: Command = {
         const config = await getConfig();
         await interaction.reply({
             ephemeral: true,
-            content: 'Command disabled',
+            content: 'Command disabled, use ready up buttons',
         });
         return;
         // const TESTING_CHANNEL = '1063592233779073105';
