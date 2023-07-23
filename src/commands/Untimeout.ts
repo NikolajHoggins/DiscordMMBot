@@ -14,45 +14,21 @@ import { BansType } from '../types/bans.js';
 import { getConfig } from '../services/system.service.js';
 import { RanksType } from '../types/channel.js';
 
-export const Timeout: Command = {
-    name: 'timeout',
-    description: 'Get player stats?',
+export const Untimeout: Command = {
+    name: 'untimeout',
+    description: 'Remove timeout from player',
     type: ApplicationCommandType.ChatInput,
     options: [
         {
             type: ApplicationCommandOptionType.User,
             name: 'user',
-            description: 'User to timeout',
+            description: 'User to remove timeout from',
             required: true,
-        },
-        {
-            type: ApplicationCommandOptionType.Number,
-            name: 'duration',
-            description: 'timeout in minutes',
-            min_value: 1,
-            required: true,
-        },
-        {
-            type: ApplicationCommandOptionType.String,
-            name: 'reason',
-            description: 'timeout in minutes',
-            required: true,
-        },
-        {
-            type: ApplicationCommandOptionType.Boolean,
-            name: 'display',
-            description:
-                'Send message in ranked queue channel, defaults to not sending message about ban',
-            required: false,
         },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
-        const reason = interaction.options.get('reason')?.value;
-        const display = interaction.options.get('display')?.value;
-        const durationValue = interaction.options.get('duration')?.value as number;
-        if (!durationValue) return interaction.reply({ content: 'provide timeout time' });
 
         if (!mention) return interaction.reply({ content: 'no mention' });
         const guild = await getGuild(client);
@@ -69,15 +45,12 @@ export const Timeout: Command = {
             return;
         }
 
-        await playerService.addBan({
-            userId: mention.id,
-            reason: reason as string,
-            duration: durationValue,
-            modId: user.id,
-            type: BansType.mod,
-            client,
-            display: display as boolean,
-        });
+        await Player.updateOne(
+            { discordId: mention.id },
+            {
+                $set: { banEnd: 0 },
+            }
+        );
 
         interaction.reply({
             content: `Done`,

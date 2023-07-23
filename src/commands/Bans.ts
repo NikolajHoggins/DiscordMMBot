@@ -57,13 +57,13 @@ export const Bans: Command = {
                     name: `Bans - ${player.bans.length}`,
                     value: `Currently banned until: ${
                         player.banEnd ? `<t:${Math.floor(player.banEnd / 1000)}:F>` : 'Not banned'
-                    }}`,
+                    }`,
                 },
                 ...player.bans.map(ban => ({
                     name: `${ban.type} - ${ban.reason}`,
                     value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
                         ban.timeoutInMinutes
-                    } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}}`,
+                    } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
                 })),
             ]);
 

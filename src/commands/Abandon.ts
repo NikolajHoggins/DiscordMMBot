@@ -38,6 +38,7 @@ export const handleAbandon = async ({
             reason,
             client,
             type: BansType.preAbandon,
+            display: true,
         });
 
         setTimeout(() => {
@@ -67,6 +68,7 @@ export const handleAbandon = async ({
         reason,
         client,
         type: BansType.abandon,
+        display: true,
     });
 
     //add a loss to player history

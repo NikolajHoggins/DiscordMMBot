@@ -215,6 +215,7 @@ export const checkPlayersReady = ({
                             reason: `Failed to accept match ${match.match_number}`,
                             type: BansType.ready,
                             userId: player.id,
+                            display: true,
                         });
                         resolve(true);
                     });

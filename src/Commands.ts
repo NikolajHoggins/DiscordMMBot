@@ -23,6 +23,7 @@ import { SubmitScore } from './commands/SubmitScore';
 import { Timeout } from './commands/Timeout';
 import { Top } from './commands/Top';
 import { Unready } from './commands/Unready';
+import { Untimeout } from './commands/Untimeout';
 export const Commands: Command[] = [
     Based,
     Stats,
@@ -41,6 +42,7 @@ export const Commands: Command[] = [
     AddNote,
     RestartBot,
     Timeout,
+    Untimeout,
     ForceSubmit,
     ForceStart,
     ForceAbandon,

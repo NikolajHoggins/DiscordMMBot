@@ -101,6 +101,7 @@ export const addBan = ({
     type,
     modId,
     client,
+    display,
 }: {
     duration?: number;
     reason: string;
@@ -108,6 +109,7 @@ export const addBan = ({
     type: BansType;
     modId?: string;
     client: Client;
+    display?: boolean;
 }) => {
     return new Promise(async (resolve, reject) => {
         const player = (await Player.findOne({ discordId: userId })) as IPlayer;
@@ -146,14 +148,16 @@ export const addBan = ({
 
         //Send message in queue channel
 
-        const message = `<@${userId}> has been timed out for ${actualDuration} minutes due to "${reason}"`;
+        if (display) {
+            const message = `<@${userId}> has been timed out for ${actualDuration} minutes due to "${reason}"`;
 
-        const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
-        await sendMessage({
-            channelId: queueChannel,
-            messageContent: message,
-            client,
-        });
+            const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
+            await sendMessage({
+                channelId: queueChannel,
+                messageContent: message,
+                client,
+            });
+        }
         resolve(true);
     });
 };
