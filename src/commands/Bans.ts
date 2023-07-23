@@ -13,13 +13,13 @@ import { getConfig } from '../services/system.service.js';
 
 export const Bans: Command = {
     name: 'bans',
-    description: 'Get player bans?',
+    description: 'Get previous player bans',
     type: ApplicationCommandType.ChatInput,
     options: [
         {
             type: ApplicationCommandOptionType.User,
             name: 'user',
-            description: 'User to timeout',
+            description: 'User to look at',
             required: true,
         },
     ],
@@ -52,17 +52,20 @@ export const Bans: Command = {
             .setTitle(`${mention.username} bans`)
             .setColor('#0099ff')
             .setThumbnail(mention.avatarURL())
-            .addFields({
-                name: `Bans - ${player.bans.length}`,
-                value: player.bans
-                    .map(
-                        ban =>
-                            `${ban.type} - <t:${Math.floor(ban.startTime / 1000)}:F> - ${
-                                ban.reason
-                            }`
-                    )
-                    .join('\n'),
-            });
+            .addFields([
+                {
+                    name: `Bans - ${player.bans.length}`,
+                    value: `Currently banned until: ${
+                        player.banEnd ? `<t:${Math.floor(player.banEnd / 1000)}:F>` : 'Not banned'
+                    }}`,
+                },
+                ...player.bans.map(ban => ({
+                    name: `${ban.type} ${ban.modId ? `- <@${ban.modId}>` : ''}`,
+                    value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                        ban.timeoutInMinutes
+                    } minutes - ${ban.reason}`,
+                })),
+            ]);
 
         interaction.reply({
             embeds: [embed],

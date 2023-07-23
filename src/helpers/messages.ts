@@ -11,8 +11,8 @@ import {
 } from 'discord.js';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
-import Match, { IMatch } from '../models/match.schema.js';
-import { getGuild } from './guild.js';
+import Match, { IMatch } from '../models/match.schema';
+import { getGuild } from './guild';
 
 export const sendMessage = async ({
     channelId,

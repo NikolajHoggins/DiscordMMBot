@@ -7,7 +7,6 @@ import {
     Guild,
     MessageActionRowComponentBuilder,
     TextChannel,
-    User,
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
 import { createReadyMessage, sendMatchFoundMessage, sendMessage } from '../helpers/messages';
@@ -15,20 +14,20 @@ import Match, { IMatch, IMatchChannels, MatchStatus } from '../models/match.sche
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
-import { createTeams, getClosestNumbers, getTeam } from '../helpers/players';
+import { createTeams, getTeam } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
 import { getChannelId } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
 import { createMatchEmbed, createMatchResultEmbed, createScoreCardEmbed } from '../helpers/embed';
-import { calculateEloChanges } from '../helpers/elo.js';
-import { deleteChannel, createChannel } from '../helpers/channel.js';
-import { getVotes } from '../helpers/match.js';
-import { capitalize, groupBy, map, upperCase } from 'lodash';
-import { getTeamBName } from '../helpers/team.js';
-import { addBan, addWinLoss } from './player.service.js';
-import { MatchResultType } from '../models/player.schema.js';
-import { BansType } from '../types/bans.js';
+import { calculateEloChanges } from '../helpers/elo';
+import { deleteChannel, createChannel } from '../helpers/channel';
+import { getVotes } from '../helpers/match';
+import { capitalize, groupBy } from 'lodash';
+import { getTeamBName } from '../helpers/team';
+import { addBan, addWinLoss } from './player.service';
+import { MatchResultType } from '../models/player.schema';
+import { BansType } from '../types/bans';
 const DEBUG_MODE = false;
 
 const SECOND_IN_MS = 1000;

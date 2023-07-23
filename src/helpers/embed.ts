@@ -1,7 +1,7 @@
 import { APIEmbedField, EmbedBuilder, RestOrArray } from 'discord.js';
-import Match, { IMatch } from '../models/match.schema.js';
-import { getTeam } from './players.js';
-import { getTeamBName } from './team.js';
+import Match, { IMatch } from '../models/match.schema';
+import { getTeam } from './players';
+import { getTeamBName } from './team';
 import { capitalize } from 'lodash';
 
 export const createMatchEmbed = async ({

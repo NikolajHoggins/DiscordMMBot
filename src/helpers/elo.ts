@@ -1,8 +1,8 @@
 import { Client } from 'discord.js';
-import { IMatch } from '../models/match.schema.js';
-import { addWinLoss, get, idsToObjects } from '../services/player.service.js';
-import { IPlayer, MatchResultType } from '../models/player.schema.js';
-import { getTeam } from './players.js';
+import { IMatch } from '../models/match.schema';
+import { addWinLoss, get, idsToObjects } from '../services/player.service';
+import { IPlayer, MatchResultType } from '../models/player.schema';
+import { getTeam } from './players';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
