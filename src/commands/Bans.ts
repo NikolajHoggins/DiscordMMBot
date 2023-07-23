@@ -60,10 +60,10 @@ export const Bans: Command = {
                     }}`,
                 },
                 ...player.bans.map(ban => ({
-                    name: `${ban.type} ${ban.modId ? `- <@${ban.modId}>` : ''}`,
+                    name: `${ban.type} - ${ban.reason}`,
                     value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
                         ban.timeoutInMinutes
-                    } minutes - ${ban.reason}`,
+                    } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}}`,
                 })),
             ]);
 

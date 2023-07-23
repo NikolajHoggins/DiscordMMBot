@@ -126,7 +126,7 @@ export const addBan = ({
         const banBody = {
             startTime: now,
             reason: reason,
-            timeoutInMinutes: duration,
+            timeoutInMinutes: actualDuration,
             type,
             ...(type === BansType.mod ? { modId: modId } : {}),
         };
