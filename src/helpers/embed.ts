@@ -4,6 +4,17 @@ import { getTeam } from './players';
 import { getTeamBName } from './team';
 import { capitalize } from 'lodash';
 
+// factory,skyscraper,hideout,ship
+const mapImages = {
+    skyscraper:
+        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Skyscraper.png?media=1678957731',
+    hideout:
+        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Hideout.png?media=1678957731',
+    factory:
+        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Factory.png?media=1678957731',
+    ship: 'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/08/Thumb_Ship.png?media=1678957731',
+};
+
 export const createMatchEmbed = async ({
     matchNumber,
 }: {
@@ -24,9 +35,8 @@ export const createMatchEmbed = async ({
                 .setTitle('Teams')
                 .setColor('#C69B6D')
                 .setImage(
-                    `https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_${capitalize(
-                        match.map
-                    )}.png?media=1678957731`
+                    mapImages[match.map as keyof typeof mapImages] ||
+                        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Factory.png?media=1678957731'
                 )
                 .setDescription(
                     `Map: ${capitalize(
@@ -87,9 +97,8 @@ export const createMatchResultEmbed = async ({
                 .setTitle(`Match ${matchNumber} ${capitalize(match.map)}`)
                 .setColor('#C69B6D')
                 .setImage(
-                    `https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_${capitalize(
-                        match.map
-                    )}.png?media=1678957731`
+                    mapImages[match.map as keyof typeof mapImages] ||
+                        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Factory.png?media=1678957731'
                 )
                 .setDescription(description)
                 .addFields(
