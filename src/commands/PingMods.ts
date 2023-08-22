@@ -29,7 +29,7 @@ export const PingMods: Command = {
         const reason = interaction.options.get('reason')?.value;
         if (typeof reason !== 'string') return;
 
-        const content = `<@${user.id}>: ${reason.replace(/@everyone/g, '')} <@&${modRoleId}>`;
+        const content = `<@${user.id}>: ${reason.replace(/@/g, '')} <@&${modRoleId}>`;
 
         // const response = await canPing();
         // if (response === true) {
