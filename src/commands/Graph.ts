@@ -76,15 +76,15 @@ export const Graph: Command = {
         const userToCheck = mention || user;
 
         const player = await playerService.findOrCreate(userToCheck);
-        const { history } = player;
+        const { ratingHistory } = player;
 
-        const isUnranked = player.history.length < 10;
+        // const isUnranked = player.history.length < 10;
 
-        if (isUnranked) {
-            return interaction.reply({
-                content: 'Command is only available for ranked users',
-            });
-        }
+        // if (isUnranked) {
+        //     return interaction.reply({
+        //         content: 'Command is only available for ranked users',
+        //     });
+        // }
 
         const ratings: {
             match: string;
@@ -92,21 +92,9 @@ export const Graph: Command = {
             result: MatchResultType;
             change: number;
         }[] = [];
-        const graphHistory = history.length > length ? history.slice(length * -1) : history;
+        const graphHistory = ratingHistory.slice(length * -1);
 
-        graphHistory.reverse().forEach((match, i) => {
-            const previousRating = i === 0 ? player.rating : ratings[i - 1].rating;
-            const previousChange = i === 0 ? 0 : ratings[i - 1].change;
-            const currentRating = previousRating + previousChange * -1;
-            ratings.push({
-                match: match.matchNumber.toString(),
-                rating: currentRating,
-                result: match.result,
-                change: match.change,
-            });
-        });
-        const correctRatings = ratings.reverse();
-        const labels = correctRatings.map(({ match }) => match);
+        const labels = graphHistory.map(({ reason }) => reason);
 
         const chartConfig: ChartConfiguration = {
             type: 'line',
@@ -118,7 +106,7 @@ export const Graph: Command = {
                         label: `Last ${length} matches by ${userToCheck.username}`,
                         fill: false,
                         borderColor: 'rgb(125,125,125)',
-                        data: correctRatings.map(({ rating }) => rating),
+                        data: graphHistory.map(({ rating }) => rating),
                         segment: {
                             borderColor: ctx =>
                                 up(ctx, 'rgb(0,255,0)') ||
