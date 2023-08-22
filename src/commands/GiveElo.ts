@@ -57,7 +57,7 @@ export const GiveElo: Command = {
             return;
         }
 
-        const player = await Player.findOne({ discordId: user.id });
+        const player = await Player.findOne({ discordId: mention.id });
         if (!player) return interaction.reply({ content: `User not found` });
 
         await Player.updateOne(
