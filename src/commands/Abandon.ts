@@ -76,11 +76,19 @@ export const handleAbandon = async ({
     await Player.updateOne(
         { discordId: user.id },
         {
-            history: [
-                ...player.history,
-                { matchNumber: match.match_number, result: 'abandon', change: ABANDON_ELO_CHANGE },
-            ],
-            rating: player.rating + ABANDON_ELO_CHANGE,
+            $inc: { rating: ABANDON_ELO_CHANGE },
+            $push: {
+                ratingHistory: {
+                    rating: player.rating + ABANDON_ELO_CHANGE,
+                    date: new Date(),
+                    reason: `Abandon match ${match.match_number}`,
+                },
+                history: {
+                    matchNumber: match.match_number,
+                    result: 'abandon',
+                    change: ABANDON_ELO_CHANGE,
+                },
+            },
         }
     );
 

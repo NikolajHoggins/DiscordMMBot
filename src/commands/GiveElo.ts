@@ -28,11 +28,18 @@ export const GiveElo: Command = {
             description: 'Elo to give',
             required: true,
         },
+        {
+            type: ApplicationCommandOptionType.String,
+            name: 'reason',
+            description: 'Reason for giving elo',
+            required: true,
+        },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
         const elo = interaction.options.get('elo')?.value;
+        const reason = interaction.options.get('reason')?.value;
 
         if (!mention) return interaction.reply({ content: 'no mention' });
         const guild = await getGuild(client);
@@ -49,15 +56,25 @@ export const GiveElo: Command = {
             return;
         }
 
+        const player = await Player.findOne({ discordId: user.id });
+        if (!player) return interaction.reply({ content: `User not found` });
+
         await Player.updateOne(
             { discordId: mention.id },
             {
                 $inc: { rating: elo },
+                $push: {
+                    ratingHistory: {
+                        rating: player.rating + (elo as number),
+                        date: new Date(),
+                        reason: reason,
+                    },
+                },
             }
         );
 
         botLog({
-            messageContent: `<@${user.id}> gave <@${mention.id}> ${elo} elo`,
+            messageContent: `<@${user.id}> gave <@${mention.id}> ${elo} elo \nReason: ${reason}`,
             client,
         });
 
