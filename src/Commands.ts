@@ -13,6 +13,7 @@ import { ForceVerify } from './commands/ForceVerify';
 import { GiveElo } from './commands/GiveElo.js';
 import { Graph } from './commands/Graph';
 import { Notes } from './commands/Notes.js';
+import { PingMods } from './commands/PingMods.js';
 import { PingPlayers } from './commands/PingPlayers';
 import { PlayingCommand } from './commands/Playing.js';
 import { QueueCommand } from './commands/Queue';
@@ -39,6 +40,7 @@ export const Commands: Command[] = [
     Graph,
     PlayingCommand,
     Countdown,
+    PingMods,
     //mod commands
     EndGame,
     AddNote,
