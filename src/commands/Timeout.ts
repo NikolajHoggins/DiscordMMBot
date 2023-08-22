@@ -13,6 +13,7 @@ import { getGuild } from '../helpers/guild.js';
 import { BansType } from '../types/bans.js';
 import { getConfig } from '../services/system.service.js';
 import { RanksType } from '../types/channel.js';
+import { botLog } from '../helpers/messages.js';
 
 export const Timeout: Command = {
     name: 'timeout',
@@ -79,8 +80,14 @@ export const Timeout: Command = {
             display: display as boolean,
         });
 
+        botLog({
+            messageContent: `<@${user.id}> untimouted <@${mention.id}>`,
+            client,
+        });
+
         interaction.reply({
             content: `Done`,
+            ephemeral: true,
         });
     },
 };

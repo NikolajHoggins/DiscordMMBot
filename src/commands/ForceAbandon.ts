@@ -7,7 +7,7 @@ import {
 import { Command } from '../Command';
 import { end, findByChannelId } from '../services/match.service.js';
 import Player from '../models/player.schema.js';
-import { sendMessage } from '../helpers/messages.js';
+import { botLog, sendMessage } from '../helpers/messages.js';
 import { addBan } from '../services/player.service.js';
 import { BansType } from '../types/bans.js';
 import { getGuild } from '../helpers/guild.js';
@@ -50,5 +50,10 @@ export const ForceAbandon: Command = {
 
         //check if in match channel
         handleAbandon({ interaction, user: mention, channelId, client });
+
+        botLog({
+            messageContent: `<@${user.id}> force abandonned <@${mention.id}>`,
+            client,
+        });
     },
 };

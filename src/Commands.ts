@@ -10,6 +10,7 @@ import { ForceAbandon } from './commands/ForceAbandon';
 import { ForceStart } from './commands/ForceStart';
 import { ForceSubmit } from './commands/ForceSubmit';
 import { ForceVerify } from './commands/ForceVerify';
+import { GiveElo } from './commands/GiveElo.js';
 import { Graph } from './commands/Graph';
 import { Notes } from './commands/Notes.js';
 import { PingPlayers } from './commands/PingPlayers';
@@ -37,6 +38,7 @@ export const Commands: Command[] = [
     RatingChange,
     Graph,
     PlayingCommand,
+    Countdown,
     //mod commands
     EndGame,
     AddNote,
@@ -48,7 +50,7 @@ export const Commands: Command[] = [
     ForceAbandon,
     Bans,
     Notes,
-    Countdown,
     DeleteGame,
     ForceVerify,
+    GiveElo,
 ];

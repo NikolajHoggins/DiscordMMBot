@@ -10,6 +10,7 @@ import * as playerService from '../services/player.service';
 import { getGuild } from '../helpers/guild.js';
 import { getConfig } from '../services/system.service.js';
 import { RanksType } from '../types/channel.js';
+import { botLog } from '../helpers/messages.js';
 
 export const AddNote: Command = {
     name: 'addnote',
@@ -55,8 +56,14 @@ export const AddNote: Command = {
             modId: user.id,
         });
 
+        botLog({
+            messageContent: `<@${user.id}> added mod note to <@${mention.id}> \n ${note}`,
+            client,
+        });
+
         interaction.reply({
             content: `Added note to ${mention.username}`,
+            ephemeral: true,
         });
     },
 };

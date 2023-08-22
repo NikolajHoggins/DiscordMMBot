@@ -2,34 +2,37 @@ import {
     CommandInteraction,
     Client,
     ApplicationCommandType,
-    EmbedBuilder,
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
-import * as playerService from '../services/player.service';
 import Player from '../models/player.schema.js';
-import Queue from '../models/queue.schema.js';
 import { getGuild } from '../helpers/guild.js';
-import { BansType } from '../types/bans.js';
 import { getConfig } from '../services/system.service.js';
 import { RanksType } from '../types/channel.js';
 import { botLog } from '../helpers/messages.js';
 
-export const Untimeout: Command = {
-    name: 'untimeout',
-    description: 'Remove timeout from player',
+export const GiveElo: Command = {
+    name: 'give_elo',
+    description: 'Give elo to a player',
     type: ApplicationCommandType.ChatInput,
     options: [
         {
             type: ApplicationCommandOptionType.User,
             name: 'user',
-            description: 'User to remove timeout from',
+            description: 'User to give Elo',
+            required: true,
+        },
+        {
+            type: ApplicationCommandOptionType.Number,
+            name: 'elo',
+            description: 'Elo to give',
             required: true,
         },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
+        const elo = interaction.options.get('elo')?.value;
 
         if (!mention) return interaction.reply({ content: 'no mention' });
         const guild = await getGuild(client);
@@ -49,12 +52,12 @@ export const Untimeout: Command = {
         await Player.updateOne(
             { discordId: mention.id },
             {
-                $set: { banEnd: 0 },
+                $inc: { rating: elo },
             }
         );
 
         botLog({
-            messageContent: `<@${user.id}> untimouted <@${mention.id}>`,
+            messageContent: `<@${user.id}> gave <@${mention.id}> ${elo} elo`,
             client,
         });
 
