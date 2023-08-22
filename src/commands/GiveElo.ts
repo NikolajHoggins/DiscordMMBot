@@ -41,6 +41,7 @@ export const GiveElo: Command = {
         const elo = interaction.options.get('elo')?.value;
         const reason = interaction.options.get('reason')?.value;
 
+        if (!elo) return interaction.reply({ content: 'no elo' });
         if (!mention) return interaction.reply({ content: 'no mention' });
         const guild = await getGuild(client);
         const member = await guild?.members.fetch(user.id);
@@ -65,8 +66,8 @@ export const GiveElo: Command = {
                 $inc: { rating: elo },
                 $push: {
                     ratingHistory: {
-                        rating: player.rating + (elo as number),
-                        date: new Date(),
+                        rating: player.rating + parseInt(elo as string),
+                        date: Date.now(),
                         reason: reason,
                     },
                 },
