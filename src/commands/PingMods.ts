@@ -27,8 +27,9 @@ export const PingMods: Command = {
 
         const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
         const reason = interaction.options.get('reason')?.value;
+        if (typeof reason !== 'string') return;
 
-        const content = `<@${user.id}>: ${reason} <@&${modRoleId}>`;
+        const content = `<@${user.id}>: ${reason.replace(/@everyone/g, '')} <@&${modRoleId}>`;
 
         // const response = await canPing();
         // if (response === true) {
