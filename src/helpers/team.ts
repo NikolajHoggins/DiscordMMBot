@@ -1,4 +1,6 @@
-export const getTeamBName = (teamAName: string): string => {
-    if (!process.env.GAME_TEAMS) return 'team b';
-    return process.env.GAME_TEAMS.split(',').filter(t => t !== teamAName)[0];
+import { getGameTeams } from '../services/system.service.js';
+
+export const getTeamBName = async (teamAName: string): Promise<string> => {
+    const gameTeams = await getGameTeams();
+    return gameTeams.filter(t => t !== teamAName)[0];
 };

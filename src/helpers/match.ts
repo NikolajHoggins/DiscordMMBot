@@ -1,14 +1,16 @@
 import { IMatchPlayer } from '../models/match.schema.js';
+import { getGameMaps, getGameTeams } from '../services/system.service.js';
 
 export interface IVotes {
     map: string;
     teamASide: string;
 }
-export const getVotes = (matchPlayers: IMatchPlayer[]): IVotes => {
-    if (!process.env.GAME_MAPS || !process.env.GAME_TEAMS) throw new Error('Missing env variables');
+export const getVotes = async (matchPlayers: IMatchPlayer[]): Promise<IVotes> => {
+    const gameTeams = await getGameTeams();
+    const gameMaps = await getGameMaps();
 
-    const defaultMap = process.env.GAME_MAPS.split(',')[0];
-    const defaultTeam = process.env.GAME_TEAMS.split(',')[0];
+    const defaultMap = gameMaps.map(m => m.name)[0];
+    const defaultTeam = gameTeams[0];
 
     const teamA = matchPlayers.filter(p => p.team === 'a' && p.vote);
     const teamB = matchPlayers.filter(p => p.team === 'b' && p.vote);

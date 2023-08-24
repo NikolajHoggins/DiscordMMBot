@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongoose';
 import System, { ISystem } from '../models/system.schema';
 import { CategoriesType, ChannelsType, VCType } from '../types/channel';
+import { MapType } from '../types/map.js';
 
 const ONE_MINUTE = 60000;
 
@@ -61,5 +62,19 @@ export const updateConfig = ({
     return new Promise(async (resolve, reject) => {
         await System.updateOne({ _id: id }, body);
         resolve(true);
+    });
+};
+
+export const getGameTeams = (): Promise<string[]> => {
+    return new Promise(async (resolve, reject) => {
+        const config = await getConfig();
+        resolve(config.teams);
+    });
+};
+
+export const getGameMaps = (): Promise<MapType[]> => {
+    return new Promise(async (resolve, reject) => {
+        const config = await getConfig();
+        resolve(config.maps);
     });
 };

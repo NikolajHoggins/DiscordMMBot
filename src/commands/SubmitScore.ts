@@ -71,7 +71,7 @@ export const SubmitScore: Command = {
         const teamName =
             matchPlayer.team === 'a'
                 ? capitalize(match.teamASide)
-                : capitalize(getTeamBName(match.teamASide));
+                : capitalize(await getTeamBName(match.teamASide));
 
         const content = `Submitted score ${score?.value} for team ${teamName}`;
 

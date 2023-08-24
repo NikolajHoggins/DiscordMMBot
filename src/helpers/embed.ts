@@ -3,6 +3,7 @@ import Match, { IMatch } from '../models/match.schema';
 import { getTeam } from './players';
 import { getTeamBName } from './team';
 import { capitalize } from 'lodash';
+import { getGameMaps, getGameTeams } from '../services/system.service.js';
 
 // factory,skyscraper,hideout,ship
 const mapImages = {
@@ -21,23 +22,25 @@ export const createMatchEmbed = async ({
     matchNumber: number;
 }): Promise<EmbedBuilder> => {
     return new Promise(async resolve => {
-        if (!process.env.GAME_TEAMS) throw new Error('GAME_TEAMS not set');
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('Match not found');
 
         const teamA = getTeam(match.players, 'a');
         const teamB = getTeam(match.players, 'b');
 
-        const teamBSide = process.env.GAME_TEAMS.split(',').filter(t => t !== match.teamASide)[0];
+        const teamNames = await getGameTeams();
+
+        const teamBSide = teamNames.filter(t => t !== match.teamASide)[0];
+
+        const gameMaps = await getGameMaps();
+
+        const mapImage = gameMaps.filter(m => m.name === match.map)[0].image;
 
         resolve(
             new EmbedBuilder()
                 .setTitle('Teams')
                 .setColor('#C69B6D')
-                .setImage(
-                    mapImages[match.map as keyof typeof mapImages] ||
-                        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Factory.png?media=1678957731'
-                )
+                .setImage(mapImage)
                 .setDescription(
                     `Map: ${capitalize(
                         match.map
@@ -77,17 +80,22 @@ export const createMatchResultEmbed = async ({
     matchNumber: number;
 }): Promise<EmbedBuilder> => {
     return new Promise(async resolve => {
-        if (!process.env.GAME_TEAMS) throw new Error('GAME_TEAMS not set');
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('Match not found');
 
         const teamA = getTeam(match.players, 'a');
         const teamB = getTeam(match.players, 'b');
 
-        const teamBSide = process.env.GAME_TEAMS.split(',').filter(t => t !== match.teamASide)[0];
+        const teamNames = await getGameTeams();
+
+        const teamBSide = teamNames.filter(t => t !== match.teamASide)[0];
         const isDraw = match.teamARounds === match.teamBRounds;
 
         const winner = match.teamARounds === 7 ? 'Team A' : 'Team B';
+
+        const gameMaps = await getGameMaps();
+
+        const mapImage = gameMaps.filter(m => m.name === match.map)[0].image;
 
         const description = isDraw
             ? 'Match ended in a draw'
@@ -96,10 +104,7 @@ export const createMatchResultEmbed = async ({
             new EmbedBuilder()
                 .setTitle(`Match ${matchNumber} ${capitalize(match.map)}`)
                 .setColor('#C69B6D')
-                .setImage(
-                    mapImages[match.map as keyof typeof mapImages] ||
-                        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Factory.png?media=1678957731'
-                )
+                .setImage(mapImage)
                 .setDescription(description)
                 .addFields(
                     {
@@ -129,7 +134,7 @@ export const createMatchResultEmbed = async ({
     });
 };
 
-export const createScoreCardEmbed = ({ match }: { match: IMatch }): EmbedBuilder =>
+export const createScoreCardEmbed = async ({ match }: { match: IMatch }): Promise<EmbedBuilder> =>
     new EmbedBuilder()
         .setTitle('Scores')
         .setColor('#C69B6D')
@@ -141,7 +146,7 @@ export const createScoreCardEmbed = ({ match }: { match: IMatch }): EmbedBuilder
                 inline: true,
             },
             {
-                name: capitalize(getTeamBName(match.teamASide)),
+                name: capitalize(await getTeamBName(match.teamASide)),
                 value: `${match.teamBRounds}`,
                 inline: true,
             }

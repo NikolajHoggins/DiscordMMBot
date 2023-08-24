@@ -16,7 +16,7 @@ import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
 import { createTeams, getTeam } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
-import { getChannelId } from './system.service';
+import { getChannelId, getGameMaps, getGameTeams } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
 import { createMatchEmbed, createMatchResultEmbed, createScoreCardEmbed } from '../helpers/embed';
@@ -457,9 +457,9 @@ const createSideVotingChannel = async ({
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
         const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
-        const teams = process.env.GAME_TEAMS;
-        if (!teams || !teams.includes(',')) throw new Error('No teams found in env');
-        teams.split(',').forEach(team => {
+        const gameTeams = await getGameTeams();
+
+        gameTeams.forEach(team => {
             row.addComponents(
                 new ButtonBuilder()
                     .setCustomId(team)
@@ -500,13 +500,13 @@ const createMapVotingChannel = async ({
         const matchCategoryId = await getChannelId(CategoriesType.matches);
 
         const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
-        const maps = process.env.GAME_MAPS;
-        if (!maps || !maps.includes(',')) throw new Error('No maps found in env');
-        maps.split(',').forEach(map => {
+        const gameMaps = await getGameMaps();
+
+        gameMaps.forEach(map => {
             row.addComponents(
                 new ButtonBuilder()
-                    .setCustomId(map)
-                    .setLabel(capitalize(map))
+                    .setCustomId(map.name)
+                    .setLabel(capitalize(map.name))
                     .setStyle(ButtonStyle.Primary)
             );
         });
@@ -818,7 +818,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
             const winner =
                 match.teamARounds > match.teamBRounds
                     ? capitalize(match.teamASide)
-                    : capitalize(getTeamBName(match.teamASide));
+                    : capitalize(await getTeamBName(match.teamASide));
             sendMessage({
                 channelId: match.channels.matchChannel,
                 messageContent: winner + ' wins!',
