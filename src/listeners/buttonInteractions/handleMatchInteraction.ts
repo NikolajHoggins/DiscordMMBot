@@ -48,7 +48,7 @@ export const handleMatchInteraction = async (interaction: ButtonInteraction, cli
     }
 };
 
-const setPlayerReady = ({
+export const setPlayerReady = ({
     playerId,
     matchNumber,
     client,

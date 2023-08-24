@@ -16,6 +16,7 @@ import { MatchStatus } from '../models/match.schema.js';
 import { finishMatch } from '../services/match.service.js';
 import { getConfig } from '../services/system.service.js';
 import { RanksType } from '../types/channel.js';
+import { botLog } from '../helpers/messages.js';
 
 export const ForceVerify: Command = {
     name: 'force_verify',
@@ -64,6 +65,11 @@ export const ForceVerify: Command = {
         await finishMatch({
             matchNumber: match.match_number,
             client: client,
+        });
+
+        botLog({
+            messageContent: `<@${user.id}> force verified match ${match.match_number}`,
+            client,
         });
 
         await interaction.reply({

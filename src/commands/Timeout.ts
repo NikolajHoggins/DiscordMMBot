@@ -81,7 +81,7 @@ export const Timeout: Command = {
         });
 
         botLog({
-            messageContent: `<@${user.id}> untimouted <@${mention.id}>`,
+            messageContent: `<@${user.id}> timed out <@${mention.id}> for reason ${reason}`,
             client,
         });
 

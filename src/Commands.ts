@@ -2,11 +2,11 @@ import { Command } from './Command';
 import { Abandon } from './commands/Abandon';
 import { AddNote } from './commands/AddNote.js';
 import { Bans } from './commands/Bans';
-import { Based } from './commands/Based';
 import { Countdown } from './commands/Countdown';
 import { DeleteGame } from './commands/DeleteGame';
 import { EndGame } from './commands/EndGame';
 import { ForceAbandon } from './commands/ForceAbandon';
+import { ForceReady } from './commands/ForceReady.js';
 import { ForceStart } from './commands/ForceStart';
 import { ForceSubmit } from './commands/ForceSubmit';
 import { ForceVerify } from './commands/ForceVerify';
@@ -26,8 +26,8 @@ import { Timeout } from './commands/Timeout';
 import { Top } from './commands/Top';
 import { Unready } from './commands/Unready';
 import { Untimeout } from './commands/Untimeout';
+
 export const Commands: Command[] = [
-    Based,
     Stats,
     Ready,
     Top,
@@ -55,4 +55,5 @@ export const Commands: Command[] = [
     DeleteGame,
     ForceVerify,
     GiveElo,
+    ForceReady,
 ];
