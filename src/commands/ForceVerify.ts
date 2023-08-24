@@ -1,22 +1,10 @@
-import {
-    CommandInteraction,
-    Client,
-    ApplicationCommandType,
-    EmbedBuilder,
-    ApplicationCommandOptionType,
-} from 'discord.js';
-import { capitalize, ceil, floor } from 'lodash';
+import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
-import * as playerService from '../services/player.service';
-import { getRankName } from '../helpers/rank.js';
-import { getGuild } from '../helpers/guild.js';
-import { findByChannelId, setScore } from '../services/match.service.js';
-import { getTeamBName } from '../helpers/team.js';
+import { findByChannelId } from '../services/match.service.js';
 import { MatchStatus } from '../models/match.schema.js';
 import { finishMatch } from '../services/match.service.js';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
 import { botLog } from '../helpers/messages.js';
+import { isUserMod } from '../helpers/permissions.js';
 
 export const ForceVerify: Command = {
     name: 'force_verify',
@@ -25,20 +13,7 @@ export const ForceVerify: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user, channelId } = interaction;
 
-        const guild = await getGuild(client);
-        const member = await guild?.members.fetch(user.id);
-
-        const config = await getConfig();
-        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
-        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
-
-        if (!isMod) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'no perms',
-            });
-            return;
-        }
+        if (!isUserMod(client, interaction)) return;
 
         const match = await findByChannelId(channelId);
         if (!match) {

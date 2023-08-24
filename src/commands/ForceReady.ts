@@ -5,11 +5,10 @@ import {
     CommandInteraction,
 } from 'discord.js';
 import { setPlayerReady } from '../listeners/buttonInteractions/handleMatchInteraction';
-import { getConfig } from '../services/system.service.js';
 import { findByChannelId } from '../services/match.service.js';
-import { RanksType } from '../types/channel.js';
 import { botLog } from '../helpers/messages.js';
 import { Command } from '../Command.js';
+import { isUserMod } from '../helpers/permissions.js';
 
 export const ForceReady: Command = {
     name: 'forceready',
@@ -23,16 +22,10 @@ export const ForceReady: Command = {
             required: true,
         },
     ],
-    permissions: [
-        {
-            id: process.env.MOD_ROLE_ID || '123123', // replace with your mod role id
-            type: 'ROLE',
-            permission: true,
-        },
-    ],
     run: async (client: Client, interaction: CommandInteraction) => {
-        // Fetch the mod-role-id from the database
         const { user } = interaction;
+
+        if (!isUserMod(client, interaction)) return;
 
         const player = interaction.options.getUser('player');
         if (!player) return interaction.reply({ content: 'Player not found', ephemeral: true });
