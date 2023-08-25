@@ -48,6 +48,7 @@ export const getConfig = (): Promise<ISystem> => {
             resolve(newConf);
             return;
         }
+        console.log('got config', config);
         resolve(config);
     });
 };
@@ -75,6 +76,7 @@ export const getGameTeams = (): Promise<string[]> => {
 export const getGameMaps = (): Promise<MapType[]> => {
     return new Promise(async (resolve, reject) => {
         const config = await getConfig();
+
         resolve(config.maps);
     });
 };
