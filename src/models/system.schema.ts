@@ -18,6 +18,7 @@ const systemSchema = new Schema<ISystem>({
     channels: { type: [], required: true },
     roles: { type: [], required: true },
     maps: { type: [], required: true },
+    teams: { type: [], required: true },
 });
 
 const System = model<ISystem>('System', systemSchema);

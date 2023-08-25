@@ -9,7 +9,7 @@ import { Command } from '../Command';
 import Player from '../models/player.schema.js';
 import { getGuild } from '../helpers/guild.js';
 import { RanksType } from '../types/channel.js';
-import { getConfig, getGameTeams } from '../services/system.service.js';
+import { getConfig, getGameMaps, getGameTeams } from '../services/system.service.js';
 
 export const Notes: Command = {
     name: 'notes',
@@ -33,8 +33,6 @@ export const Notes: Command = {
         const member = await guild.members.fetch(user.id);
 
         const config = await getConfig();
-        const gameTeams = await getGameTeams();
-        console.log('got gameTeams', gameTeams);
         const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
         const isMod = await member.roles.cache.some(r => r.id === modRoleId);
         if (!isMod) {

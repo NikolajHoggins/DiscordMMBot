@@ -6,8 +6,8 @@ import interactionCreate from './listeners/interactionCreate';
 import reaction from './listeners/reaction';
 import ready from './listeners/ready';
 import { connectToDatabase } from './services/database.service';
-import guildMemberAdd from './listeners/guildMemberAdd.js';
-import initTryStartCron from './crons/tryStart.js';
+import guildMemberAdd from './listeners/guildMemberAdd';
+import initTryStartCron from './crons/tryStart';
 
 console.log('Bot is starting...');
 dotenv.config();
