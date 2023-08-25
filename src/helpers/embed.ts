@@ -5,17 +5,6 @@ import { getTeamBName } from './team';
 import { capitalize } from 'lodash';
 import { getGameMaps, getGameTeams } from '../services/system.service.js';
 
-// factory,skyscraper,hideout,ship
-const mapImages = {
-    skyscraper:
-        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Skyscraper.png?media=1678957731',
-    hideout:
-        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Hideout.png?media=1678957731',
-    factory:
-        'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/04/Thumb_Factory.png?media=1678957731',
-    ship: 'https://usercontent.one/wp/www.breachersvr.com/wp-content/uploads/2023/08/Thumb_Ship.png?media=1678957731',
-};
-
 export const createMatchEmbed = async ({
     matchNumber,
 }: {
