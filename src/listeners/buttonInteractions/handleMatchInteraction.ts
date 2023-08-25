@@ -1,4 +1,4 @@
-import { ButtonInteraction, Client } from 'discord.js';
+import { ButtonInteraction, Client, Interaction } from 'discord.js';
 
 import Match from '../../models/match.schema.js';
 import { findByChannelId } from '../../services/match.service.js';
@@ -23,7 +23,9 @@ export const handleMatchInteraction = async (interaction: ButtonInteraction, cli
             if (message[1].author.id === client.user?.id) {
                 if (message[1].content.includes('Missing players')) {
                     setTimeout(async () => {
-                        const newMatch = await Match.findOne({ match_number: match.match_number });
+                        const newMatch = await Match.findOne({
+                            match_number: match.match_number,
+                        });
                         if (!newMatch) throw new Error('Match not found');
                         await message[1].edit(
                             'Missing players: ' +

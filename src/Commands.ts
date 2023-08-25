@@ -1,12 +1,12 @@
 import { Command } from './Command';
 import { Abandon } from './commands/Abandon';
-import { AddNote } from './commands/AddNote.js';
+import { AddNote } from './commands/mod/AddNote.js';
 import { Bans } from './commands/Bans';
 import { Countdown } from './commands/Countdown';
 import { DeleteGame } from './commands/DeleteGame';
 import { EndGame } from './commands/EndGame';
 import { ForceAbandon } from './commands/ForceAbandon';
-import { ForceReady } from './commands/ForceReady.js';
+import { ForceReady } from './commands/mod/ForceReady.js';
 import { ForceStart } from './commands/ForceStart';
 import { ForceSubmit } from './commands/ForceSubmit';
 import { ForceVerify } from './commands/ForceVerify';
