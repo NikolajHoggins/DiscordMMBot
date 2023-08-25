@@ -49,6 +49,7 @@ export const getConfig = (): Promise<ISystem> => {
             return;
         }
         console.log('got config', config);
+        console.log('This is it', config.teams);
         resolve(config);
     });
 };
