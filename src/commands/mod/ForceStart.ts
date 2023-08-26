@@ -1,11 +1,11 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
-import { Command } from '../Command';
-import { getGuild } from '../helpers/guild';
-import { botLog } from '../helpers/messages';
+import { Command } from '../../Command';
+import { getGuild } from '../../helpers/guild';
+import { botLog } from '../../helpers/messages';
 
-import * as matchService from '../services/match.service';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
+import * as matchService from '../../services/match.service';
+import { getConfig } from '../../services/system.service.js';
+import { RanksType } from '../../types/channel.js';
 
 export const ForceStart: Command = {
     name: 'force_start',

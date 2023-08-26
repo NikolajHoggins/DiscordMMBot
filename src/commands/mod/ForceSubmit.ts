@@ -6,15 +6,15 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { capitalize, ceil, floor } from 'lodash';
-import { Command } from '../Command';
-import * as playerService from '../services/player.service';
-import { getRankName } from '../helpers/rank.js';
-import { getGuild } from '../helpers/guild.js';
-import { findByChannelId, setScore } from '../services/match.service.js';
-import { getTeamBName } from '../helpers/team.js';
-import { MatchStatus } from '../models/match.schema.js';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
+import { Command } from '../../Command';
+import * as playerService from '../../services/player.service';
+import { getRankName } from '../../helpers/rank.js';
+import { getGuild } from '../../helpers/guild.js';
+import { findByChannelId, setScore } from '../../services/match.service.js';
+import { getTeamBName } from '../../helpers/team.js';
+import { MatchStatus } from '../../models/match.schema.js';
+import { getConfig } from '../../services/system.service.js';
+import { RanksType } from '../../types/channel.js';
 
 export const ForceSubmit: Command = {
     name: 'force_submit',

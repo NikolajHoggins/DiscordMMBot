@@ -7,10 +7,10 @@ import { DeleteGame } from './commands/DeleteGame';
 import { EndGame } from './commands/EndGame';
 import { ForceAbandon } from './commands/ForceAbandon';
 import { ForceReady } from './commands/mod/ForceReady.js';
-import { ForceStart } from './commands/ForceStart';
-import { ForceSubmit } from './commands/ForceSubmit';
+import { ForceStart } from './commands/mod/ForceStart';
+import { ForceSubmit } from './commands/mod/ForceSubmit';
 import { ForceVerify } from './commands/ForceVerify';
-import { GiveElo } from './commands/GiveElo.js';
+import { GiveElo } from './commands/mod/GiveElo.js';
 import { Graph } from './commands/Graph';
 import { Notes } from './commands/Notes.js';
 import { PingMods } from './commands/PingMods.js';
@@ -26,6 +26,7 @@ import { Timeout } from './commands/Timeout';
 import { Top } from './commands/Top';
 import { Unready } from './commands/Unready';
 import { Untimeout } from './commands/Untimeout';
+import { GetMatchInfo } from './commands/mod/GetMatchInfo.js';
 
 export const Commands: Command[] = [
     Stats,
@@ -56,4 +57,5 @@ export const Commands: Command[] = [
     ForceVerify,
     GiveElo,
     ForceReady,
+    GetMatchInfo,
 ];
