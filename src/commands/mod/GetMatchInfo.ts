@@ -49,18 +49,19 @@ export const GetMatchInfo: Command = {
                 { name: 'Map', value: match.map || 'N/A', inline: true },
                 { name: 'Region', value: match.region, inline: true }
             );
-        match.players.forEach((player, index) => {
+        match.players.forEach(player => {
             embed.addFields({
-                name: `Player ${player.name.slice(0, 4)}`,
-                value: `ID: ${player.id}\nName: ${player.name}\nTeam: ${player.team}\nRegion: ${
+                name: player.name,
+                value: `ID: ${player.id}\nTeam: ${player.team}\nRegion: ${
                     player.region
-                }\nRating: ${player.rating}\nCaptain: ${player.captain ? 'Yes' : 'No'}\nVote: ${
-                    player.vote
-                }\nReady: ${player.ready ? 'Yes' : 'No'}\nVerified Score: ${
+                }\nRating: ${Math.floor(player.rating)}\nCaptain: ${
+                    player.captain ? 'Yes' : 'No'
+                }\nVote: ${player.vote}\nReady: ${player.ready ? 'Yes' : 'No'}\nVerified Score: ${
                     player.verifiedScore ? 'Yes' : 'No'
                 }\nAbandon: ${player.abandon ? 'Yes' : 'No'}\nReQueue: ${
                     player.reQueue ? 'Yes' : 'No'
                 }\nQueue Time: ${player.queueTime}`,
+                inline: true,
             });
         });
 
