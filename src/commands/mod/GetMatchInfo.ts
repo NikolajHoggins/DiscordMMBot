@@ -49,7 +49,12 @@ export const GetMatchInfo: Command = {
                 { name: 'Map', value: match.map || 'N/A', inline: true },
                 { name: 'Region', value: match.region, inline: true }
             );
-        embed.addFields({ name: 'Players:', value: '...' });
+        embed.addFields({
+            name: 'Channels',
+            value: match.channels
+                ? `Ready: ${match.channels.ready}\nTeam A: ${match.channels.teamA}\nTeam B: ${match.channels.teamB}\nMatch Channel: ${match.channels.matchChannel}\nVoice: ${match.channels.voice}`
+                : 'N/A',
+        });
 
         match.players.forEach(player => {
             embed.addFields({
