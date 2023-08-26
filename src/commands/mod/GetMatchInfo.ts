@@ -38,12 +38,12 @@ export const GetMatchInfo: Command = {
                 { name: 'Status', value: match.status, inline: true },
                 {
                     name: 'Team A Rounds',
-                    value: (match.teamARounds || 'N/A') as string,
+                    value: match.teamARounds ? `${match.teamARounds} rounds` : 'N/A',
                     inline: true,
                 },
                 {
                     name: 'Team B Rounds',
-                    value: (match.teamBRounds || 'N/A') as string,
+                    value: match.teamBRounds ? `${match.teamBRounds} rounds` : 'N/A',
                     inline: true,
                 },
                 { name: 'Map', value: match.map || 'N/A', inline: true },
