@@ -1,10 +1,10 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
-import { Command } from '../Command';
-import { findByChannelId } from '../services/match.service.js';
-import { MatchStatus } from '../models/match.schema.js';
-import { finishMatch } from '../services/match.service.js';
-import { botLog } from '../helpers/messages.js';
-import { isUserMod } from '../helpers/permissions.js';
+import { Command } from '../../Command';
+import { findByChannelId } from '../../services/match.service.js';
+import { MatchStatus } from '../../models/match.schema.js';
+import { finishMatch } from '../../services/match.service.js';
+import { botLog } from '../../helpers/messages.js';
+import { isUserMod } from '../../helpers/permissions.js';
 
 export const ForceVerify: Command = {
     name: 'force_verify',

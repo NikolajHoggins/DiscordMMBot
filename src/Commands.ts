@@ -9,7 +9,7 @@ import { ForceAbandon } from './commands/ForceAbandon';
 import { ForceReady } from './commands/mod/ForceReady.js';
 import { ForceStart } from './commands/mod/ForceStart';
 import { ForceSubmit } from './commands/mod/ForceSubmit';
-import { ForceVerify } from './commands/ForceVerify';
+import { ForceVerify } from './commands/mod/ForceVerify';
 import { GiveElo } from './commands/mod/GiveElo.js';
 import { Graph } from './commands/Graph';
 import { Notes } from './commands/Notes.js';
