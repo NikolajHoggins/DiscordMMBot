@@ -49,6 +49,8 @@ export const GetMatchInfo: Command = {
                 { name: 'Map', value: match.map || 'N/A', inline: true },
                 { name: 'Region', value: match.region, inline: true }
             );
+        embed.addFields({ name: 'Players:', value: '' });
+
         match.players.forEach(player => {
             embed.addFields({
                 name: player.name,
