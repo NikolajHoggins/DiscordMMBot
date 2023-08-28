@@ -1,6 +1,7 @@
 import { Client, Events, GuildMember, Interaction, PartialGuildMember } from 'discord.js';
 import { getConfig } from '../services/system.service.js';
 import { RanksType } from '../types/channel.js';
+import Queue from '../models/queue.schema.js';
 
 export default (client: Client): void => {
     client.on(Events.GuildMemberAdd, async (member: GuildMember) => {
@@ -11,5 +12,11 @@ export default (client: Client): void => {
         if (!unrankedRole) throw new Error('Roles not found');
 
         await member.roles.add(unrankedRole.id);
+    });
+    client.on(Events.GuildMemberRemove, async (member: PartialGuildMember | GuildMember) => {
+        const queue = await Queue.findOne({ userId: member.id });
+        if (queue) {
+            await Queue.deleteOne({ userId: member.id });
+        }
     });
 };
