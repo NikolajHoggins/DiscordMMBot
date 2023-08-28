@@ -2,6 +2,7 @@ import { ObjectId } from 'mongoose';
 import System, { ISystem } from '../models/system.schema';
 import { CategoriesType, ChannelsType, VCType } from '../types/channel';
 import { MapType } from '../types/map.js';
+import { EmotesType } from '../types/emotes.js';
 
 const ONE_MINUTE = 60000;
 
@@ -79,5 +80,13 @@ export const getGameMaps = (): Promise<MapType[]> => {
         const config = await getConfig();
 
         resolve(config.maps);
+    });
+};
+
+export const getServerEmotes = (): Promise<EmotesType> => {
+    return new Promise(async (resolve, reject) => {
+        const config = await getConfig();
+
+        resolve(config.emotes);
     });
 };

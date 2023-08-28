@@ -5,22 +5,17 @@ import {
     EmbedBuilder,
     ApplicationCommandOptionType,
 } from 'discord.js';
-import { ceil, findIndex, floor } from 'lodash';
+import { ceil, floor } from 'lodash';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
 import { getRankName } from '../helpers/rank.js';
 import Player from '../models/player.schema.js';
-import { getChannelId } from '../services/system.service.js';
+import { getChannelId, getServerEmotes } from '../services/system.service.js';
 import { ChannelsType } from '../types/channel.js';
+import { EmotesType } from '../types/emotes.js';
 
-const emojis = {
-    w: '<:BR_W:1095827374655934604>',
-    l: '<:BR_L:1095827371971596408>',
-    d: '<:BR_D:1095827346931601458>',
-};
-
-const getEmoji = (result: string) => {
-    if (['w', 'l', 'd'].includes(result)) return emojis[result as 'w' | 'l' | 'd'];
+const getEmoji = (result: string, emojis: EmotesType) => {
+    if (['w', 'l', 'd'].includes(result)) return `<:${emojis[result as 'w' | 'l' | 'd']}>`;
     return '';
 };
 export const Stats: Command = {
@@ -38,6 +33,7 @@ export const Stats: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
+        const emotes = await getServerEmotes();
 
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
@@ -94,7 +90,7 @@ export const Stats: Command = {
                     value:
                         historyNoAbandon
                             .slice(-10)
-                            .map(h => `${getEmoji(h.result[0])}`)
+                            .map(h => `${getEmoji(h.result[0], emotes)}`)
                             .join('') || 'No matches played',
                     inline: false,
                 },
