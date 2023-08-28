@@ -14,9 +14,9 @@ export default (client: Client): void => {
         await member.roles.add(unrankedRole.id);
     });
     client.on(Events.GuildMemberRemove, async (member: PartialGuildMember | GuildMember) => {
-        const queue = await Queue.findOne({ userId: member.id });
+        const queue = await Queue.findOne({ discordId: member.id });
         if (queue) {
-            await Queue.deleteOne({ userId: member.id });
+            await Queue.deleteOne({ discordId: member.id });
         }
     });
 };
