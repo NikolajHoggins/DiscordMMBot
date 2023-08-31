@@ -1,7 +1,7 @@
 import { Channel, ChannelType, Client, PermissionsBitField } from 'discord.js';
-import { getEveryoneRole, getGuild } from './guild.js';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
+import { getEveryoneRole, getGuild } from './guild';
+import { getConfig } from '../services/system.service';
+import { RanksType } from '../types/channel';
 
 export const createChannel = ({
     client,

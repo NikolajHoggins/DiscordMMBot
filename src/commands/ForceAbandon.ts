@@ -5,15 +5,11 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
-import { end, findByChannelId } from '../services/match.service.js';
-import Player from '../models/player.schema.js';
-import { botLog, sendMessage } from '../helpers/messages.js';
-import { addBan } from '../services/player.service.js';
-import { BansType } from '../types/bans.js';
-import { getGuild } from '../helpers/guild.js';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
-import { handleAbandon } from './Abandon.js';
+import { botLog } from '../helpers/messages';
+import { getGuild } from '../helpers/guild';
+import { getConfig } from '../services/system.service';
+import { RanksType } from '../types/channel';
+import { handleAbandon } from './Abandon';
 
 export const ForceAbandon: Command = {
     name: 'force_abandon',

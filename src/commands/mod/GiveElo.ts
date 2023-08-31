@@ -5,11 +5,11 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../../Command';
-import Player from '../../models/player.schema.js';
-import { getGuild } from '../../helpers/guild.js';
-import { getConfig } from '../../services/system.service.js';
-import { RanksType } from '../../types/channel.js';
-import { botLog } from '../../helpers/messages.js';
+import Player from '../../models/player.schema';
+import { getGuild } from '../../helpers/guild';
+import { getConfig } from '../../services/system.service';
+import { RanksType } from '../../types/channel';
+import { botLog } from '../../helpers/messages';
 
 export const GiveElo: Command = {
     name: 'give_elo',

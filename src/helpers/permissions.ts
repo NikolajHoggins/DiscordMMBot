@@ -1,7 +1,7 @@
-import { Client, CommandInteraction, GuildMember } from 'discord.js';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
-import { getGuild } from './guild.js';
+import { Client, CommandInteraction } from 'discord.js';
+import { getConfig } from '../services/system.service';
+import { RanksType } from '../types/channel';
+import { getGuild } from './guild';
 
 export async function isUserMod(client: Client, interaction: CommandInteraction) {
     const guild = await getGuild(client);

@@ -4,8 +4,8 @@ import { getGuild } from '../../helpers/guild';
 import { botLog } from '../../helpers/messages';
 
 import * as matchService from '../../services/match.service';
-import { getConfig } from '../../services/system.service.js';
-import { RanksType } from '../../types/channel.js';
+import { getConfig } from '../../services/system.service';
+import { RanksType } from '../../types/channel';
 
 export const ForceStart: Command = {
     name: 'force_start',

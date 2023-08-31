@@ -1,8 +1,8 @@
 import { Client } from 'discord.js';
-import { RanksType } from '../types/channel.js';
-import Player, { IPlayer } from '../models/player.schema.js';
-import { getGuild } from './guild.js';
-import { getConfig } from '../services/system.service.js';
+import { RanksType } from '../types/channel';
+import Player, { IPlayer } from '../models/player.schema';
+import { getGuild } from './guild';
+import { getConfig } from '../services/system.service';
 import { capitalize } from 'lodash';
 
 export const rankCutoffs: Record<number, RanksType> = {

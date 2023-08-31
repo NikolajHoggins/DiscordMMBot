@@ -1,5 +1,5 @@
-import { IMatchPlayer } from '../models/match.schema.js';
-import { getGameMaps, getGameTeams } from '../services/system.service.js';
+import { IMatchPlayer } from '../models/match.schema';
+import { getGameMaps, getGameTeams } from '../services/system.service';
 
 export interface IVotes {
     map: string;

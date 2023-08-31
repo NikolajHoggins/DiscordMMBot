@@ -3,7 +3,7 @@ import { IMatch } from '../models/match.schema';
 import { addWinLoss, get, idsToObjects } from '../services/player.service';
 import { IPlayer, MatchResultType } from '../models/player.schema';
 import { getTeam } from './players';
-import { getWinScore } from '../services/system.service.js';
+import { getWinScore } from '../services/system.service';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;

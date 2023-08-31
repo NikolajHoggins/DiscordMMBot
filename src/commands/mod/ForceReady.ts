@@ -5,11 +5,11 @@ import {
     CommandInteraction,
 } from 'discord.js';
 import { setPlayerReady } from '../../listeners/buttonInteractions/handleMatchInteraction';
-import { findByChannelId } from '../../services/match.service.js';
-import { botLog } from '../../helpers/messages.js';
-import { Command } from '../../Command.js';
-import { isUserMod } from '../../helpers/permissions.js';
-import Match from '../../models/match.schema.js';
+import { findByChannelId } from '../../services/match.service';
+import { botLog } from '../../helpers/messages';
+import { Command } from '../../Command';
+import { isUserMod } from '../../helpers/permissions';
+import Match from '../../models/match.schema';
 
 export const ForceReady: Command = {
     name: 'forceready',

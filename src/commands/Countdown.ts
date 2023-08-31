@@ -1,17 +1,9 @@
-import {
-    CommandInteraction,
-    Client,
-    ApplicationCommandType,
-    EmbedBuilder,
-    ApplicationCommandOptionType,
-} from 'discord.js';
-import { ceil, findIndex, floor, indexOf } from 'lodash';
+import { CommandInteraction, Client, ApplicationCommandType, EmbedBuilder } from 'discord.js';
+import { indexOf } from 'lodash';
 import { Command } from '../Command';
-import * as playerService from '../services/player.service';
-import { getRankName } from '../helpers/rank.js';
-import Player from '../models/player.schema.js';
-import { getChannelId } from '../services/system.service.js';
-import { ChannelsType } from '../types/channel.js';
+import Player from '../models/player.schema';
+import { getChannelId } from '../services/system.service';
+import { ChannelsType } from '../types/channel';
 
 const emojis = {
     w: '<:BR_W:1095827374655934604>',

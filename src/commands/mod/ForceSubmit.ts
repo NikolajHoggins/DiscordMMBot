@@ -2,19 +2,14 @@ import {
     CommandInteraction,
     Client,
     ApplicationCommandType,
-    EmbedBuilder,
     ApplicationCommandOptionType,
 } from 'discord.js';
-import { capitalize, ceil, floor } from 'lodash';
+import { capitalize } from 'lodash';
 import { Command } from '../../Command';
-import * as playerService from '../../services/player.service';
-import { getRankName } from '../../helpers/rank.js';
-import { getGuild } from '../../helpers/guild.js';
-import { findByChannelId, setScore } from '../../services/match.service.js';
-import { getTeamBName } from '../../helpers/team.js';
-import { MatchStatus } from '../../models/match.schema.js';
-import { getConfig, getWinScore } from '../../services/system.service.js';
-import { RanksType } from '../../types/channel.js';
+import { findByChannelId, setScore } from '../../services/match.service';
+import { getTeamBName } from '../../helpers/team';
+import { MatchStatus } from '../../models/match.schema';
+import { getWinScore } from '../../services/system.service';
 import { isUserMod } from '../../helpers/permissions';
 
 export const ForceSubmit: Command = {

@@ -1,7 +1,7 @@
 import { ButtonInteraction, Client, Interaction } from 'discord.js';
 
-import Match from '../../models/match.schema.js';
-import { findByChannelId } from '../../services/match.service.js';
+import Match from '../../models/match.schema';
+import { findByChannelId } from '../../services/match.service';
 
 export const handleMatchInteraction = async (interaction: ButtonInteraction, client: Client) => {
     const action = interaction.customId.split('.')[1];

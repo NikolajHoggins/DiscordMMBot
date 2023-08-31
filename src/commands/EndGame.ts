@@ -9,9 +9,9 @@ import { getGuild } from '../helpers/guild';
 import { botLog } from '../helpers/messages';
 
 import * as matchService from '../services/match.service';
-import Match from '../models/match.schema.js';
-import { RanksType } from '../types/channel.js';
-import { getConfig } from '../services/system.service.js';
+import Match from '../models/match.schema';
+import { RanksType } from '../types/channel';
+import { getConfig } from '../services/system.service';
 
 export const EndGame: Command = {
     name: 'end_game',
