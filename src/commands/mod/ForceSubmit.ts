@@ -32,7 +32,7 @@ export const ForceSubmit: Command = {
             name: 'score',
             description: 'rounds won by the players team',
             min_value: 0,
-            max_value: 7,
+            max_value: 9,
             required: true,
         },
     ],

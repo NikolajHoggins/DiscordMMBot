@@ -7,12 +7,12 @@ import {
 } from 'discord.js';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
-import { getChannelId, getConfig } from '../services/system.service.js';
-import { ChannelsType, RanksType } from '../types/channel.js';
-import { getGuild } from '../helpers/guild.js';
+import { getChannelId, getConfig } from '../services/system.service';
+import { ChannelsType, RanksType } from '../types/channel';
+import { getGuild } from '../helpers/guild';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartConfiguration, ScriptableLineSegmentContext } from 'chart.js';
-import { MatchResultType } from '../models/player.schema.js';
+import { MatchResultType } from '../models/player.schema';
 
 const up = (ctx: ScriptableLineSegmentContext, value: string) =>
     ctx.p0.parsed.y < ctx.p1.parsed.y ? value : undefined;

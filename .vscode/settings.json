@@ -40,5 +40,5 @@
         "unescapes",
         "varchar"
     ],
-    "typescript.preferences.importModuleSpecifierEnding": "js"
+    "typescript.preferences.importModuleSpecifierEnding": "auto"
 }

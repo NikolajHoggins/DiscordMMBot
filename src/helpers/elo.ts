@@ -3,6 +3,7 @@ import { IMatch } from '../models/match.schema';
 import { addWinLoss, get, idsToObjects } from '../services/player.service';
 import { IPlayer, MatchResultType } from '../models/player.schema';
 import { getTeam } from './players';
+import { getWinScore } from '../services/system.service.js';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
@@ -62,7 +63,8 @@ const calculateTeamEloChange = ({
 export const calculateEloChanges = async (match: IMatch, client: Client): Promise<boolean> => {
     const { players } = match;
 
-    const winner = match.teamARounds === 7 ? 'a' : 'b';
+    const winScore = await getWinScore();
+    const winner = match.teamARounds === winScore ? 'a' : 'b';
     const loser = winner === 'a' ? 'b' : 'a';
     const winningTeam = await Promise.all(
         idsToObjects(

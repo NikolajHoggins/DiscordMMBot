@@ -16,7 +16,7 @@ import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
 import { createTeams, getTeam } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
-import { getChannelId, getGameMaps, getGameTeams } from './system.service';
+import { getChannelId, getGameMaps, getGameTeams, getWinScore } from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
 import { createMatchEmbed, createMatchResultEmbed, createScoreCardEmbed } from '../helpers/embed';
@@ -741,11 +741,17 @@ export const setScore = async ({
         //if both scores are set, end match
         if (match.teamARounds !== undefined && match.teamBRounds !== undefined) {
             //Ask if scores are correct
+            const winScore = await getWinScore();
+            const drawScore = winScore - 1;
             const { teamARounds, teamBRounds } = match;
-            const isDraw = teamARounds === 6 && teamBRounds === 6;
+            const isDraw = teamARounds === drawScore && teamBRounds === drawScore;
             const roundTotal = teamARounds + teamBRounds;
 
-            if ((teamARounds !== 7 && teamBRounds !== 7 && !isDraw) || roundTotal > 12) return;
+            if (
+                (teamARounds !== winScore && teamBRounds !== winScore && !isDraw) ||
+                roundTotal > drawScore * 2
+            )
+                return;
 
             const scoreEmbed = await createScoreCardEmbed({ match });
 

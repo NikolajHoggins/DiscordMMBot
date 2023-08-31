@@ -90,3 +90,11 @@ export const getServerEmotes = (): Promise<EmotesType> => {
         resolve(config.emotes);
     });
 };
+
+export const getWinScore = (): Promise<number> => {
+    return new Promise(async (resolve, reject) => {
+        const config = await getConfig();
+
+        resolve(config.winScore);
+    });
+};

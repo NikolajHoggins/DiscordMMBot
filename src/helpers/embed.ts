@@ -3,7 +3,7 @@ import Match, { IMatch } from '../models/match.schema';
 import { getTeam } from './players';
 import { getTeamBName } from './team';
 import { capitalize } from 'lodash';
-import { getGameMaps, getGameTeams } from '../services/system.service.js';
+import { getGameMaps, getGameTeams, getWinScore } from '../services/system.service';
 
 export const createMatchEmbed = async ({
     matchNumber,
@@ -76,11 +76,12 @@ export const createMatchResultEmbed = async ({
         const teamB = getTeam(match.players, 'b');
 
         const teamNames = await getGameTeams();
+        const winScore = await getWinScore();
 
         const teamBSide = teamNames.filter(t => t !== match.teamASide)[0];
         const isDraw = match.teamARounds === match.teamBRounds;
 
-        const winner = match.teamARounds === 7 ? 'Team A' : 'Team B';
+        const winner = match.teamARounds === winScore ? 'Team A' : 'Team B';
 
         const gameMaps = await getGameMaps();
 

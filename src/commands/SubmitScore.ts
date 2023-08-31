@@ -19,7 +19,7 @@ export const SubmitScore: Command = {
             name: 'score',
             description: 'score of your own team',
             type: ApplicationCommandOptionType.Number,
-            max_value: 7,
+            max_value: 9,
             min_value: 0,
             required: true,
         },
