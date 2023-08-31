@@ -1,11 +1,11 @@
 import { Client, User } from 'discord.js';
 import Player, { IPlayer, MatchResultType } from '../models/player.schema';
-import { checkRank } from '../helpers/rank.js';
-import { BansType, banTimes } from '../types/bans.js';
-import Queue from '../models/queue.schema.js';
-import { getChannelId } from './system.service.js';
-import { ChannelsType } from '../types/channel.js';
-import { sendMessage } from '../helpers/messages.js';
+import { checkRank } from '../helpers/rank';
+import { BansType, banTimes } from '../types/bans';
+import Queue from '../models/queue.schema';
+import { getChannelId } from './system.service';
+import { ChannelsType } from '../types/channel';
+import { sendMessage } from '../helpers/messages';
 
 export const findOrCreate = (user: User): Promise<IPlayer> => {
     return new Promise(async (resolve, reject) => {

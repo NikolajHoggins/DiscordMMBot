@@ -13,8 +13,9 @@ import { getGuild } from '../../helpers/guild.js';
 import { findByChannelId, setScore } from '../../services/match.service.js';
 import { getTeamBName } from '../../helpers/team.js';
 import { MatchStatus } from '../../models/match.schema.js';
-import { getConfig } from '../../services/system.service.js';
+import { getConfig, getWinScore } from '../../services/system.service.js';
 import { RanksType } from '../../types/channel.js';
+import { isUserMod } from '../../helpers/permissions';
 
 export const ForceSubmit: Command = {
     name: 'force_submit',
@@ -41,22 +42,19 @@ export const ForceSubmit: Command = {
         const mention = interaction.options.get('captain')?.user;
         const score = interaction.options.get('score')?.value as number;
         if (score === undefined) return interaction.reply({ content: 'provide score' });
+        const winScore = await getWinScore();
 
-        if (!mention) return interaction.reply({ content: 'no mention' });
-        const guild = await getGuild(client);
-        const member = await guild?.members.fetch(user.id);
-
-        const config = await getConfig();
-        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
-        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
-
-        if (!isMod) {
+        if (score > winScore) {
             await interaction.reply({
                 ephemeral: true,
-                content: 'no perms',
+                content: `Score can be a maximum of ${winScore}`,
             });
             return;
         }
+
+        if (!mention) return interaction.reply({ content: 'no mention' });
+
+        if (!isUserMod(client, interaction)) return;
 
         const match = await findByChannelId(channelId);
         if (!match) {

@@ -10,6 +10,7 @@ import { capitalize, get } from 'lodash';
 import { getTeam } from '../helpers/players.js';
 import { getTeamBName } from '../helpers/team.js';
 import { MatchStatus } from '../models/match.schema.js';
+import { getWinScore } from '../services/system.service';
 
 export const SubmitScore: Command = {
     name: 'submit_score',
@@ -28,7 +29,16 @@ export const SubmitScore: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         //fetch player from database
         const { user, channelId } = interaction;
-        const score = interaction.options.get('score');
+        const score = interaction.options.get('score')?.value as number;
+        const winScore = await getWinScore();
+
+        if (score > winScore) {
+            await interaction.reply({
+                ephemeral: true,
+                content: `Score can be a maximum of ${winScore}`,
+            });
+            return;
+        }
 
         const match = await matchService.findByChannelId(channelId);
         if (!match) {
@@ -64,7 +74,7 @@ export const SubmitScore: Command = {
         matchService.setScore({
             matchNumber: match.match_number,
             team: matchPlayer.team,
-            score: score?.value as number,
+            score: score as number,
             client,
         });
 
@@ -73,7 +83,7 @@ export const SubmitScore: Command = {
                 ? capitalize(match.teamASide)
                 : capitalize(await getTeamBName(match.teamASide));
 
-        const content = `Submitted score ${score?.value} for team ${teamName}`;
+        const content = `Submitted score ${score} for team ${teamName}`;
 
         await interaction.reply({
             content,
