@@ -6,10 +6,10 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
-import Player from '../models/player.schema.js';
-import { getGuild } from '../helpers/guild.js';
-import { RanksType } from '../types/channel.js';
-import { getConfig, getGameMaps, getGameTeams } from '../services/system.service.js';
+import Player from '../models/player.schema';
+import { getGuild } from '../helpers/guild';
+import { RanksType } from '../types/channel';
+import { getConfig } from '../services/system.service';
 
 export const Notes: Command = {
     name: 'notes',

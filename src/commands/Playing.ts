@@ -1,7 +1,7 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
-import Match from '../models/match.schema.js';
-import { createMatchListEmbed } from '../helpers/embed.js';
+import Match from '../models/match.schema';
+import { createMatchListEmbed } from '../helpers/embed';
 
 export const PlayingCommand: Command = {
     name: 'playing',

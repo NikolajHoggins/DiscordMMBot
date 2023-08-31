@@ -1,5 +1,5 @@
 import { Client, Role } from 'discord.js';
-import { getGuild } from './guild.js';
+import { getGuild } from './guild';
 
 export const createRole = ({
     roleName,

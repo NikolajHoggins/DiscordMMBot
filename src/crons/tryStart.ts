@@ -1,7 +1,7 @@
 import { Client } from 'discord.js';
 import cron from 'node-cron';
-import { checkPlayersReady, checkScoreVerified, tryStart } from '../services/match.service.js';
-import Match from '../models/match.schema.js';
+import { checkPlayersReady, checkScoreVerified, tryStart } from '../services/match.service';
+import Match from '../models/match.schema';
 
 const verifyRunningMatches = async (client: Client) => {
     const matches = await Match.find({

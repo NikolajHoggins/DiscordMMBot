@@ -1,6 +1,6 @@
 import { ButtonInteraction, Client } from 'discord.js';
-import { getConfig } from '../../services/system.service.js';
-import { getGuild } from '../../helpers/guild.js';
+import { getConfig } from '../../services/system.service';
+import { getGuild } from '../../helpers/guild';
 
 export const handleRegionInteraction = async (interaction: ButtonInteraction, client: Client) => {
     const region = interaction.customId.split('.')[1];

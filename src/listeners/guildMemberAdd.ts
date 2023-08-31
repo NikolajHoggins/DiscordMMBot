@@ -1,7 +1,7 @@
-import { Client, Events, GuildMember, Interaction, PartialGuildMember } from 'discord.js';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
-import Queue from '../models/queue.schema.js';
+import { Client, Events, GuildMember, PartialGuildMember } from 'discord.js';
+import { getConfig } from '../services/system.service';
+import { RanksType } from '../types/channel';
+import Queue from '../models/queue.schema';
 
 export default (client: Client): void => {
     client.on(Events.GuildMemberAdd, async (member: GuildMember) => {

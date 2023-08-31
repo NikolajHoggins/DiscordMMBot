@@ -8,11 +8,11 @@ import {
 import { ceil, floor } from 'lodash';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
-import { getRankName } from '../helpers/rank.js';
-import Player from '../models/player.schema.js';
-import { getChannelId, getServerEmotes } from '../services/system.service.js';
-import { ChannelsType } from '../types/channel.js';
-import { EmotesType } from '../types/emotes.js';
+import { getRankName } from '../helpers/rank';
+import Player from '../models/player.schema';
+import { getChannelId, getServerEmotes } from '../services/system.service';
+import { ChannelsType } from '../types/channel';
+import { EmotesType } from '../types/emotes';
 
 const getEmoji = (result: string, emojis: EmotesType) => {
     if (['w', 'l', 'd'].includes(result)) return `<:${emojis[result as 'w' | 'l' | 'd']}>`;

@@ -5,9 +5,9 @@ import {
     CommandInteraction,
     EmbedBuilder,
 } from 'discord.js';
-import { Command } from '../../Command.js';
-import { isUserMod } from '../../helpers/permissions.js';
-import Match from '../../models/match.schema.js';
+import { Command } from '../../Command';
+import { isUserMod } from '../../helpers/permissions';
+import Match from '../../models/match.schema';
 
 export const GetMatchInfo: Command = {
     name: 'matchinfo',

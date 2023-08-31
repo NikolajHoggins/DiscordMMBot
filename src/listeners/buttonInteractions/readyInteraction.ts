@@ -1,8 +1,8 @@
 import { ButtonInteraction, Client } from 'discord.js';
-import { handleUnready } from '../../commands/Unready.js';
-import { handleReady } from '../../commands/Ready.js';
-import { RegionsType } from '../../types/queue.js';
-import Match from '../../models/match.schema.js';
+import { handleUnready } from '../../commands/Unready';
+import { handleReady } from '../../commands/Ready';
+import { RegionsType } from '../../types/queue';
+import Match from '../../models/match.schema';
 
 export const handleReadyInteraction = async (interaction: ButtonInteraction, client: Client) => {
     const action = interaction.customId.split('.')[1];

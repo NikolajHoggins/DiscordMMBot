@@ -1,7 +1,5 @@
 import { ButtonInteraction, Client } from 'discord.js';
-import Match, { IMatch } from '../../models/match.schema.js';
-import { sendMessage } from '../../helpers/messages.js';
-import { finishMatch } from '../../services/match.service.js';
+import Match, { IMatch } from '../../models/match.schema';
 
 export const handleVerifyInteraction = ({
     interaction,

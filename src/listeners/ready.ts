@@ -1,7 +1,7 @@
 import { Client } from 'discord.js';
 import { Commands } from '../Commands';
 import scaffold from '../helpers/scaffold';
-import { updateLeaderboard } from '../helpers/leaderboard.js';
+import { updateLeaderboard } from '../helpers/leaderboard';
 
 export default (client: Client): void => {
     client.on('ready', async () => {

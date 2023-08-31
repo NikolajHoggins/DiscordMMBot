@@ -2,18 +2,14 @@ import {
     CommandInteraction,
     Client,
     ApplicationCommandType,
-    EmbedBuilder,
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
-import * as playerService from '../services/player.service';
-import Player from '../models/player.schema.js';
-import Queue from '../models/queue.schema.js';
-import { getGuild } from '../helpers/guild.js';
-import { BansType } from '../types/bans.js';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
-import { botLog } from '../helpers/messages.js';
+import Player from '../models/player.schema';
+import { getGuild } from '../helpers/guild';
+import { getConfig } from '../services/system.service';
+import { RanksType } from '../types/channel';
+import { botLog } from '../helpers/messages';
 
 export const Untimeout: Command = {
     name: 'untimeout',

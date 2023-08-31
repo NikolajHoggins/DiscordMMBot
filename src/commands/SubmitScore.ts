@@ -6,10 +6,9 @@ import {
 } from 'discord.js';
 import { Command } from '../Command';
 import * as matchService from '../services/match.service';
-import { capitalize, get } from 'lodash';
-import { getTeam } from '../helpers/players.js';
-import { getTeamBName } from '../helpers/team.js';
-import { MatchStatus } from '../models/match.schema.js';
+import { capitalize } from 'lodash';
+import { getTeamBName } from '../helpers/team';
+import { MatchStatus } from '../models/match.schema';
 import { getWinScore } from '../services/system.service';
 
 export const SubmitScore: Command = {

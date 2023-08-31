@@ -2,8 +2,8 @@ import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { ceil, toInteger } from 'lodash';
 import { Command } from '../Command';
 import Player from '../models/player.schema';
-import { getChannelId } from '../services/system.service.js';
-import { ChannelsType } from '../types/channel.js';
+import { getChannelId } from '../services/system.service';
+import { ChannelsType } from '../types/channel';
 
 export const Top: Command = {
     name: 'top',

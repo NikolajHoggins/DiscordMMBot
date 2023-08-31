@@ -1,8 +1,8 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
 import { getGuild } from '../helpers/guild';
-import { getConfig } from '../services/system.service.js';
-import { RanksType } from '../types/channel.js';
+import { getConfig } from '../services/system.service';
+import { RanksType } from '../types/channel';
 
 export const RestartBot: Command = {
     name: 'restart_bot',

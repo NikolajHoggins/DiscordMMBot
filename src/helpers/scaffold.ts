@@ -7,13 +7,13 @@ import {
     ButtonStyle,
     ButtonBuilder,
 } from 'discord.js';
-import { ISystem } from '../models/system.schema.js';
+import { ISystem } from '../models/system.schema';
 import { getConfig, updateConfig } from '../services/system.service';
 import { CategoriesType, ChannelsType, ChannelType, RanksType, VCType } from '../types/channel';
 import { getEveryoneRole, getGuild } from './guild';
 import { sendMessage } from './messages';
-import { createRole } from './role.js';
-import { RegionsType } from '../types/queue.js';
+import { createRole } from './role';
+import { RegionsType } from '../types/queue';
 
 const createChannel = async (
     client: Client,

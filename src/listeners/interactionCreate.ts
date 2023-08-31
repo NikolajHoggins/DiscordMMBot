@@ -1,12 +1,12 @@
 import { CommandInteraction, Client, Interaction, ButtonInteraction } from 'discord.js';
 import { Commands } from '../Commands';
-import { findByChannelId } from '../services/match.service.js';
-import Match, { IMatch, MatchStatus } from '../models/match.schema.js';
-import { ButtonInteractionsType } from '../types/interactions.js';
-import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction.js';
-import { handleReadyInteraction } from './buttonInteractions/readyInteraction.js';
-import { handleRegionInteraction } from './buttonInteractions/regionInteraction.js';
-import { handleMatchInteraction } from './buttonInteractions/handleMatchInteraction.js';
+import { findByChannelId } from '../services/match.service';
+import Match, { IMatch, MatchStatus } from '../models/match.schema';
+import { ButtonInteractionsType } from '../types/interactions';
+import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction';
+import { handleReadyInteraction } from './buttonInteractions/readyInteraction';
+import { handleRegionInteraction } from './buttonInteractions/regionInteraction';
+import { handleMatchInteraction } from './buttonInteractions/handleMatchInteraction';
 
 export default (client: Client): void => {
     client.on('interactionCreate', async (interaction: Interaction) => {

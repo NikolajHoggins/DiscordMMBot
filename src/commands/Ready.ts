@@ -11,9 +11,9 @@ import * as playerService from '../services/player.service';
 import { ready } from '../services/queue.service';
 import { getConfig } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
-import { sendMessage } from '../helpers/messages.js';
+import { sendMessage } from '../helpers/messages';
 import { ceil } from 'lodash';
-import { RegionsType } from '../types/queue.js';
+import { RegionsType } from '../types/queue';
 
 export const handleReady = async ({
     interaction,
