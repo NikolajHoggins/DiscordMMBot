@@ -1,9 +1,10 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { ceil, toInteger } from 'lodash';
 import { Command } from '../Command';
-import Player from '../models/player.schema';
+import Player, { IPlayer } from '../models/player.schema';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
+import { getFromRedis, setToRedis } from '../services/redis.service';
 
 export const Top: Command = {
     name: 'top',
@@ -19,7 +20,15 @@ export const Top: Command = {
             });
         }
 
-        const topPlayers = await Player.find().sort({ wins: -1 }).limit(10);
+        const topPlayersData = await getFromRedis('topPlayers');
+        let topPlayers: IPlayer[] = [];
+        if (!topPlayersData) {
+            topPlayers = await Player.find().sort({ rating: -1 }).limit(10);
+            await setToRedis('topPlayers', JSON.stringify(topPlayers));
+            // topPlayersData = JSON.stringify(topPlayers);
+        } else {
+            topPlayers = JSON.parse(topPlayersData);
+        }
 
         let content = '```';
         topPlayers.forEach((player, i) => {
@@ -29,7 +38,7 @@ export const Top: Command = {
             const winRate = ceil((wins / (wins + losses)) * 100);
 
             content = `${content}
-[${i + 1}] - ${player.name} - ${wins} wins - ${!isNaN(winRate) ? winRate : 0}%`;
+        [${i + 1}] - ${player.name} - ${wins} wins - ${!isNaN(winRate) ? winRate : 0}%`;
         });
 
         content = content + '```';
