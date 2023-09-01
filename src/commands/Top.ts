@@ -1,10 +1,10 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
-import { ceil, toInteger } from 'lodash';
+import { ceil } from 'lodash';
 import { Command } from '../Command';
 import Player, { IPlayer } from '../models/player.schema';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
-import { getFromRedis, setToRedis } from '../services/redis.service';
+import { addToSortedSet, getFromSortedSetDesc } from '../services/redis.service';
 
 export const Top: Command = {
     name: 'top',
@@ -20,25 +20,31 @@ export const Top: Command = {
             });
         }
 
-        const topPlayersData = await getFromRedis('topPlayers');
+        let topPlayersData: IPlayer[] = (await getFromSortedSetDesc('topPlayers', 0, 10)).map(p =>
+            JSON.parse(p || '')
+        );
+
         let topPlayers: IPlayer[] = [];
-        if (!topPlayersData) {
+        if (!topPlayersData || topPlayersData.length === 0) {
             topPlayers = await Player.find().sort({ rating: -1 }).limit(10);
-            await setToRedis('topPlayers', JSON.stringify(topPlayers));
-            // topPlayersData = JSON.stringify(topPlayers);
-        } else {
-            topPlayers = JSON.parse(topPlayersData);
+            console.log('topPlayers', topPlayers);
+            for (let i = 0; i < topPlayers.length; i++) {
+                await addToSortedSet('topPlayers', topPlayers[i].rating, topPlayers[i]);
+            }
+            topPlayersData = topPlayers;
         }
 
         let content = '```';
-        topPlayers.forEach((player, i) => {
+        topPlayersData.forEach((player, i) => {
             const { history } = player;
             const wins = history.filter(match => match.result === 'win').length;
             const losses = history.filter(match => match.result === 'loss').length;
             const winRate = ceil((wins / (wins + losses)) * 100);
 
             content = `${content}
-        [${i + 1}] - ${player.name} - ${wins} wins - ${!isNaN(winRate) ? winRate : 0}%`;
+        [${i + 1}] - ${player.rating} - ${player.name} - ${wins} wins - ${
+                !isNaN(winRate) ? winRate : 0
+            }%`;
         });
 
         content = content + '```';
