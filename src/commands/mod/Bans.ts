@@ -4,6 +4,7 @@ import {
     ApplicationCommandType,
     EmbedBuilder,
     ApplicationCommandOptionType,
+    PermissionFlagsBits,
 } from 'discord.js';
 import { Command } from '../../Command';
 import Player from '../../models/player.schema';
@@ -15,6 +16,7 @@ export const Bans: Command = {
     name: 'bans',
     description: 'Get previous player bans',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             type: ApplicationCommandOptionType.User,

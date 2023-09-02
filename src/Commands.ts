@@ -25,6 +25,7 @@ import { Top } from './commands/Top';
 import { Unready } from './commands/Unready';
 import { Untimeout } from './commands/mod/Untimeout';
 import { GetMatchInfo } from './commands/mod/GetMatchInfo';
+import { FetchAvatars } from './commands/admin/FetchAvatars';
 
 export const Commands: Command[] = [
     Stats,
@@ -54,4 +55,6 @@ export const Commands: Command[] = [
     GiveElo,
     ForceReady,
     GetMatchInfo,
+    //Admin commands
+    FetchAvatars,
 ];
