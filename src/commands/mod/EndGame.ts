@@ -3,20 +3,22 @@ import {
     Client,
     ApplicationCommandType,
     ApplicationCommandOptionType,
+    PermissionFlagsBits,
 } from 'discord.js';
-import { Command } from '../Command';
-import { getGuild } from '../helpers/guild';
-import { botLog } from '../helpers/messages';
+import { Command } from '../../Command';
+import { getGuild } from '../../helpers/guild';
+import { botLog } from '../../helpers/messages';
 
-import * as matchService from '../services/match.service';
-import Match from '../models/match.schema';
-import { RanksType } from '../types/channel';
-import { getConfig } from '../services/system.service';
+import * as matchService from '../../services/match.service';
+import Match from '../../models/match.schema';
+import { RanksType } from '../../types/channel';
+import { getConfig } from '../../services/system.service';
 
 export const EndGame: Command = {
     name: 'end_game',
     description: 'Force end game lobby',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             name: 'match_number',
@@ -25,6 +27,7 @@ export const EndGame: Command = {
             required: false,
         },
     ],
+
     run: async (client: Client, interaction: CommandInteraction) => {
         //fetch player from database
         const { user, channelId } = interaction;

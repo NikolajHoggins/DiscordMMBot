@@ -4,6 +4,7 @@ import {
     ApplicationCommandType,
     EmbedBuilder,
     ApplicationCommandOptionType,
+    PermissionFlagsBits,
 } from 'discord.js';
 import { Command } from '../../Command';
 import * as playerService from '../../services/player.service';
@@ -16,6 +17,7 @@ export const AddNote: Command = {
     name: 'addnote',
     description: 'Set a mod note on a player',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             type: ApplicationCommandOptionType.User,

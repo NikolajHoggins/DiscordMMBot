@@ -14,6 +14,7 @@ export const GetMatchInfo: Command = {
     name: 'matchinfo',
     description: 'Get information about a match',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             name: 'match_number',
@@ -22,7 +23,6 @@ export const GetMatchInfo: Command = {
             required: true,
         },
     ],
-    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     run: async (client: Client, interaction: CommandInteraction) => {
         if (!isUserMod(client, interaction)) return;
 

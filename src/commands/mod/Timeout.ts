@@ -4,19 +4,21 @@ import {
     ApplicationCommandType,
     EmbedBuilder,
     ApplicationCommandOptionType,
+    PermissionFlagsBits,
 } from 'discord.js';
-import { Command } from '../Command';
-import * as playerService from '../services/player.service';
-import { getGuild } from '../helpers/guild';
-import { BansType } from '../types/bans';
-import { getConfig } from '../services/system.service';
-import { RanksType } from '../types/channel';
-import { botLog } from '../helpers/messages';
+import { Command } from '../../Command';
+import * as playerService from '../../services/player.service';
+import { getGuild } from '../../helpers/guild';
+import { BansType } from '../../types/bans';
+import { getConfig } from '../../services/system.service';
+import { RanksType } from '../../types/channel';
+import { botLog } from '../../helpers/messages';
 
 export const Timeout: Command = {
     name: 'timeout',
-    description: 'Get player stats?',
+    description: 'Stop a player from queueing for given time',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             type: ApplicationCommandOptionType.User,

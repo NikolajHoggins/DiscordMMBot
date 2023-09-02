@@ -4,17 +4,19 @@ import {
     ApplicationCommandType,
     EmbedBuilder,
     ApplicationCommandOptionType,
+    PermissionFlagsBits,
 } from 'discord.js';
-import { Command } from '../Command';
-import Player from '../models/player.schema';
-import { getGuild } from '../helpers/guild';
-import { RanksType } from '../types/channel';
-import { getConfig } from '../services/system.service';
+import { Command } from '../../Command';
+import Player from '../../models/player.schema';
+import { getGuild } from '../../helpers/guild';
+import { RanksType } from '../../types/channel';
+import { getConfig } from '../../services/system.service';
 
 export const Notes: Command = {
     name: 'notes',
     description: 'Get player notes',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             type: ApplicationCommandOptionType.User,

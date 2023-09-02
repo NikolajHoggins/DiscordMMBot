@@ -5,11 +5,11 @@ import {
     EmbedBuilder,
     ApplicationCommandOptionType,
 } from 'discord.js';
-import { Command } from '../Command';
-import Player from '../models/player.schema';
-import { getGuild } from '../helpers/guild';
-import { RanksType } from '../types/channel';
-import { getConfig } from '../services/system.service';
+import { Command } from '../../Command';
+import Player from '../../models/player.schema';
+import { getGuild } from '../../helpers/guild';
+import { RanksType } from '../../types/channel';
+import { getConfig } from '../../services/system.service';
 
 export const Bans: Command = {
     name: 'bans',

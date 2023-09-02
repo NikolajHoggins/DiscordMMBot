@@ -3,18 +3,20 @@ import {
     Client,
     ApplicationCommandType,
     ApplicationCommandOptionType,
+    PermissionFlagsBits,
 } from 'discord.js';
-import { Command } from '../Command';
-import Player from '../models/player.schema';
-import { getGuild } from '../helpers/guild';
-import { getConfig } from '../services/system.service';
-import { RanksType } from '../types/channel';
-import { botLog } from '../helpers/messages';
+import { Command } from '../../Command';
+import Player from '../../models/player.schema';
+import { getGuild } from '../../helpers/guild';
+import { getConfig } from '../../services/system.service';
+import { RanksType } from '../../types/channel';
+import { botLog } from '../../helpers/messages';
 
 export const Untimeout: Command = {
     name: 'untimeout',
     description: 'Remove timeout from player',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             type: ApplicationCommandOptionType.User,
