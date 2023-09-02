@@ -4,6 +4,7 @@ import {
     Client,
     CommandInteraction,
     EmbedBuilder,
+    PermissionFlagsBits,
 } from 'discord.js';
 import { Command } from '../../Command';
 import { isUserMod } from '../../helpers/permissions';
@@ -21,6 +22,7 @@ export const GetMatchInfo: Command = {
             required: true,
         },
     ],
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     run: async (client: Client, interaction: CommandInteraction) => {
         if (!isUserMod(client, interaction)) return;
 

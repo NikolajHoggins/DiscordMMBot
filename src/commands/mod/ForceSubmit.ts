@@ -3,6 +3,7 @@ import {
     Client,
     ApplicationCommandType,
     ApplicationCommandOptionType,
+    PermissionFlagsBits,
 } from 'discord.js';
 import { capitalize } from 'lodash';
 import { Command } from '../../Command';
@@ -16,6 +17,7 @@ export const ForceSubmit: Command = {
     name: 'force_submit',
     description: 'Force submit in place of a aplyer',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             type: ApplicationCommandOptionType.User,

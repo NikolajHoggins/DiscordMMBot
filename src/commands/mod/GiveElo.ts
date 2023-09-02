@@ -3,6 +3,7 @@ import {
     Client,
     ApplicationCommandType,
     ApplicationCommandOptionType,
+    PermissionFlagsBits,
 } from 'discord.js';
 import { Command } from '../../Command';
 import Player from '../../models/player.schema';
@@ -15,6 +16,7 @@ export const GiveElo: Command = {
     name: 'give_elo',
     description: 'Give elo to a player',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     options: [
         {
             type: ApplicationCommandOptionType.User,

@@ -1,4 +1,9 @@
-import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
+import {
+    CommandInteraction,
+    Client,
+    ApplicationCommandType,
+    PermissionFlagsBits,
+} from 'discord.js';
 import { Command } from '../../Command';
 import { findByChannelId } from '../../services/match.service';
 import { MatchStatus } from '../../models/match.schema';
@@ -10,6 +15,7 @@ export const ForceVerify: Command = {
     name: 'force_verify',
     description: 'Force verify a game',
     type: ApplicationCommandType.ChatInput,
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user, channelId } = interaction;
 

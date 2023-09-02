@@ -7,7 +7,6 @@ import { DeleteGame } from './commands/DeleteGame';
 import { EndGame } from './commands/EndGame';
 import { ForceAbandon } from './commands/mod/ForceAbandon';
 import { ForceReady } from './commands/mod/ForceReady';
-import { ForceStart } from './commands/mod/ForceStart';
 import { ForceSubmit } from './commands/mod/ForceSubmit';
 import { ForceVerify } from './commands/mod/ForceVerify';
 import { GiveElo } from './commands/mod/GiveElo';
@@ -49,7 +48,6 @@ export const Commands: Command[] = [
     Timeout,
     Untimeout,
     ForceSubmit,
-    ForceStart,
     ForceAbandon,
     Bans,
     Notes,

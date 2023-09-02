@@ -3,6 +3,7 @@ import {
     ApplicationCommandType,
     Client,
     CommandInteraction,
+    PermissionFlagsBits,
 } from 'discord.js';
 import { setPlayerReady } from '../../listeners/buttonInteractions/handleMatchInteraction';
 import { findByChannelId } from '../../services/match.service';
@@ -12,7 +13,7 @@ import { isUserMod } from '../../helpers/permissions';
 import Match from '../../models/match.schema';
 
 export const ForceReady: Command = {
-    name: 'forceready',
+    name: 'force_ready',
     description: 'Force a player to be ready',
     type: ApplicationCommandType.ChatInput,
     options: [
@@ -23,6 +24,7 @@ export const ForceReady: Command = {
             required: true,
         },
     ],
+    defaultMemberPermissions: [PermissionFlagsBits.ManageMessages],
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
 
