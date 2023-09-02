@@ -5,7 +5,7 @@ import { Bans } from './commands/Bans';
 import { Countdown } from './commands/Countdown';
 import { DeleteGame } from './commands/DeleteGame';
 import { EndGame } from './commands/EndGame';
-import { ForceAbandon } from './commands/ForceAbandon';
+import { ForceAbandon } from './commands/mod/ForceAbandon';
 import { ForceReady } from './commands/mod/ForceReady';
 import { ForceStart } from './commands/mod/ForceStart';
 import { ForceSubmit } from './commands/mod/ForceSubmit';
