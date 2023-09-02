@@ -21,6 +21,7 @@ export const findOrCreate = (user: User): Promise<IPlayer> => {
             rating: 1350,
             ratingHistory: [],
             history: [],
+            avatarUrl: user.displayAvatarURL(),
         });
         await newPlayer.save();
 
