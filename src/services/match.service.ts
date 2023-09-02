@@ -875,15 +875,18 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
                         })
                 )
             );
-            //post match results in match-results channel
-            const matchResultsChannel = await getChannelId(ChannelsType['match-results']);
-            if (!matchResultsChannel) throw new Error('No match results channel found');
-            const embed = await createMatchResultEmbed({ matchNumber: match.match_number });
-            await sendMessage({
-                channelId: matchResultsChannel,
-                messageContent: { embeds: [embed] },
-                client,
-            });
+
+            if (match.teamARounds && match.teamBRounds) {
+                //post match results in match-results channel
+                const matchResultsChannel = await getChannelId(ChannelsType['match-results']);
+                if (!matchResultsChannel) throw new Error('No match results channel found');
+                const embed = await createMatchResultEmbed({ matchNumber: match.match_number });
+                await sendMessage({
+                    channelId: matchResultsChannel,
+                    messageContent: { embeds: [embed] },
+                    client,
+                });
+            }
             resolve(true);
         });
     });
