@@ -16,6 +16,7 @@ export const RanksType = {
     patreon: 'patreon',
     ping: 'ping',
     eu: 'eu',
+    locked: 'locked',
     naw: 'naw',
     nae: 'nae',
     oce: 'oce',

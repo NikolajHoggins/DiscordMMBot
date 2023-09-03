@@ -11,6 +11,14 @@ export default (client: Client): void => {
 
         if (!unrankedRole) throw new Error('Roles not found');
 
+        //A user should be locked if under a month old
+        const ONE_MONTH = 1000 * 60 * 60 * 24 * 30;
+        const accountAge = Date.now() - member.user.createdTimestamp;
+        if (accountAge < ONE_MONTH) {
+            const lockedRole = roles.find(t => t.name === RanksType.locked);
+            if (!lockedRole) throw new Error('Roles not found');
+            await member.roles.add(lockedRole.id);
+        }
         await member.roles.add(unrankedRole.id);
     });
     client.on(Events.GuildMemberRemove, async (member: PartialGuildMember | GuildMember) => {
