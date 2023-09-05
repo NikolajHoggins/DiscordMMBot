@@ -793,7 +793,10 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('No match found');
 
-        if (match.teamARounds === 6 && match.teamBRounds === 6) {
+        const winScore = await getWinScore();
+        const drawScore = winScore - 1;
+
+        if (match.teamARounds === drawScore && match.teamBRounds === drawScore) {
             //handle draw
             sendMessage({
                 channelId: match.channels.matchChannel,
