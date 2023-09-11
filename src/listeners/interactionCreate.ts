@@ -7,6 +7,7 @@ import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction'
 import { handleReadyInteraction } from './buttonInteractions/readyInteraction';
 import { handleRegionInteraction } from './buttonInteractions/regionInteraction';
 import { handleMatchInteraction } from './buttonInteractions/handleMatchInteraction';
+import { respondWithQueue } from '../commands/Queue';
 
 export default (client: Client): void => {
     client.on('interactionCreate', async (interaction: Interaction) => {
@@ -22,6 +23,10 @@ export default (client: Client): void => {
 
 const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
     const match = await findByChannelId(interaction.channelId);
+
+    if (interaction.customId === 'seeQueue') {
+        return respondWithQueue(interaction, true);
+    }
 
     if (interaction.customId.split('.')[0] === 'ready') {
         return handleReadyInteraction(interaction, client);

@@ -221,6 +221,35 @@ const addReadyUpMessage = async ({
     });
     if (!readyUpMessage) throw new Error("Couldn't send ping to play message");
 };
+const addSeeQueueMessage = async ({
+    config,
+    client,
+    text,
+}: {
+    config: ISystem;
+    client: Client;
+    text: string;
+}) => {
+    const readyChannel = config.channels.find(t => t.name === ChannelsType['ready-up']);
+    if (!readyChannel) throw new Error('no ready channel found');
+    const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+
+    row.addComponents(
+        new ButtonBuilder().setCustomId(`seeQueue`).setLabel(`See Queue`).setStyle(ButtonStyle.Link)
+    );
+
+    const readyContent = {
+        content: text,
+        components: [row],
+    };
+    const readyUpMessage = await sendMessage({
+        channelId: readyChannel.id,
+        messageContent: readyContent,
+        client,
+    });
+    if (!readyUpMessage) throw new Error("Couldn't send ping to play message");
+};
+
 const cacheRegionMessages = async ({ config, client }: { config: ISystem; client: Client }) => {
     //Find and fetch ready up messages
     const regionChannel = config.channels.find(t => t.name === ChannelsType.region);
@@ -267,6 +296,11 @@ const cacheReadyUpMessages = async ({ config, client }: { config: ISystem; clien
             client,
             region: RegionsType.na as RegionsType,
             text: '🇺🇸',
+        });
+        await addSeeQueueMessage({
+            config,
+            client,
+            text: 'Click to see the queue',
         });
     }
 };
