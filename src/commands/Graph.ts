@@ -21,7 +21,7 @@ const down = (ctx: ScriptableLineSegmentContext, value: string) =>
     ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined;
 const same = <T = string>(ctx: ScriptableLineSegmentContext, value: T) =>
     ctx.p0.parsed.y === ctx.p1.parsed.y ? value : undefined;
-Chart.defaults.font.family = 'Ubuntu';
+Chart.defaults.font.family = 'DejaVu Sans'; // or any other font you've installed
 
 export const Graph: Command = {
     name: 'graph',
