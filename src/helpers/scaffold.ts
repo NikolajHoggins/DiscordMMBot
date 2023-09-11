@@ -238,7 +238,7 @@ const addSeeQueueMessage = async ({
         new ButtonBuilder()
             .setCustomId(`seeQueue`)
             .setLabel(`See Queue`)
-            .setStyle(ButtonStyle.Secondary)
+            .setStyle(ButtonStyle.Primary)
     );
 
     const readyContent = {
