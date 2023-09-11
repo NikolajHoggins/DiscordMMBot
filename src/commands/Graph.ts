@@ -51,13 +51,6 @@ export const Graph: Command = {
         const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
         const isMod = await member.roles.cache.some(r => r.id === modRoleId);
 
-        if (!isPatreon && !isMod) {
-            return await interaction.reply({
-                ephemeral: true,
-                content: 'This command is only for patreons',
-            });
-        }
-
         if (!isMod && mention) {
             return await interaction.reply({
                 ephemeral: true,
