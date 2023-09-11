@@ -91,7 +91,7 @@ export const Graph: Command = {
 
         const chartConfig: ChartConfiguration = {
             type: 'line',
-            options: { scales: {} },
+            options: { scales: {}, font: { family: 'Ubuntu' } },
             data: {
                 labels: labels,
                 datasets: [
