@@ -13,6 +13,7 @@ import { getGuild } from '../helpers/guild';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartConfiguration, ScriptableLineSegmentContext } from 'chart.js';
 import { MatchResultType } from '../models/player.schema';
+import { Chart } from 'chart.js';
 
 const up = (ctx: ScriptableLineSegmentContext, value: string) =>
     ctx.p0.parsed.y < ctx.p1.parsed.y ? value : undefined;
@@ -20,6 +21,7 @@ const down = (ctx: ScriptableLineSegmentContext, value: string) =>
     ctx.p0.parsed.y > ctx.p1.parsed.y ? value : undefined;
 const same = <T = string>(ctx: ScriptableLineSegmentContext, value: T) =>
     ctx.p0.parsed.y === ctx.p1.parsed.y ? value : undefined;
+Chart.defaults.font.family = 'Ubuntu';
 
 export const Graph: Command = {
     name: 'graph',
@@ -91,7 +93,9 @@ export const Graph: Command = {
 
         const chartConfig: ChartConfiguration = {
             type: 'line',
-            options: { scales: {}, font: { family: 'Ubuntu' } },
+            options: {
+                scales: {},
+            },
             data: {
                 labels: labels,
                 datasets: [
