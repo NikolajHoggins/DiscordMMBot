@@ -747,11 +747,13 @@ export const setScore = async ({
             const isDraw = teamARounds === drawScore && teamBRounds === drawScore;
             const roundTotal = teamARounds + teamBRounds;
 
-            if (
-                (teamARounds !== winScore && teamBRounds !== winScore && !isDraw) ||
-                roundTotal > drawScore * 2
-            )
-                return;
+            // Commented out until draws are removed with config
+            // if (
+            //     (teamARounds !== winScore && teamBRounds !== winScore && !isDraw) ||
+            //     roundTotal > drawScore * 2
+            // )
+            //     return;
+            if (teamARounds !== winScore && teamBRounds !== winScore && !isDraw) return;
 
             const scoreEmbed = await createScoreCardEmbed({ match });
 
