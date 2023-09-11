@@ -235,7 +235,10 @@ const addSeeQueueMessage = async ({
     const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
 
     row.addComponents(
-        new ButtonBuilder().setCustomId(`seeQueue`).setLabel(`See Queue`).setStyle(ButtonStyle.Link)
+        new ButtonBuilder()
+            .setCustomId(`seeQueue`)
+            .setLabel(`See Queue`)
+            .setStyle(ButtonStyle.Secondary)
     );
 
     const readyContent = {
