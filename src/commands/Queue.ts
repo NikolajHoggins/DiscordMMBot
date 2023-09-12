@@ -38,7 +38,10 @@ export const respondWithQueue = async (
         content = `${content}\n**EU** -[${euPlayers.length}] - ${euString}`;
         content = `${content}\n**NA** - [${naPlayers.length}] - ${naString}`;
     } else {
-        const normalPlayersString = queuePlayers.filter(q => q.region !== 'requeue').map(p => p.name).join(', '));
+        const normalPlayersString = queuePlayers
+            .filter(q => q.region !== 'requeue')
+            .map(p => p.name)
+            .join(', ');
         content = `${content}\n**EU** -[${queuePlayers.length}] - ${normalPlayersString}`;
     }
 
