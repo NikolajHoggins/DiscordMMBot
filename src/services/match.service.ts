@@ -29,7 +29,7 @@ import { createMatchEmbed, createMatchResultEmbed, createScoreCardEmbed } from '
 import { calculateEloChanges } from '../helpers/elo';
 import { deleteChannel, createChannel } from '../helpers/channel';
 import { getVotes } from '../helpers/match';
-import { capitalize, groupBy } from 'lodash';
+import { capitalize, groupBy, map, upperCase } from 'lodash';
 import { getTeamBName } from '../helpers/team';
 import { addBan, addWinLoss } from './player.service';
 import { MatchResultType } from '../models/player.schema';
@@ -662,14 +662,18 @@ export const startGame = ({
         );
 
         const teamsEmbed = await createMatchEmbed({ matchNumber: match.match_number });
-
+        const regionQueueEnabled = await getRegionQueue();
         const regions = groupBy(match.players.map(p => p.region));
 
-        // const regionString =
-        //     map(regions, (value, key) => {
-        //         return `${upperCase(key)} - ${value.length}\n`;
-        //     }).join('') + `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
-        const regionString = `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
+        let regionString;
+        if (regionQueueEnabled) {
+            regionString =
+                map(regions, (value, key) => {
+                    return `${upperCase(key)} - ${value.length}\n`;
+                }).join('') + `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
+        } else {
+            regionString = `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
+        }
 
         await sendMessage({
             channelId: matchChannel.id,

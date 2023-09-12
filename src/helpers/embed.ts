@@ -3,7 +3,7 @@ import Match, { IMatch } from '../models/match.schema';
 import { getTeam } from './players';
 import { getTeamBName } from './team';
 import { capitalize } from 'lodash';
-import { getGameMaps, getGameTeams, getWinScore } from '../services/system.service';
+import { getGameMaps, getGameTeams, getRegionQueue, getWinScore } from '../services/system.service';
 
 export const createMatchEmbed = async ({
     matchNumber,
@@ -12,6 +12,7 @@ export const createMatchEmbed = async ({
 }): Promise<EmbedBuilder> => {
     return new Promise(async resolve => {
         const match = await Match.findOne({ match_number: matchNumber });
+
         if (!match) throw new Error('Match not found');
 
         const teamA = getTeam(match.players, 'a');
