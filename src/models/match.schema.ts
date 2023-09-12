@@ -43,7 +43,7 @@ export interface IMatch {
     teamARounds?: number;
     teamBRounds?: number;
     map: string;
-    region: string;
+    region?: string;
     teamASide: string;
     version: number;
 }
@@ -60,7 +60,7 @@ const matchSchema = new Schema<IMatch>({
     teamBRounds: { type: Number },
     map: { type: String },
     teamASide: { type: String },
-    region: { type: String, required: true },
+    region: { type: String, required: false },
     version: { type: Number, required: true },
 });
 

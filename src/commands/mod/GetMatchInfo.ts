@@ -48,9 +48,11 @@ export const GetMatchInfo: Command = {
                     value: match.teamBRounds ? `${match.teamBRounds} rounds` : 'N/A',
                     inline: true,
                 },
-                { name: 'Map', value: match.map || 'N/A', inline: true },
-                { name: 'Region', value: match.region, inline: true }
+                { name: 'Map', value: match.map || 'N/A', inline: true }
             );
+
+        if (match.region) embed.addFields({ name: 'Region', value: match.region, inline: true });
+
         embed.addFields({
             name: 'Channels',
             value: match.channels

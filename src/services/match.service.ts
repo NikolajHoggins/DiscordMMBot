@@ -666,7 +666,7 @@ export const startGame = ({
         const regions = groupBy(match.players.map(p => p.region));
 
         let regionString;
-        if (regionQueueEnabled) {
+        if (!regionQueueEnabled) {
             regionString =
                 map(regions, (value, key) => {
                     return `${upperCase(key)} - ${value.length}\n`;
