@@ -310,7 +310,7 @@ export const tryStart = (client: Client): Promise<void> => {
 
         const queue = await Queue.find().sort({ signup_time: 1 });
         const count = DEBUG_MODE ? 2 : 10;
-        if (!regionQueueEnabled && queue.length > count) {
+        if (!regionQueueEnabled && queue.length >= count) {
             return await startMatch({
                 client,
                 queue: queue,
