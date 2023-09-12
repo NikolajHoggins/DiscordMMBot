@@ -98,3 +98,11 @@ export const getWinScore = (): Promise<number> => {
         resolve(config.winScore);
     });
 };
+
+export const getRegionQueue = (): Promise<boolean> => {
+    return new Promise(async (resolve, reject) => {
+        const config = await getConfig();
+
+        resolve(config.regionQueue);
+    });
+};

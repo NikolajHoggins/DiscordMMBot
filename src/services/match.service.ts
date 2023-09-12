@@ -16,7 +16,13 @@ import { removePlayersFromQueue } from './queue.service';
 import { getGuild } from '../helpers/guild';
 import { createTeams, getTeam } from '../helpers/players';
 import { logMatch } from '../helpers/logs';
-import { getChannelId, getGameMaps, getGameTeams, getWinScore } from './system.service';
+import {
+    getChannelId,
+    getGameMaps,
+    getGameTeams,
+    getRegionQueue,
+    getWinScore,
+} from './system.service';
 import { CategoriesType, ChannelsType } from '../types/channel';
 import { updateLeaderboard } from '../helpers/leaderboard';
 import { createMatchEmbed, createMatchResultEmbed, createScoreCardEmbed } from '../helpers/embed';
@@ -298,10 +304,21 @@ export const tryStart = (client: Client): Promise<void> => {
     return new Promise(async resolve => {
         if (!process.env.SERVER_ID) throw new Error('No server id');
 
+        const regionQueueEnabled = await getRegionQueue();
+
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
 
         const queue = await Queue.find().sort({ signup_time: 1 });
         const count = DEBUG_MODE ? 2 : 10;
+        if (!regionQueueEnabled && queue.length > count) {
+            return await startMatch({
+                client,
+                queue: queue,
+                count,
+                queueChannelId,
+            });
+        }
+
         const naPlayers = queue.filter(q => q.queueRegion === 'na');
         const euPlayers = queue.filter(q => q.queueRegion === 'eu');
         const fillPlayers = queue.filter(q => q.queueRegion === 'fill');
@@ -369,7 +386,7 @@ const startMatch = ({
     count: number;
     queueChannelId: string;
     client: Client;
-    region: string;
+    region?: string;
 }) => {
     return new Promise(async resolve => {
         const sortedPlayers = queue.sort((a, b) => {
@@ -405,7 +422,10 @@ const startMatch = ({
         await sendMessage({
             channelId: queueChannelId,
             messageContent:
-                count + ` players in queue - Game is starting on region ${region.toUpperCase()}`,
+                count +
+                ` players in queue - Game is starting ${
+                    region ? `on region ${region.toUpperCase()}` : ''
+                }`,
             client,
         });
 

@@ -7,6 +7,7 @@ import { EmotesType } from '../types/emotes.js';
 export interface ISystem {
     last_ping: number;
     channels: ChannelType[];
+    regionQueue: boolean;
     roles: RankType[];
     maps: MapType[];
     teams: string[];
@@ -23,6 +24,7 @@ const systemSchema = new Schema<ISystem>({
     maps: { type: [], required: true },
     teams: { type: [], required: true },
     emotes: { type: {}, required: true },
+    regionQueue: { type: Boolean, required: true },
     winScore: { type: Number, required: true },
 });
 
