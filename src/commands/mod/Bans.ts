@@ -50,27 +50,65 @@ export const Bans: Command = {
         if (!player.bans || player.bans.length === 0)
             return interaction.reply({ content: 'no bans', ephemeral: true });
 
-        const embed = new EmbedBuilder()
-            .setTitle(`${mention.username} bans`)
-            .setColor('#0099ff')
-            .setThumbnail(mention.avatarURL())
-            .addFields([
-                {
-                    name: `Bans - ${player.bans.length}`,
-                    value: `Currently banned until: ${
-                        player.banEnd ? `<t:${Math.floor(player.banEnd / 1000)}:F>` : 'Not banned'
-                    }`,
-                },
-                ...player.bans.map(ban => ({
-                    name: `${ban.type} - ${ban.reason}`,
-                    value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
-                        ban.timeoutInMinutes
-                    } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
-                })),
-            ]);
+        //shit code had to be fast
+        const embeds = [];
+        embeds.push(
+            new EmbedBuilder()
+                .setTitle(`${mention.username} bans`)
+                .setColor('#0099ff')
+                .setThumbnail(mention.avatarURL())
+                .addFields([
+                    {
+                        name: `Bans - ${player.bans.length}`,
+                        value: `Currently banned until: ${
+                            player.banEnd
+                                ? `<t:${Math.floor(player.banEnd / 1000)}:F>`
+                                : 'Not banned'
+                        }`,
+                    },
+                    ...player.bans.slice(0, 24).map(ban => ({
+                        name: `${ban.type} - ${ban.reason}`,
+                        value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                            ban.timeoutInMinutes
+                        } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                    })),
+                ])
+        );
+        if (player.bans.length > 24) {
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(24, 24 + 25).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+        if (player.bans.length > 24 + 25) {
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(24 + 25, 24 + 25 + 25).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
 
         interaction.reply({
-            embeds: [embed],
+            embeds,
             ephemeral: true,
         });
     },
