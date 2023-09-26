@@ -42,7 +42,9 @@ export const respondWithQueue = async (
             .filter(q => q.region !== 'requeue')
             .map(p => p.name)
             .join(', ');
-        content = `${content}\n**Queue** -[${queuePlayers.length}] - ${normalPlayersString}`;
+        content = `${content}\n**Queue** -[${
+            queuePlayers.filter(q => q.region !== 'requeue').length
+        }] - ${normalPlayersString}`;
     }
 
     await interaction.reply({
