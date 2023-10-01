@@ -8,6 +8,7 @@ import ready from './listeners/ready';
 import { connectToDatabase } from './services/database.service';
 import guildMemberAdd from './listeners/guildMemberAdd';
 import initTryStartCron from './crons/tryStart';
+import initBanTickDownCron from './crons/banTickDown';
 
 console.log('Bot is starting...');
 dotenv.config();
@@ -28,3 +29,4 @@ client.login(process.env.BOT_TOKEN);
 //Register cronjobs
 initStatusCron(client);
 initTryStartCron(client);
+initBanTickDownCron(client);

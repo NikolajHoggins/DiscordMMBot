@@ -36,8 +36,10 @@ export interface IPlayer {
     ratingHistory: RatingHistory;
     bans: BanHistory;
     banMultiplier: number;
+    banTickDown: number; //Ban will tick down at this time + 24 hours (or whatever number is chosen)
     banStart: number;
     banEnd: number;
+
     notes: Notes;
     avatarUrl: string;
 }
@@ -50,6 +52,7 @@ const playerSchema = new Schema<IPlayer>({
     history: { type: [], required: true },
     ratingHistory: { type: [], required: true },
     banMultiplier: { type: Number },
+    banTickDown: { type: Number },
     bans: { type: [] },
     banStart: { type: Number },
     banEnd: { type: Number },

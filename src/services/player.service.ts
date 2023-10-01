@@ -137,7 +137,7 @@ export const addBan = ({
         await Player.updateOne(
             { discordId: userId },
             {
-                $set: { banStart: now, banEnd: timeoutEnd },
+                $set: { banStart: now, banEnd: timeoutEnd, banTickDown: timeoutEnd },
                 $inc: { banMultiplier: 1 },
                 ...(player.bans
                     ? {
