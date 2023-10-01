@@ -35,6 +35,7 @@ export interface IPlayer {
     history: MatchHistory;
     ratingHistory: RatingHistory;
     bans: BanHistory;
+    banMultiplier: number;
     banStart: number;
     banEnd: number;
     notes: Notes;
@@ -48,6 +49,7 @@ const playerSchema = new Schema<IPlayer>({
     rating: { type: Number, required: true },
     history: { type: [], required: true },
     ratingHistory: { type: [], required: true },
+    banMultiplier: { type: Number },
     bans: { type: [] },
     banStart: { type: Number },
     banEnd: { type: Number },
