@@ -21,7 +21,7 @@ export const runBanTickDown = async (client: Client) => {
         const newBanMultiplier = player.banMultiplier - 1;
         await Player.updateOne(
             { discordId: player.discordId },
-            { banMultiplier: newBanMultiplier }
+            { banMultiplier: newBanMultiplier, banTickDown: now }
         );
     }
 };
