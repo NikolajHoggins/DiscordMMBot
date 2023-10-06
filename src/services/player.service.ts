@@ -123,7 +123,7 @@ export const addBan = ({
 
         const BAN_SCALER = 3; //Each time offense is committed, ban duration is multiplied by this number
         const actualDuration =
-            duration || banTimes[type] * (BAN_SCALER ^ (player.banMultiplier || 0));
+            duration || banTimes[type] * BAN_SCALER ** (player.banMultiplier || 0);
 
         const now = Date.now();
         const timeoutEnd = now + actualDuration * 60 * 1000;
