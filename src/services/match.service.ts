@@ -29,7 +29,7 @@ import { createMatchEmbed, createMatchResultEmbed, createScoreCardEmbed } from '
 import { calculateEloChanges } from '../helpers/elo';
 import { deleteChannel, createChannel } from '../helpers/channel';
 import { getVotes } from '../helpers/match';
-import { capitalize, groupBy, map, upperCase } from 'lodash';
+import { capitalize, groupBy, map, shuffle, upperCase } from 'lodash';
 import { getTeamBName } from '../helpers/team';
 import { addBan, addWinLoss } from './player.service';
 import { MatchResultType } from '../models/player.schema';
@@ -154,10 +154,7 @@ const sendReadyMessage = async ({
             client,
             messageContent:
                 'Missing players: ' +
-                match.players
-                    .filter(p => !p.ready)
-                    .map(p => `<@${p.id}>`)
-                    .join(' '),
+                shuffle(match.players.filter(p => !p.ready).map(p => `<@${p.id}>`)).join(' '),
         });
         const confirmMessage = await sendMessage({
             channelId: match.channels.ready,
