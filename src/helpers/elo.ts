@@ -66,6 +66,8 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
     const winScore = await getWinScore();
     const winner = match.teamARounds === winScore ? 'a' : 'b';
     const loser = winner === 'a' ? 'b' : 'a';
+    const winnerHadAbandon = getTeam(players, winner).some(p => p.abandon);
+    const loserHadAbandon = getTeam(players, loser).some(p => p.abandon);
     const winningTeam = await Promise.all(
         idsToObjects(
             getTeam(players, winner)
@@ -128,6 +130,10 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
             }
             console.log(player.name, 'elo after multiplier', eloChange);
 
+            if (winnerHadAbandon) {
+                eloChange += 10;
+            }
+
             addWinLoss({
                 playerId: p.id,
                 matchNumber: match.match_number,
@@ -149,6 +155,10 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
 
             if (isUnranked) {
                 eloChange *= 1 + (10 - player.history.length + 2) / 10;
+            }
+
+            if (loserHadAbandon) {
+                eloChange += 10;
             }
             console.log(player.name, 'elo after unranked', eloChange);
             addWinLoss({
