@@ -13,6 +13,7 @@ import * as matchService from '../../services/match.service';
 import Match from '../../models/match.schema';
 import { RanksType } from '../../types/channel';
 import { getConfig } from '../../services/system.service';
+import { isUserMod } from '../../helpers/permissions';
 
 export const EndGame: Command = {
     name: 'end_game',
@@ -38,16 +39,8 @@ export const EndGame: Command = {
 
         if (!member) return;
 
-        const config = await getConfig();
-        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
-        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
-        if (!isMod) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'no perms',
-            });
-            return;
-        }
+        if (!isUserMod(client, interaction)) return;
+
         //find match with channelId
         const match = matchNumber
             ? await Match.findOne({ match_number: matchNumber })

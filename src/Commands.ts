@@ -26,6 +26,7 @@ import { Unready } from './commands/Unready';
 import { Untimeout } from './commands/mod/Untimeout';
 import { GetMatchInfo } from './commands/mod/GetMatchInfo';
 import { FetchAvatars } from './commands/admin/FetchAvatars';
+import { RankCurve } from './commands/admin/RankCurve';
 
 export const Commands: Command[] = [
     Stats,
@@ -56,5 +57,6 @@ export const Commands: Command[] = [
     ForceReady,
     GetMatchInfo,
     //Admin commands
+    RankCurve,
     FetchAvatars,
 ];
