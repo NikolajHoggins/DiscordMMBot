@@ -26,7 +26,7 @@ export const rankColors: Partial<Record<RanksType, string>> = {
     [RanksType.gold]: 'rgb(241, 196, 15)',
     [RanksType.platinum]: 'rgb(168, 184, 252)',
     [RanksType.diamond]: 'rgb(155, 89, 182)',
-    [RanksType.master]: '#ff00ff',
+    [RanksType.master]: 'rgb(46, 204, 113)',
 };
 
 const getClosestLowerNumber = (numbers: number[], targetNumber: number): number => {
