@@ -17,6 +17,18 @@ export const rankCutoffs: Record<number, RanksType> = {
     2200: RanksType.master,
 };
 
+export const rankColors: Partial<Record<RanksType, string>> = {
+    [RanksType.plastic]: '#d3d3d3',
+    [RanksType.iron]: 'rgb(84, 110, 122)',
+    [RanksType.copper]: 'rgb(231, 76, 60)',
+    [RanksType.bronze]: 'rgb(231, 76, 60)',
+    [RanksType.silver]: 'rgb(149, 165, 166)',
+    [RanksType.gold]: 'rgb(241, 196, 15)',
+    [RanksType.platinum]: 'rgb(168, 184, 252)',
+    [RanksType.diamond]: 'rgb(155, 89, 182)',
+    [RanksType.master]: '#ff00ff',
+};
+
 const getClosestLowerNumber = (numbers: number[], targetNumber: number): number => {
     let closestLowerNumber = 0;
     for (let i = 0; i < numbers.length; i++) {

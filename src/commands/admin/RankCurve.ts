@@ -10,7 +10,7 @@ import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartConfiguration, ScriptableLineSegmentContext } from 'chart.js';
 import { Chart } from 'chart.js';
 import Player from '../../models/player.schema';
-import { rankCutoffs } from '../../helpers/rank';
+import { rankColors, rankCutoffs } from '../../helpers/rank';
 import { Command } from '../../Command';
 import { RanksType } from '../../types/channel';
 import { repeat } from 'lodash';
@@ -67,6 +67,9 @@ export const RankCurve: Command = {
                         fill: false,
                         borderColor: 'rgb(125,125,125)',
                         data: Object.keys(rankCounts).map(key => rankCounts[key as RanksType] || 0),
+                        backgroundColor: Object.keys(rankCounts).map(
+                            key => rankColors[key as RanksType] || '#000000'
+                        ),
                         segment: {
                             borderColor: ctx =>
                                 up(ctx, 'rgb(0,255,0)') ||
