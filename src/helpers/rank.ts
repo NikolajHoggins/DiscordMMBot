@@ -20,7 +20,7 @@ export const rankCutoffs: Record<number, RanksType> = {
 export const rankColors: Partial<Record<RanksType, string>> = {
     [RanksType.plastic]: '#d3d3d3',
     [RanksType.iron]: 'rgb(84, 110, 122)',
-    [RanksType.copper]: 'rgb(231, 76, 60)',
+    [RanksType.copper]: 'rgb(230, 126, 34)',
     [RanksType.bronze]: 'rgb(231, 76, 60)',
     [RanksType.silver]: 'rgb(149, 165, 166)',
     [RanksType.gold]: 'rgb(241, 196, 15)',
