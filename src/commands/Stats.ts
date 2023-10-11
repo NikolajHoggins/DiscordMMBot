@@ -14,6 +14,8 @@ import { getChannelId, getServerEmotes } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import { EmotesType } from '../types/emotes';
 
+const BREACHERS_SERVER_ID = '1050486686028681247';
+
 const getEmoji = (result: string, emojis: EmotesType) => {
     if (['w', 'l', 'd'].includes(result)) return `<:${emojis[result as 'w' | 'l' | 'd']}>`;
     return '';
@@ -34,6 +36,8 @@ export const Stats: Command = {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
         const emotes = await getServerEmotes();
+
+        const isBreachersServer = interaction.guildId === BREACHERS_SERVER_ID;
 
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
@@ -106,6 +110,9 @@ export const Stats: Command = {
             ]);
 
         await interaction.reply({
+            ...(isBreachersServer && {
+                content: `View more stats at https://breacherstracker.com/profile/${userToCheck.id}`,
+            }),
             embeds: [statsEmbed],
         });
     },
