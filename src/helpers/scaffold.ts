@@ -236,7 +236,7 @@ const addSeeQueueMessage = async ({
 
     row.addComponents(
         new ButtonBuilder()
-            .setCustomId(`seeQueue.${gameType}}`)
+            .setCustomId(`seeQueue.${gameType}`)
             .setLabel(`See Queue`)
             .setStyle(ButtonStyle.Primary)
     );
