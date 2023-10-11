@@ -8,12 +8,12 @@ import {
     ButtonBuilder,
 } from 'discord.js';
 import { ISystem } from '../models/system.schema';
-import { getConfig, updateConfig } from '../services/system.service';
+import { getConfig, getRegionQueue, updateConfig } from '../services/system.service';
 import { CategoriesType, ChannelsType, ChannelType, RanksType, VCType } from '../types/channel';
 import { getEveryoneRole, getGuild } from './guild';
 import { sendMessage } from './messages';
 import { createRole } from './role';
-import { RegionsType } from '../types/queue';
+import { GameType, RegionsType, gameTypeName, gameTypeReadyChannels } from '../types/queue';
 
 const createChannel = async (
     client: Client,
@@ -175,36 +175,36 @@ const cacheReactionRoleMessages = async ({
 };
 
 const addReadyUpMessage = async ({
-    config,
     client,
     region,
     text,
+    channelId,
+    gameType,
 }: {
-    config: ISystem;
     client: Client;
     region: RegionsType;
     text: string;
+    channelId: string;
+    gameType: GameType;
 }) => {
-    const readyChannel = config.channels.find(t => t.name === ChannelsType['ready-up']);
-    if (!readyChannel) throw new Error('no ready channel found');
     const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
 
     row.addComponents(
         new ButtonBuilder()
-            .setCustomId(`ready.60.${region}`)
+            .setCustomId(`ready.60.${region}.${gameType}`)
             .setLabel(`60 ${region.toUpperCase()}`)
             .setStyle(ButtonStyle.Success)
     );
     row.addComponents(
         new ButtonBuilder()
-            .setCustomId(`ready.30.${region.toUpperCase()}`)
+            .setCustomId(`ready.30.${region}.${gameType}`)
             .setLabel(`30 ${region.toUpperCase()}`)
             .setStyle(ButtonStyle.Success)
     );
     if (region === RegionsType.fill) {
         row.addComponents(
             new ButtonBuilder()
-                .setCustomId(`ready.unready.${region.toUpperCase()}`)
+                .setCustomId(`ready.unready`)
                 .setLabel('unready')
                 .setStyle(ButtonStyle.Danger)
         );
@@ -215,28 +215,28 @@ const addReadyUpMessage = async ({
         components: [row],
     };
     const readyUpMessage = await sendMessage({
-        channelId: readyChannel.id,
+        channelId: channelId,
         messageContent: readyContent,
         client,
     });
     if (!readyUpMessage) throw new Error("Couldn't send ping to play message");
 };
 const addSeeQueueMessage = async ({
-    config,
     client,
     text,
+    channelId,
+    gameType,
 }: {
-    config: ISystem;
     client: Client;
     text: string;
+    channelId: string;
+    gameType: GameType;
 }) => {
-    const readyChannel = config.channels.find(t => t.name === ChannelsType['ready-up']);
-    if (!readyChannel) throw new Error('no ready channel found');
     const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
 
     row.addComponents(
         new ButtonBuilder()
-            .setCustomId(`seeQueue`)
+            .setCustomId(`seeQueue.${gameType}}`)
             .setLabel(`See Queue`)
             .setStyle(ButtonStyle.Primary)
     );
@@ -246,7 +246,7 @@ const addSeeQueueMessage = async ({
         components: [row],
     };
     const readyUpMessage = await sendMessage({
-        channelId: readyChannel.id,
+        channelId: channelId,
         messageContent: readyContent,
         client,
     });
@@ -268,42 +268,66 @@ const cacheRegionMessages = async ({ config, client }: { config: ISystem; client
         await addRegionMessage({ config, client });
     }
 };
-const cacheReadyUpMessages = async ({ config, client }: { config: ISystem; client: Client }) => {
+const cacheReadyUpMessages = async ({
+    config,
+    client,
+    gameType,
+}: {
+    config: ISystem;
+    client: Client;
+    gameType: GameType;
+}) => {
+    const channelsType = gameTypeReadyChannels[gameType];
+
     //Find and fetch ready up messages
-    const readyChannel = config.channels.find(t => t.name === ChannelsType['ready-up']);
+    const readyChannel = config.channels.find(t => t.name === channelsType);
     if (!readyChannel) throw new Error('no ready channel found');
 
     const channel = (await client.channels.fetch(readyChannel.id)) as TextChannel;
     if (!channel) throw new Error('ready channel not found');
 
+    const regionQueueEnabled = await getRegionQueue();
+
     const messages = await channel.messages.fetch();
 
     const readyUpMessages = messages.filter(m =>
-        m.content.includes('Click a button to ready up for set minutes')
+        m.content.includes(
+            `Click a button to ready up for ${gameTypeName[gameType]} for set minutes`
+        )
     );
     if (readyUpMessages.size === 0) {
         await addReadyUpMessage({
-            config,
             client,
             region: RegionsType.fill as RegionsType,
-            text: 'Click a button to ready up for set minutes\n*Region you queue decides server, not where you are from*\n\nPlease use fill if you do not have a strong preference',
+            text: `Click a button to ready up for ${gameTypeName[gameType]} for set minutes${
+                regionQueueEnabled
+                    ? '\n*Region you queue decides server, not where you are from*\n\nPlease use fill if you do not have a strong preference'
+                    : ''
+            }`,
+            channelId: readyChannel.id,
+            gameType,
         });
-        await addReadyUpMessage({
-            config,
-            client,
-            region: RegionsType.eu as RegionsType,
-            text: '🇪🇺',
-        });
-        await addReadyUpMessage({
-            config,
-            client,
-            region: RegionsType.na as RegionsType,
-            text: '🇺🇸',
-        });
+        if (regionQueueEnabled) {
+            await addReadyUpMessage({
+                client,
+                region: RegionsType.eu as RegionsType,
+                text: '🇪🇺',
+                channelId: readyChannel.id,
+                gameType,
+            });
+            await addReadyUpMessage({
+                client,
+                region: RegionsType.na as RegionsType,
+                text: '🇺🇸',
+                channelId: readyChannel.id,
+                gameType,
+            });
+        }
         await addSeeQueueMessage({
-            config,
             client,
             text: 'Click to see the queue',
+            channelId: readyChannel.id,
+            gameType,
         });
     }
 };
@@ -355,7 +379,8 @@ const scaffold = async (client: Client) => {
     );
 
     await cacheReactionRoleMessages({ config, guild, client });
-    await cacheReadyUpMessages({ config, client });
+    await cacheReadyUpMessages({ config, client, gameType: GameType.squads });
+    await cacheReadyUpMessages({ config, client, gameType: GameType.duels });
     await cacheRegionMessages({ config, client });
 };
 

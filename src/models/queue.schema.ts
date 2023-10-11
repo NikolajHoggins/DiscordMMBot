@@ -1,5 +1,5 @@
 import { Schema, model, connect } from 'mongoose';
-import { RegionsType } from '../types/queue.js';
+import { GameType, RegionsType } from '../types/queue.js';
 
 // 1. Create an interface representing a document in MongoDB.
 export interface IQueue {
@@ -10,6 +10,7 @@ export interface IQueue {
     rating: number;
     queueRegion: RegionsType;
     region: string;
+    gameType: GameType;
 }
 
 // 2. Create a Schema corresponding to the document interface.
@@ -21,6 +22,7 @@ const queueSchema = new Schema<IQueue>({
     rating: { type: Number, required: true },
     region: { type: String, required: true },
     queueRegion: { type: String },
+    gameType: { type: String, required: true },
 });
 
 const Queue = model<IQueue>('Queue', queueSchema);
