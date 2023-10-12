@@ -2,7 +2,7 @@ import { rejects } from 'assert';
 import { User } from 'discord.js';
 import Player, { IPlayer } from '../models/player.schema';
 import Queue, { IQueue } from '../models/queue.schema';
-import { GameType, RegionsType } from '../types/queue.js';
+import { GameType, RegionsType } from '../types/queue';
 
 const ONE_MINUTE = 60000;
 
@@ -33,9 +33,11 @@ export const ready = ({
         // Good chance new unranked players suck.
         // Now they count for 0.5 of their rating for the first match, and then for the next 4 matches their multiplier moves towards 1. So 0.5 - 0.625 - 0.75 - 0.825 - 1.0
         const effectiveRating =
-            player.history.length >= 4
-                ? player.rating
-                : player.rating * (0.5 + player.history.length / 8);
+            gameType === GameType.squads
+                ? player.history.length >= 4
+                    ? player.rating
+                    : player.rating * (0.5 + player.history.length / 8)
+                : player.duelsRating;
 
         const newSpot = new Queue({
             discordId: player.discordId,
