@@ -838,8 +838,12 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
 
         const winScore = await getWinScore();
         const drawScore = winScore - 1;
+        const isDraw =
+            match.gameType === GameType.squads
+                ? match.teamARounds === drawScore && match.teamBRounds === drawScore
+                : match.teamARounds && match.teamBRounds && match.teamARounds === match.teamBRounds;
 
-        if (match.teamARounds === drawScore && match.teamBRounds === drawScore) {
+        if (isDraw) {
             //handle draw
             sendMessage({
                 channelId: match.channels.matchChannel,
