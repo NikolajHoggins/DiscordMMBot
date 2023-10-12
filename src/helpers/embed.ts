@@ -191,14 +191,8 @@ export const createMatchLogEmbed = async ({
         const teamB = getTeam(match.players, 'b');
 
         const teamNames = await getGameTeams();
-        const winScore = await getWinScore();
 
         const teamBSide = teamNames.filter(t => t !== match.teamASide)[0];
-        const isDraw = match.teamARounds === match.teamBRounds;
-
-        const gameMaps = await getGameMaps(match.gameType);
-
-        const mapImage = gameMaps.filter(m => m.name === match.map)[0].image;
 
         // const description = isDraw
         //     ? 'Match ended in a draw'
@@ -218,7 +212,6 @@ export const createMatchLogEmbed = async ({
             new EmbedBuilder()
                 .setTitle(`Match ${matchNumber} ${capitalize(match.map)}`)
                 .setColor('#C69B6D')
-                .setImage(mapImage)
                 .setDescription(description)
                 .addFields(
                     {
