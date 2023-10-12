@@ -5,6 +5,7 @@ import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import { getGuild } from './guild';
 import { sendMessage } from './messages';
+import { GameType, gameTypeLeaderboardChannels, gameTypeRatingKeys } from '../types/queue';
 
 const getPretty = ({ value, slotLength }: { value: string; slotLength: number }) => {
     const valueLength = value.length;
@@ -17,9 +18,15 @@ const getPretty = ({ value, slotLength }: { value: string; slotLength: number })
     return pretty;
 };
 
-export const updateLeaderboard = async ({ client }: { client: Client }): Promise<void> => {
+export const updateLeaderboard = async ({
+    client,
+    gameType,
+}: {
+    client: Client;
+    gameType: GameType;
+}): Promise<void> => {
     return new Promise(async resolve => {
-        const leaderboardChannelId = await getChannelId(ChannelsType.leaderboard);
+        const leaderboardChannelId = await getChannelId(gameTypeLeaderboardChannels[gameType]);
 
         const guild = await getGuild(client);
         const channel = await guild?.channels.fetch(leaderboardChannelId);
@@ -34,12 +41,15 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 client,
             });
         }
+        const ratingKey = gameTypeRatingKeys[gameType].rating as 'rating' | 'duelsRating';
+        const historyKey = gameTypeRatingKeys[gameType].history as 'history' | 'duelsHistory';
+
         const topPlayers = await Player.find({
             $expr: {
-                $gte: [{ $size: '$history' }, 10],
+                $gte: [{ $size: '$' + historyKey }, gameType === GameType.squads ? 10 : 1],
             },
         })
-            .sort({ rating: -1 })
+            .sort({ [ratingKey]: -1 })
             .limit(20);
         let content = '```';
         content = content + `| Rank |     Name     | Rating | Wins | Games Played | Win Rate % |`;
@@ -49,7 +59,7 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
 
         for (const i in topPlayers) {
             const p = topPlayers[i];
-            const { history } = p;
+            const history = p[historyKey];
             const nameLength = Math.min(Array.from(p.name).length, 10);
             const whitespace = (nameSlotLength - nameLength) / 2;
             const wins = history.filter(match => match.result === 'win').length;
@@ -61,7 +71,10 @@ export const updateLeaderboard = async ({ client }: { client: Client }): Promise
                 ' ',
                 whitespace
             )}${nameLength % 2 === 0 ? '' : ' '}`;
-            const actualRating = p.history.length < 10 ? 'Hidden' : Math.floor(p.rating).toString();
+            const actualRating =
+                gameType === GameType.squads && p.history.length < 10
+                    ? 'Hidden'
+                    : Math.floor(p[ratingKey]).toString();
             const prettyRating = getPretty({
                 value: actualRating,
                 slotLength: 8,

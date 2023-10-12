@@ -27,12 +27,12 @@ export const handleMatchInteraction = async (interaction: ButtonInteraction, cli
                             match_number: match.match_number,
                         });
                         if (!newMatch) throw new Error('Match not found');
+                        const missingPlayers = newMatch.players.filter(p => !p.ready);
                         await message[1].edit(
-                            'Missing players: ' +
-                                newMatch.players
-                                    .filter(p => !p.ready)
-                                    .map(p => `<@${p.id}>`)
-                                    .join(' ')
+                            missingPlayers.length === 0
+                                ? "Everyone's ready, starting soon"
+                                : 'Missing players: ' +
+                                      missingPlayers.map(p => `<@${p.id}>`).join(' ')
                         );
                     }, 2000);
                 }

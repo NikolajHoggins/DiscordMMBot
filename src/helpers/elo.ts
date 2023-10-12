@@ -140,6 +140,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                 ratingChange: eloChange,
                 result: MatchResultType.win,
                 client,
+                gameType: match.gameType,
             });
             resolve(null);
         });
@@ -167,6 +168,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                 ratingChange: eloChange,
                 result: MatchResultType.loss,
                 client,
+                gameType: match.gameType,
             });
             resolve(null);
         });

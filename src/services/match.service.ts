@@ -34,6 +34,12 @@ import { getTeamBName } from '../helpers/team';
 import { addBan, addWinLoss } from './player.service';
 import { MatchResultType } from '../models/player.schema';
 import { BansType } from '../types/bans';
+import {
+    GameType,
+    gameTypePlayerCount,
+    gameTypeQueueChannels,
+    gameTypeResultsChannels,
+} from '../types/queue';
 const DEBUG_MODE = false;
 
 const SECOND_IN_MS = 1000;
@@ -297,22 +303,23 @@ export const checkScoreVerified = ({
     });
 };
 
-export const tryStart = (client: Client): Promise<void> => {
+export const tryStart = (client: Client, gameType: GameType): Promise<void> => {
     return new Promise(async resolve => {
         if (!process.env.SERVER_ID) throw new Error('No server id');
 
-        const regionQueueEnabled = await getRegionQueue();
+        const regionQueueEnabled = gameType === GameType.squads ? await getRegionQueue() : false;
 
-        const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
+        const queueChannelId = await getChannelId(gameTypeQueueChannels[gameType]);
 
-        const queue = await Queue.find().sort({ signup_time: 1 });
-        const count = DEBUG_MODE ? 2 : 10;
+        const queue = await Queue.find({ gameType }).sort({ signup_time: 1 });
+        const count = gameTypePlayerCount[gameType];
         if (!regionQueueEnabled && queue.length >= count) {
             return await startMatch({
                 client,
                 queue: queue,
                 count,
                 queueChannelId,
+                gameType,
             });
         }
 
@@ -328,6 +335,7 @@ export const tryStart = (client: Client): Promise<void> => {
                 count,
                 queueChannelId,
                 region: 'na',
+                gameType,
             });
         }
         if (euPlayers.length >= count) {
@@ -337,6 +345,7 @@ export const tryStart = (client: Client): Promise<void> => {
                 count,
                 queueChannelId,
                 region: 'eu',
+                gameType,
             });
             //start eu match
         }
@@ -348,6 +357,7 @@ export const tryStart = (client: Client): Promise<void> => {
                 count,
                 queueChannelId,
                 region: 'eu',
+                gameType,
             });
         }
         if (naPlayers.length + fillPlayers.length >= count) {
@@ -357,6 +367,7 @@ export const tryStart = (client: Client): Promise<void> => {
                 count,
                 queueChannelId,
                 region: 'na',
+                gameType,
             });
         }
 
@@ -378,12 +389,14 @@ const startMatch = ({
     queueChannelId,
     client,
     region,
+    gameType,
 }: {
     queue: IQueue[];
     count: number;
     queueChannelId: string;
     client: Client;
     region?: string;
+    gameType: GameType;
 }) => {
     return new Promise(async resolve => {
         const sortedPlayers = queue.sort((a, b) => {
@@ -449,6 +462,7 @@ const startMatch = ({
             players: teams,
             region: region,
             version: 0,
+            gameType,
         });
         await newMatch.save();
 
@@ -774,7 +788,13 @@ export const setScore = async ({
             //     roundTotal > drawScore * 2
             // )
             //     return;
-            if (teamARounds !== winScore && teamBRounds !== winScore && !isDraw) return;
+            if (
+                teamARounds !== winScore &&
+                teamBRounds !== winScore &&
+                !isDraw &&
+                match.gameType === GameType.squads
+            )
+                return;
 
             const scoreEmbed = await createScoreCardEmbed({ match });
 
@@ -836,6 +856,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
                             result: MatchResultType.draw,
                             matchNumber: match.match_number,
                             ratingChange: 0,
+                            gameType: match.gameType,
                         });
                         resolve(true);
                     });
@@ -860,7 +881,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
                 calculateEloChanges(match, client);
                 end({ matchNumber, client });
                 setTimeout(() => {
-                    updateLeaderboard({ client });
+                    updateLeaderboard({ client, gameType: match.gameType });
                 }, 5000);
             }, 5000);
         }
@@ -904,7 +925,9 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
 
             if (match.teamARounds && match.teamBRounds) {
                 //post match results in match-results channel
-                const matchResultsChannel = await getChannelId(ChannelsType['match-results']);
+                const matchResultsChannel = await getChannelId(
+                    gameTypeResultsChannels[match.gameType]
+                );
                 if (!matchResultsChannel) throw new Error('No match results channel found');
                 const embed = await createMatchResultEmbed({ matchNumber: match.match_number });
                 await sendMessage({

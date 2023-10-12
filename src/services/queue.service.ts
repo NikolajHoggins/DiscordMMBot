@@ -2,7 +2,7 @@ import { rejects } from 'assert';
 import { User } from 'discord.js';
 import Player, { IPlayer } from '../models/player.schema';
 import Queue, { IQueue } from '../models/queue.schema';
-import { RegionsType } from '../types/queue.js';
+import { GameType, RegionsType } from '../types/queue';
 
 const ONE_MINUTE = 60000;
 
@@ -11,11 +11,13 @@ export const ready = ({
     time = 30,
     region,
     queueRegion,
+    gameType,
 }: {
     player: IPlayer;
     time?: number;
     region: string;
     queueRegion: RegionsType;
+    gameType: GameType;
 }): Promise<boolean> => {
     return new Promise(async (resolve, reject) => {
         const queueSpot = await getSpot(player.discordId);
@@ -23,7 +25,7 @@ export const ready = ({
             //update
             await Queue.updateOne(
                 { discordId: player.discordId },
-                { expires: Date.now() + ONE_MINUTE * time, queueRegion }
+                { expires: Date.now() + ONE_MINUTE * time, queueRegion, gameType }
             );
             return resolve(true);
         }
@@ -31,9 +33,11 @@ export const ready = ({
         // Good chance new unranked players suck.
         // Now they count for 0.5 of their rating for the first match, and then for the next 4 matches their multiplier moves towards 1. So 0.5 - 0.625 - 0.75 - 0.825 - 1.0
         const effectiveRating =
-            player.history.length >= 4
-                ? player.rating
-                : player.rating * (0.5 + player.history.length / 8);
+            gameType === GameType.squads
+                ? player.history.length >= 4
+                    ? player.rating
+                    : player.rating * (0.5 + player.history.length / 8)
+                : player.duelsRating;
 
         const newSpot = new Queue({
             discordId: player.discordId,
@@ -43,6 +47,7 @@ export const ready = ({
             rating: effectiveRating,
             region: region,
             queueRegion: queueRegion,
+            gameType,
         });
 
         newSpot.save();

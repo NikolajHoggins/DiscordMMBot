@@ -7,6 +7,10 @@ export const ChannelsType = {
     region: 'region',
     'match-results': 'match-results',
     'bot-commands': 'bot-commands',
+    'duels-queue': 'duels-queue',
+    'duels-match-results': 'duels-match-results',
+    'duels-ready-up': 'duels-ready-up',
+    'duels-leaderboard': 'duels-leaderboard',
 } as const;
 
 export type ChannelsType = (typeof ChannelsType)[keyof typeof ChannelsType];
@@ -36,6 +40,7 @@ export type RanksType = (typeof RanksType)[keyof typeof RanksType];
 
 export const CategoriesType = {
     matches: 'matches',
+    duels: 'duels',
 } as const;
 
 export type CategoriesType = (typeof CategoriesType)[keyof typeof CategoriesType];

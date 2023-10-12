@@ -1,4 +1,5 @@
 import { Schema, model } from 'mongoose';
+import { GameType } from '../types/queue';
 
 // 1. Create an interface representing a document in MongoDB.
 export interface IMatchChannels {
@@ -46,6 +47,7 @@ export interface IMatch {
     region?: string;
     teamASide: string;
     version: number;
+    gameType: GameType;
 }
 
 // 2. Create a Schema corresponding to the document interface.
@@ -62,6 +64,7 @@ const matchSchema = new Schema<IMatch>({
     teamASide: { type: String },
     region: { type: String, required: false },
     version: { type: Number, required: true },
+    gameType: { type: String, required: true },
 });
 
 const Match = model<IMatch>('Match', matchSchema);

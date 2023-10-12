@@ -1,5 +1,6 @@
 import { ButtonInteraction, Client } from 'discord.js';
 import Match, { IMatch } from '../../models/match.schema';
+import { GameType } from '../../types/queue';
 
 export const handleVerifyInteraction = ({
     interaction,
@@ -44,7 +45,7 @@ const setPlayerVerified = async ({
         //Check if modified is larger than half the players.floor
         const verifiedPlayersCount =
             match.players.filter(p => p.verifiedScore && p.id !== interaction.user.id).length + 1;
-        const totalNeeded = match.players.length / 2 + 1;
+        const totalNeeded = match.gameType === GameType.squads ? match.players.length / 2 + 1 : 2;
 
         interaction.reply({
             content: `Verified (${verifiedPlayersCount} / ${totalNeeded})`,
@@ -61,12 +62,12 @@ const setPlayerVerified = async ({
                     setTimeout(async () => {
                         const newMatch = await Match.findOne({ match_number: match.match_number });
                         if (!newMatch) throw new Error('Match not found');
+                        const missingPlayers = newMatch.players.filter(p => !p.ready);
                         await message[1].edit(
-                            'Missing players: ' +
-                                newMatch.players
-                                    .filter(p => !p.verifiedScore)
-                                    .map(p => `<@${p.id}>`)
-                                    .join(' ')
+                            missingPlayers.length === 0
+                                ? 'Everyone has confirmed, match ending soon'
+                                : 'Missing players: ' +
+                                      missingPlayers.map(p => `<@${p.id}>`).join(' ')
                         );
                     }, 2000);
                 }

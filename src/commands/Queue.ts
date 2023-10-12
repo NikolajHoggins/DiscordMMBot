@@ -3,25 +3,27 @@ import { Command } from '../Command';
 import Queue from '../models/queue.schema';
 import { groupBy, map, upperCase } from 'lodash';
 import { getRegionQueue } from '../services/system.service';
+import { GameType, gameTypeName } from '../types/queue';
 
 export const QueueCommand: Command = {
     name: 'queue',
     description: 'Get list of players looking for a game',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
-        respondWithQueue(interaction, false);
+        respondWithQueue(interaction, false, GameType.squads);
     },
 };
 
 export const respondWithQueue = async (
     interaction: CommandInteraction | ButtonInteraction,
-    ephemeral: boolean
+    ephemeral: boolean,
+    gameType: GameType
 ) => {
     //Fetch user from database
-    const queuePlayers = await Queue.find();
+    const queuePlayers = await Queue.find({ gameType });
     const regionQueueEnabled = await getRegionQueue();
 
-    let content = `Currently looking for a game: ${queuePlayers.length}`;
+    let content = `Currently looking for a ${gameTypeName[gameType]} game: ${queuePlayers.length}`;
     const requeuePlayers = queuePlayers.filter(q => q.region === 'requeue');
 
     const requeueString = requeuePlayers.map(p => p.name).join(', ');

@@ -12,6 +12,7 @@ import { getTeamBName } from '../../helpers/team';
 import { MatchStatus } from '../../models/match.schema';
 import { getWinScore } from '../../services/system.service';
 import { isUserMod } from '../../helpers/permissions';
+import { GameType } from '../../types/queue';
 
 export const ForceSubmit: Command = {
     name: 'force_submit',
@@ -30,7 +31,7 @@ export const ForceSubmit: Command = {
             name: 'score',
             description: 'rounds won by the players team',
             min_value: 0,
-            max_value: 11,
+            max_value: 99,
             required: true,
         },
     ],
@@ -39,15 +40,6 @@ export const ForceSubmit: Command = {
         const mention = interaction.options.get('captain')?.user;
         const score = interaction.options.get('score')?.value as number;
         if (score === undefined) return interaction.reply({ content: 'provide score' });
-        const winScore = await getWinScore();
-
-        if (score > winScore) {
-            await interaction.reply({
-                ephemeral: true,
-                content: `Score can be a maximum of ${winScore}`,
-            });
-            return;
-        }
 
         if (!mention) return interaction.reply({ content: 'no mention' });
 
@@ -61,6 +53,7 @@ export const ForceSubmit: Command = {
             });
             return;
         }
+
         if (match.status !== MatchStatus.started) {
             await interaction.reply({
                 ephemeral: true,

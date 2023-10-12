@@ -34,6 +34,9 @@ export interface IPlayer {
     rating: number;
     history: MatchHistory;
     ratingHistory: RatingHistory;
+    duelsRating: number;
+    duelsRatingHistory: RatingHistory;
+    duelsHistory: MatchHistory;
     bans: BanHistory;
     banMultiplier: number;
     banTickDown: number; //Ban will tick down at this time + 24 hours (or whatever number is chosen)
@@ -49,6 +52,9 @@ const playerSchema = new Schema<IPlayer>({
     discordId: { type: String, required: true },
     name: { type: String, required: true },
     rating: { type: Number, required: true },
+    duelsRating: { type: Number, required: true },
+    duelsHistory: { type: [], required: true },
+    duelsRatingHistory: { type: [], required: true },
     history: { type: [], required: true },
     ratingHistory: { type: [], required: true },
     banMultiplier: { type: Number },

@@ -13,18 +13,20 @@ import { getConfig } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
 import { sendMessage } from '../helpers/messages';
 import { ceil } from 'lodash';
-import { RegionsType } from '../types/queue';
+import { GameType, RegionsType, gameTypeQueueChannels } from '../types/queue';
 
 export const handleReady = async ({
     interaction,
     time,
     client,
     region,
+    gameType,
 }: {
     interaction: CommandInteraction | ButtonInteraction;
     time: number;
     region: RegionsType;
     client: Client;
+    gameType: GameType;
 }) => {
     //fetch player from database
     const { user } = interaction;
@@ -55,7 +57,7 @@ export const handleReady = async ({
         return;
     }
 
-    await ready({ player, time: time, region: regionRanks, queueRegion: region });
+    await ready({ player, time: time, region: regionRanks, queueRegion: region, gameType });
 
     updateStatus(client);
 
@@ -67,8 +69,9 @@ export const handleReady = async ({
         content,
     });
 
+    const channelsType = gameTypeQueueChannels[gameType];
     const queueChannelId = await getConfig().then(
-        config => config.channels.find(c => c.name === ChannelsType['ranked-queue'])?.id
+        config => config.channels.find(c => c.name === channelsType)?.id
     );
     if (!queueChannelId) throw new Error('Queue channel not found');
     await sendMessage({

@@ -2,6 +2,7 @@ import { Client } from 'discord.js';
 import cron from 'node-cron';
 import { checkPlayersReady, checkScoreVerified, tryStart } from '../services/match.service';
 import Match from '../models/match.schema';
+import { GameType } from '../types/queue';
 
 const verifyRunningMatches = async (client: Client) => {
     const matches = await Match.find({
@@ -24,14 +25,16 @@ const verifyPlayersReady = async (client: Client) => {
 
 const initTryStartCron = async (client: Client) => {
     cron.schedule('* * * * *', async () => {
-        tryStart(client);
+        tryStart(client, GameType.squads);
+        tryStart(client, GameType.duels);
         verifyRunningMatches(client);
         verifyPlayersReady(client);
         //Cronjob hacker :sunglasses:
         setTimeout(() => {
             verifyRunningMatches(client);
             verifyPlayersReady(client);
-            tryStart(client);
+            tryStart(client, GameType.squads);
+            tryStart(client, GameType.duels);
         }, 30000);
     });
 };

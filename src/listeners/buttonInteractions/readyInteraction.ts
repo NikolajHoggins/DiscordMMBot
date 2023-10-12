@@ -1,12 +1,13 @@
 import { ButtonInteraction, Client } from 'discord.js';
 import { handleUnready } from '../../commands/Unready';
 import { handleReady } from '../../commands/Ready';
-import { RegionsType } from '../../types/queue';
+import { GameType, RegionsType } from '../../types/queue';
 import Match from '../../models/match.schema';
 
 export const handleReadyInteraction = async (interaction: ButtonInteraction, client: Client) => {
     const action = interaction.customId.split('.')[1];
     const region = interaction.customId.split('.')[2] as RegionsType;
+    const gameType = interaction.customId.split('.')[3] as GameType;
 
     const { user } = interaction;
 
@@ -52,7 +53,13 @@ export const handleReadyInteraction = async (interaction: ButtonInteraction, cli
         return await handleUnready(client, interaction);
     }
 
-    handleReady({ client, interaction, time, region: region.toLocaleLowerCase() as RegionsType });
+    handleReady({
+        client,
+        interaction,
+        time,
+        region: region.toLocaleLowerCase() as RegionsType,
+        gameType,
+    });
 };
 
 export const setPlayerRequeue = async ({
