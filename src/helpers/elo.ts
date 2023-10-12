@@ -4,6 +4,7 @@ import { addWinLoss, get, idsToObjects } from '../services/player.service';
 import { IPlayer, MatchResultType } from '../models/player.schema';
 import { getTeam } from './players';
 import { getWinScore } from '../services/system.service';
+import { GameType } from '../types/queue';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
@@ -60,11 +61,19 @@ const calculateTeamEloChange = ({
     return actualChange;
 };
 
-export const calculateEloChanges = async (match: IMatch, client: Client): Promise<boolean> => {
+export const calculateEloChanges = async (match: IMatch, client: Client): Promise<any> => {
     const { players } = match;
 
     const winScore = await getWinScore();
-    const winner = match.teamARounds === winScore ? 'a' : 'b';
+    if (!match.teamARounds || !match.teamBRounds) return;
+
+    const mostRounds = match.teamARounds > match.teamBRounds ? 'a' : 'b';
+    const winner =
+        match.gameType === GameType.squads
+            ? match.teamARounds === winScore
+                ? 'a'
+                : 'b'
+            : mostRounds;
     const loser = winner === 'a' ? 'b' : 'a';
     const winnerHadAbandon = getTeam(players, winner).some(p => p.abandon);
     const loserHadAbandon = getTeam(players, loser).some(p => p.abandon);
