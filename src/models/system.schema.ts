@@ -10,6 +10,7 @@ export interface ISystem {
     regionQueue: boolean;
     roles: RankType[];
     maps: MapType[];
+    duelsMaps: MapType[];
     teams: string[];
     emotes: EmotesType;
     winScore: number;
@@ -22,6 +23,7 @@ const systemSchema = new Schema<ISystem>({
     channels: { type: [], required: true },
     roles: { type: [], required: true },
     maps: { type: [], required: true },
+    duelsMaps: { type: [], required: true },
     teams: { type: [], required: true },
     emotes: { type: {}, required: true },
     regionQueue: { type: Boolean, required: true },

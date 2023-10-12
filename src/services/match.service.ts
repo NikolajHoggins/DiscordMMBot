@@ -531,7 +531,7 @@ const createMapVotingChannel = async ({
         const matchCategoryId = await getChannelId(CategoriesType.matches);
 
         const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
-        const gameMaps = await getGameMaps();
+        const gameMaps = await getGameMaps(match.gameType);
 
         gameMaps.forEach(map => {
             row.addComponents(
@@ -646,7 +646,7 @@ export const startGame = ({
         if (match.channels.teamA) await deleteChannel({ client, channelId: match.channels.teamA });
         if (match.channels.teamB) await deleteChannel({ client, channelId: match.channels.teamB });
 
-        const votes = await getVotes(match.players);
+        const votes = await getVotes(match.players, match.gameType);
 
         const matchCategoryId = await getChannelId(CategoriesType.matches);
         const matchChannel = await createChannel({

@@ -4,6 +4,7 @@ import { getTeam } from './players';
 import { getTeamBName } from './team';
 import { capitalize } from 'lodash';
 import { getGameMaps, getGameTeams, getRegionQueue, getWinScore } from '../services/system.service';
+import { getMatchWinner } from './match';
 
 export const createMatchEmbed = async ({
     matchNumber,
@@ -22,7 +23,7 @@ export const createMatchEmbed = async ({
 
         const teamBSide = teamNames.filter(t => t !== match.teamASide)[0];
 
-        const gameMaps = await getGameMaps();
+        const gameMaps = await getGameMaps(match.gameType);
 
         const mapImage = gameMaps.filter(m => m.name === match.map)[0].image;
 
@@ -82,9 +83,9 @@ export const createMatchResultEmbed = async ({
         const teamBSide = teamNames.filter(t => t !== match.teamASide)[0];
         const isDraw = match.teamARounds === match.teamBRounds;
 
-        const winner = match.teamARounds === winScore ? 'Team A' : 'Team B';
+        const winner = await getMatchWinner(match);
 
-        const gameMaps = await getGameMaps();
+        const gameMaps = await getGameMaps(match.gameType);
 
         const mapImage = gameMaps.filter(m => m.name === match.map)[0].image;
 
@@ -175,4 +176,74 @@ export const createMatchListEmbed = async ({
         });
     });
     return new EmbedBuilder().setTitle('Running matches').setColor('#C69B6D').addFields(fields);
+};
+
+export const createMatchLogEmbed = async ({
+    matchNumber,
+}: {
+    matchNumber: number;
+}): Promise<EmbedBuilder> => {
+    return new Promise(async resolve => {
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match) throw new Error('Match not found');
+
+        const teamA = getTeam(match.players, 'a');
+        const teamB = getTeam(match.players, 'b');
+
+        const teamNames = await getGameTeams();
+        const winScore = await getWinScore();
+
+        const teamBSide = teamNames.filter(t => t !== match.teamASide)[0];
+        const isDraw = match.teamARounds === match.teamBRounds;
+
+        const gameMaps = await getGameMaps(match.gameType);
+
+        const mapImage = gameMaps.filter(m => m.name === match.map)[0].image;
+
+        // const description = isDraw
+        //     ? 'Match ended in a draw'
+        //     : `${winner} won! Score was ${match.teamARounds} - ${match.teamBRounds}`;
+
+        const teamArating = getTeam(match.players, 'a').reduce((acc, p) => acc + p.rating, 0);
+        const teamBrating = getTeam(match.players, 'b').reduce((acc, p) => acc + p.rating, 0);
+
+        const teamAString = `${teamArating} Average: ${
+            teamArating / getTeam(match.players, 'a').length
+        }`;
+        const teamBString = `${teamBrating} Average: ${
+            teamBrating / getTeam(match.players, 'b').length
+        }`;
+        const description = `Teams for match ${matchNumber}`;
+        resolve(
+            new EmbedBuilder()
+                .setTitle(`Match ${matchNumber} ${capitalize(match.map)}`)
+                .setColor('#C69B6D')
+                .setImage(mapImage)
+                .setDescription(description)
+                .addFields(
+                    {
+                        name: `Team A - ${capitalize(match.teamASide)} - [${match.teamARounds}]`,
+                        value: `${teamAString}\n${
+                            teamA.length > 0
+                                ? teamA
+                                      .map(p => `<@${p.id}>${p.captain ? ' - Captain' : ''}\n`)
+                                      .join('')
+                                : 'player'
+                        }`,
+                        inline: true,
+                    },
+                    {
+                        name: `Team B - ${capitalize(teamBSide)} - [${match.teamBRounds}]`,
+                        value: `${teamBString}\n${
+                            teamB.length > 0
+                                ? teamB
+                                      .map(p => `<@${p.id}>${p.captain ? ' - Captain' : ''}\n`)
+                                      .join('')
+                                : 'player'
+                        }`,
+                        inline: true,
+                    }
+                )
+        );
+    });
 };

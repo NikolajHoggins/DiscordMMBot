@@ -1,13 +1,17 @@
-import { IMatchPlayer } from '../models/match.schema';
-import { getGameMaps, getGameTeams } from '../services/system.service';
+import { IMatch, IMatchPlayer } from '../models/match.schema';
+import { getGameMaps, getGameTeams, getWinScore } from '../services/system.service';
+import { GameType } from '../types/queue';
 
 export interface IVotes {
     map: string;
     teamASide: string;
 }
-export const getVotes = async (matchPlayers: IMatchPlayer[]): Promise<IVotes> => {
+export const getVotes = async (
+    matchPlayers: IMatchPlayer[],
+    gameType: GameType
+): Promise<IVotes> => {
     const gameTeams = await getGameTeams();
-    const gameMaps = await getGameMaps();
+    const gameMaps = await getGameMaps(gameType);
 
     const defaultMap = gameMaps.map(m => m.name)[0];
     const defaultTeam = gameTeams[0];
@@ -60,4 +64,20 @@ const getMostVoted = (votes: string[], fallback: string): string => {
     });
 
     return mostVoted || fallback;
+};
+
+export const getMatchWinner = (match: IMatch): Promise<'a' | 'b'> => {
+    return new Promise(async resolve => {
+        const winScore = await getWinScore();
+        if (!match.teamARounds || !match.teamBRounds) return;
+
+        const mostRounds = match.teamARounds > match.teamBRounds ? 'a' : 'b';
+        const winner =
+            match.gameType === GameType.squads
+                ? match.teamARounds === winScore
+                    ? 'a'
+                    : 'b'
+                : mostRounds;
+        return winner;
+    });
 };
