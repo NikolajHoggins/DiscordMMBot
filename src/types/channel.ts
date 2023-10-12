@@ -10,6 +10,7 @@ export const ChannelsType = {
     'duels-queue': 'duels-queue',
     'duels-match-results': 'duels-match-results',
     'duels-ready-up': 'duels-ready-up',
+    'duels-leaderboard': 'duels-leaderboard',
 } as const;
 
 export type ChannelsType = (typeof ChannelsType)[keyof typeof ChannelsType];

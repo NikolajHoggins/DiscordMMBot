@@ -6,6 +6,7 @@ import Queue from '../models/queue.schema';
 import { getChannelId } from './system.service';
 import { ChannelsType } from '../types/channel';
 import { sendMessage } from '../helpers/messages';
+import { GameType, gameTypeRatingKeys } from '../types/queue';
 
 export const findOrCreate = (user: User): Promise<IPlayer> => {
     return new Promise(async (resolve, reject) => {
@@ -21,6 +22,9 @@ export const findOrCreate = (user: User): Promise<IPlayer> => {
             rating: 1350,
             ratingHistory: [],
             history: [],
+            duelsRating: 1350,
+            duelsRatingHistory: [],
+            duelsHistory: [],
             avatarUrl: user.displayAvatarURL(),
         });
         await newPlayer.save();
@@ -51,27 +55,37 @@ export const addWinLoss = async ({
     ratingChange,
     result,
     client,
+    gameType,
 }: {
     playerId: string;
     matchNumber: number;
     ratingChange: number;
     result: MatchResultType;
     client: Client;
+    gameType: GameType;
 }): Promise<void> => {
     return new Promise(async resolve => {
         const player = await get(playerId);
 
         if (!player) return;
 
+        const ratingHistoryKey = gameTypeRatingKeys[gameType].ratingHistory as
+            | 'ratingHistory'
+            | 'duelsRatingHistory';
+
+        const ratingKey = gameTypeRatingKeys[gameType].rating as 'rating' | 'duelsRating';
+        if (!(ratingHistoryKey in player) || !(ratingKey in player)) return;
+
         await Player.updateOne(
             { discordId: playerId },
             {
                 history: [...player.history, { matchNumber, result, change: ratingChange }],
-                rating: player.rating + Math.round(ratingChange * 100) / 100,
-                ratingHistory: [
-                    ...(player.ratingHistory || []),
+                [gameTypeRatingKeys[gameType].rating]:
+                    player[ratingKey] + Math.round(ratingChange * 100) / 100,
+                [gameTypeRatingKeys[gameType].ratingHistory]: [
+                    ...(player[ratingHistoryKey] || []),
                     {
-                        rating: player.rating + Math.round(ratingChange * 100) / 100,
+                        rating: player[ratingKey] + Math.round(ratingChange * 100) / 100,
                         date: Date.now(),
                         reason: `Match ${matchNumber} ${result}`,
                     },
@@ -79,7 +93,9 @@ export const addWinLoss = async ({
             }
         );
 
-        await checkRank({ client, playerId: player.discordId });
+        if (gameType === GameType.squads) {
+            await checkRank({ client, playerId: player.discordId });
+        }
 
         resolve();
     });
