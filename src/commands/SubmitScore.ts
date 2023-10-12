@@ -10,6 +10,7 @@ import { capitalize } from 'lodash';
 import { getTeamBName } from '../helpers/team';
 import { MatchStatus } from '../models/match.schema';
 import { getWinScore } from '../services/system.service';
+import { GameType } from '../types/queue';
 
 export const SubmitScore: Command = {
     name: 'submit_score',
@@ -29,15 +30,6 @@ export const SubmitScore: Command = {
         //fetch player from database
         const { user, channelId } = interaction;
         const score = interaction.options.get('score')?.value as number;
-        const winScore = await getWinScore();
-
-        if (score > winScore) {
-            await interaction.reply({
-                ephemeral: true,
-                content: `Score can be a maximum of ${winScore}`,
-            });
-            return;
-        }
 
         const match = await matchService.findByChannelId(channelId);
         if (!match) {
@@ -47,6 +39,16 @@ export const SubmitScore: Command = {
             });
             return;
         }
+        const winScore = match.gameType === GameType.squads ? await getWinScore() : 20;
+
+        if (score > winScore) {
+            await interaction.reply({
+                ephemeral: true,
+                content: `Score can be a maximum of ${winScore}`,
+            });
+            return;
+        }
+
         if (match.status !== MatchStatus.started) {
             await interaction.reply({
                 ephemeral: true,
