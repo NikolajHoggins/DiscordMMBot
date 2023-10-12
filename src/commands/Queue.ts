@@ -2,15 +2,18 @@ import { CommandInteraction, Client, ApplicationCommandType, ButtonInteraction }
 import { Command } from '../Command';
 import Queue from '../models/queue.schema';
 import { groupBy, map, upperCase } from 'lodash';
-import { getRegionQueue } from '../services/system.service';
-import { GameType, gameTypeName } from '../types/queue';
+import { getChannelId, getRegionQueue } from '../services/system.service';
+import { GameType, gameTypeName, gameTypeQueueChannels } from '../types/queue';
 
 export const QueueCommand: Command = {
     name: 'queue',
     description: 'Get list of players looking for a game',
     type: ApplicationCommandType.ChatInput,
     run: async (client: Client, interaction: CommandInteraction) => {
-        respondWithQueue(interaction, false, GameType.squads);
+        const channelId = interaction.channelId;
+        const duelsChannelId = await getChannelId(gameTypeQueueChannels[GameType.duels]);
+        const gameType = channelId === duelsChannelId ? GameType.duels : GameType.squads;
+        respondWithQueue(interaction, false, gameType);
     },
 };
 
