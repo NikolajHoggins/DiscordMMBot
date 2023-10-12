@@ -62,12 +62,12 @@ const setPlayerVerified = async ({
                     setTimeout(async () => {
                         const newMatch = await Match.findOne({ match_number: match.match_number });
                         if (!newMatch) throw new Error('Match not found');
+                        const missingPlayers = newMatch.players.filter(p => !p.ready);
                         await message[1].edit(
-                            'Missing players: ' +
-                                newMatch.players
-                                    .filter(p => !p.verifiedScore)
-                                    .map(p => `<@${p.id}>`)
-                                    .join(' ')
+                            missingPlayers.length === 0
+                                ? 'Everyone has confirmed, match ending soon'
+                                : 'Missing players: ' +
+                                      missingPlayers.map(p => `<@${p.id}>`).join(' ')
                         );
                     }, 2000);
                 }

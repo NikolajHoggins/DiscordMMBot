@@ -41,11 +41,12 @@ export const updateLeaderboard = async ({
                 client,
             });
         }
-        const ratingKey = gameTypeRatingKeys[gameType].rating;
-        const historyKey = gameTypeRatingKeys[gameType].history;
+        const ratingKey = gameTypeRatingKeys[gameType].rating as 'rating' | 'duelsRating';
+        const historyKey = gameTypeRatingKeys[gameType].history as 'history' | 'duelsHistory';
+
         const topPlayers = await Player.find({
             $expr: {
-                $gte: [{ $size: '$' + historyKey }, 10],
+                $gte: [{ $size: '$' + historyKey }, gameType === GameType.squads ? 10 : 1],
             },
         })
             .sort({ [ratingKey]: -1 })
@@ -58,7 +59,7 @@ export const updateLeaderboard = async ({
 
         for (const i in topPlayers) {
             const p = topPlayers[i];
-            const { history } = p;
+            const history = p[historyKey];
             const nameLength = Math.min(Array.from(p.name).length, 10);
             const whitespace = (nameSlotLength - nameLength) / 2;
             const wins = history.filter(match => match.result === 'win').length;
@@ -70,7 +71,10 @@ export const updateLeaderboard = async ({
                 ' ',
                 whitespace
             )}${nameLength % 2 === 0 ? '' : ' '}`;
-            const actualRating = p.history.length < 10 ? 'Hidden' : Math.floor(p.rating).toString();
+            const actualRating =
+                gameType === GameType.squads && p.history.length < 10
+                    ? 'Hidden'
+                    : Math.floor(p[ratingKey]).toString();
             const prettyRating = getPretty({
                 value: actualRating,
                 slotLength: 8,

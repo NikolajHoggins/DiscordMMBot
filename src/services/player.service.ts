@@ -74,12 +74,17 @@ export const addWinLoss = async ({
             | 'duelsRatingHistory';
 
         const ratingKey = gameTypeRatingKeys[gameType].rating as 'rating' | 'duelsRating';
+        const historyKey = gameTypeRatingKeys[gameType].history as 'history' | 'duelsHistory';
+
         if (!(ratingHistoryKey in player) || !(ratingKey in player)) return;
 
         await Player.updateOne(
             { discordId: playerId },
             {
-                history: [...player.history, { matchNumber, result, change: ratingChange }],
+                [historyKey]: [
+                    ...player[historyKey],
+                    { matchNumber, result, change: ratingChange },
+                ],
                 [gameTypeRatingKeys[gameType].rating]:
                     player[ratingKey] + Math.round(ratingChange * 100) / 100,
                 [gameTypeRatingKeys[gameType].ratingHistory]: [
