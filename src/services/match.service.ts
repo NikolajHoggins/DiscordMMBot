@@ -9,7 +9,12 @@ import {
     TextChannel,
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
-import { createReadyMessage, sendMatchFoundMessage, sendMessage } from '../helpers/messages';
+import {
+    botLog,
+    createReadyMessage,
+    sendMatchFoundMessage,
+    sendMessage,
+} from '../helpers/messages';
 import Match, { IMatch, IMatchChannels, MatchStatus } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
 import { removePlayersFromQueue } from './queue.service';
@@ -284,6 +289,10 @@ export const checkScoreVerified = ({
 }) => {
     return new Promise(async resolve => {
         console.log('validating', matchNumber);
+        botLog({
+            messageContent: `Checking if scores are verified for match ${matchNumber}`,
+            client,
+        });
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('Match not found');
         const verifiedPlayersCount = match.players.filter(p => p.verifiedScore === true).length;
@@ -833,6 +842,8 @@ export const setScore = async ({
 
 export const finishMatch = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
     return new Promise(async resolve => {
+        botLog({ messageContent: `Finishing match ${matchNumber}`, client });
+
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('No match found');
 
@@ -844,6 +855,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
                 : match.teamARounds && match.teamBRounds && match.teamARounds === match.teamBRounds;
 
         if (isDraw) {
+            botLog({ messageContent: `Match is a draw ${matchNumber}`, client });
             //handle draw
             sendMessage({
                 channelId: match.channels.matchChannel,
@@ -872,10 +884,12 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
             return;
         }
         if (match.teamARounds !== undefined && match.teamBRounds !== undefined) {
+            botLog({ messageContent: `Match is not a draw ${matchNumber}`, client });
             const winner =
                 match.teamARounds > match.teamBRounds
                     ? capitalize(match.teamASide)
                     : capitalize(await getTeamBName(match.teamASide));
+            botLog({ messageContent: `Match winner ${matchNumber}: ${winner}`, client });
             sendMessage({
                 channelId: match.channels.matchChannel,
                 messageContent: winner + ' wins!',
@@ -895,6 +909,10 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
 
 export const end = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
     return new Promise(async resolve => {
+        botLog({
+            messageContent: `Ending match ${matchNumber}`,
+            client,
+        });
         const matches = await Match.find({ match_number: matchNumber });
         if (matches.length === 0) return;
         matches.forEach(async match => {
@@ -902,9 +920,16 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
             await match.save();
             const guild = await getGuild(client);
             try {
+                botLog({
+                    messageContent: `Deleting role ${match.roleId}`,
+                    client,
+                });
                 await guild?.roles.delete(match.roleId);
             } catch (error) {
-                console.log('error deleting role', match.roleId);
+                botLog({
+                    messageContent: `Error deleting role ${match.roleId}`,
+                    client,
+                });
             }
 
             await Promise.all(
@@ -912,6 +937,10 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
                     (key: string) =>
                         new Promise(async resolve => {
                             const channelId = match.channels[key as keyof IMatchChannels];
+                            botLog({
+                                messageContent: `Channel to delete ${channelId}`,
+                                client,
+                            });
                             if (!channelId) return resolve(true);
 
                             try {
@@ -920,20 +949,35 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
                                     channelId,
                                 });
                             } catch (error) {
-                                console.log('error deletint channel', channelId);
+                                botLog({
+                                    messageContent: `Error deleting channel ${channelId}`,
+                                    client,
+                                });
                             }
                             resolve(true);
                         })
                 )
             );
 
+            botLog({
+                messageContent: `Got scores. Team A: ${match.teamARounds} - Team B: ${match.teamBRounds}`,
+                client,
+            });
             if (match.teamARounds && match.teamBRounds) {
                 //post match results in match-results channel
                 const matchResultsChannel = await getChannelId(
                     gameTypeResultsChannels[match.gameType]
                 );
+                botLog({
+                    messageContent: `Match results channel ${matchResultsChannel}`,
+                    client,
+                });
                 if (!matchResultsChannel) throw new Error('No match results channel found');
                 const embed = await createMatchResultEmbed({ matchNumber: match.match_number });
+                botLog({
+                    messageContent: `God embed`,
+                    client,
+                });
                 await sendMessage({
                     channelId: matchResultsChannel,
                     messageContent: { embeds: [embed] },

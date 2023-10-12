@@ -78,6 +78,6 @@ export const getMatchWinner = (match: IMatch): Promise<'a' | 'b'> => {
                     ? 'a'
                     : 'b'
                 : mostRounds;
-        return winner;
+        resolve(winner);
     });
 };

@@ -1,6 +1,7 @@
 import { ButtonInteraction, Client } from 'discord.js';
 import Match, { IMatch } from '../../models/match.schema';
 import { GameType } from '../../types/queue';
+import { botLog } from '../../helpers/messages';
 
 export const handleVerifyInteraction = ({
     interaction,
@@ -26,6 +27,10 @@ const setPlayerVerified = async ({
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('Match not found');
 
+        botLog({
+            messageContent: `User ${interaction.user.username} verified score on match ${matchNumber}`,
+            client: interaction.client,
+        });
         const result = await Match.updateOne(
             {
                 match_number: match.match_number,
