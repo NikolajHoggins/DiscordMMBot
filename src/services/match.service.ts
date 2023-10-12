@@ -788,7 +788,13 @@ export const setScore = async ({
             //     roundTotal > drawScore * 2
             // )
             //     return;
-            if (teamARounds !== winScore && teamBRounds !== winScore && !isDraw) return;
+            if (
+                teamARounds !== winScore &&
+                teamBRounds !== winScore &&
+                !isDraw &&
+                match.gameType === GameType.squads
+            )
+                return;
 
             const scoreEmbed = await createScoreCardEmbed({ match });
 
