@@ -31,6 +31,7 @@ const setPlayerVerified = async ({
             messageContent: `User ${interaction.user.username} verified score on match ${matchNumber}`,
             client: interaction.client,
         });
+        if (match.status === 'ended') return;
         const result = await Match.updateOne(
             {
                 match_number: match.match_number,
