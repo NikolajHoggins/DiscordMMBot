@@ -931,31 +931,29 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
                 });
             }
 
-            await Promise.all(
-                Object.keys(match.channels).map(
-                    (key: string) =>
-                        new Promise(async resolve => {
-                            const channelId = match.channels[key as keyof IMatchChannels];
+            Object.keys(match.channels).map(
+                (key: string) =>
+                    new Promise(async resolve => {
+                        const channelId = match.channels[key as keyof IMatchChannels];
+                        botLog({
+                            messageContent: `Channel to delete ${channelId}`,
+                            client,
+                        });
+                        if (!channelId) return resolve(true);
+
+                        try {
+                            await deleteChannel({
+                                client,
+                                channelId,
+                            });
+                        } catch (error) {
                             botLog({
-                                messageContent: `Channel to delete ${channelId}`,
+                                messageContent: `Error deleting channel ${channelId}`,
                                 client,
                             });
-                            if (!channelId) return resolve(true);
-
-                            try {
-                                await deleteChannel({
-                                    client,
-                                    channelId,
-                                });
-                            } catch (error) {
-                                botLog({
-                                    messageContent: `Error deleting channel ${channelId}`,
-                                    client,
-                                });
-                            }
-                            resolve(true);
-                        })
-                )
+                        }
+                        resolve(true);
+                    })
             );
 
             botLog({
@@ -974,7 +972,7 @@ export const end = ({ matchNumber, client }: { matchNumber: number; client: Clie
                 if (!matchResultsChannel) throw new Error('No match results channel found');
                 const embed = await createMatchResultEmbed({ matchNumber: match.match_number });
                 botLog({
-                    messageContent: `God embed`,
+                    messageContent: `Got embed`,
                     client,
                 });
                 await sendMessage({

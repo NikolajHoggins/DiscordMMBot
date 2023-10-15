@@ -5,7 +5,7 @@ import { BansType, banTimes } from '../types/bans';
 import Queue from '../models/queue.schema';
 import { getChannelId } from './system.service';
 import { ChannelsType } from '../types/channel';
-import { sendMessage } from '../helpers/messages';
+import { botLog, sendMessage } from '../helpers/messages';
 import { GameType, gameTypeRatingKeys } from '../types/queue';
 
 export const findOrCreate = (user: User): Promise<IPlayer> => {
@@ -68,6 +68,7 @@ export const addWinLoss = async ({
         const player = await get(playerId);
 
         if (!player) return;
+        botLog({ messageContent: `Adding win / loss to ${player.name}`, client });
 
         const ratingHistoryKey = gameTypeRatingKeys[gameType].ratingHistory as
             | 'ratingHistory'
@@ -97,9 +98,10 @@ export const addWinLoss = async ({
                 ],
             }
         );
+        botLog({ messageContent: `${player.name} Updated succesfully`, client });
 
         if (gameType === GameType.squads) {
-            await checkRank({ client, playerId: player.discordId });
+            checkRank({ client, playerId: player.discordId });
         }
 
         resolve();
