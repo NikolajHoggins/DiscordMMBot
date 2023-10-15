@@ -299,7 +299,7 @@ export const checkScoreVerified = ({
         const totalNeeded = match.players.length / 2 + 1;
 
         if (verifiedPlayersCount >= totalNeeded) {
-            await sendMessage({
+            sendMessage({
                 channelId: match.channels.matchChannel,
                 messageContent: 'All players have verified score',
                 client: client,
@@ -862,22 +862,21 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
                 messageContent: 'Match is a draw, L',
                 client,
             });
-            await Promise.all(
-                match.players.map(p => {
-                    if (p.abandon) return resolve(true);
-                    return new Promise(async resolve => {
-                        await addWinLoss({
-                            client,
-                            playerId: p.id,
-                            result: MatchResultType.draw,
-                            matchNumber: match.match_number,
-                            ratingChange: 0,
-                            gameType: match.gameType,
-                        });
-                        resolve(true);
+            match.players.map(p => {
+                if (p.abandon) return resolve(true);
+                return new Promise(async resolve => {
+                    await addWinLoss({
+                        client,
+                        playerId: p.id,
+                        result: MatchResultType.draw,
+                        matchNumber: match.match_number,
+                        ratingChange: 0,
+                        gameType: match.gameType,
                     });
-                })
-            );
+                    resolve(true);
+                });
+            });
+
             setTimeout(() => {
                 end({ matchNumber, client });
             }, 5000);
