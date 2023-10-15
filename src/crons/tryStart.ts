@@ -29,13 +29,6 @@ const initTryStartCron = async (client: Client) => {
         tryStart(client, GameType.duels);
         verifyRunningMatches(client);
         verifyPlayersReady(client);
-        //Cronjob hacker :sunglasses:
-        setTimeout(() => {
-            verifyRunningMatches(client);
-            verifyPlayersReady(client);
-            tryStart(client, GameType.squads);
-            tryStart(client, GameType.duels);
-        }, 30000);
     });
 };
 export default initTryStartCron;
