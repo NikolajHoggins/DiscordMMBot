@@ -4,7 +4,7 @@ import { addWinLoss, get, idsToObjects } from '../services/player.service';
 import { IPlayer, MatchResultType } from '../models/player.schema';
 import { getTeam } from './players';
 import { getWinScore } from '../services/system.service';
-import { GameType } from '../types/queue';
+import { GameType, gameTypeRatingKeys } from '../types/queue';
 import { getMatchWinner } from './match';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
@@ -30,18 +30,28 @@ const calculateTeamEloChange = ({
     loser,
     winnerRounds,
     loserRounds,
+    gameType,
 }: {
     winner: IPlayer[];
     loser: IPlayer[];
     winnerRounds: number;
     loserRounds: number;
+    gameType: GameType;
 }) => {
     const K_FACTOR = 30;
     const MIN_ELO_GAIN = 10;
     const MAX_ELO_GAIN = 35;
 
-    const winnerRating = winner.reduce((sum, player) => sum + player.rating, 0) / winner.length;
-    const loserRating = loser.reduce((sum, player) => sum + player.rating, 0) / loser.length;
+    const ratingKey: 'rating' | 'duelsRating' = (
+        gameType === GameType.duels
+            ? gameTypeRatingKeys.duels.rating
+            : gameTypeRatingKeys.squads.rating
+    ) as 'rating' | 'duelsRating';
+
+    const winnerRating = winner.reduce((sum, player) => sum + player[ratingKey], 0) / winner.length;
+    console.log('winner rating', winnerRating);
+    const loserRating = loser.reduce((sum, player) => sum + player[ratingKey], 0) / loser.length;
+    console.log('loser rating', loserRating);
 
     const winnerExpectedScore = calculateExpectedScore(winnerRating, loserRating);
     const loserExpectedScore = calculateExpectedScore(loserRating, winnerRating);
@@ -58,7 +68,7 @@ const calculateTeamEloChange = ({
     const beforeCap = winnerChange * winnerRounds - loserChange * loserRounds;
     console.log('before cap', beforeCap);
     const actualChange = Math.max(Math.min(beforeCap, MAX_ELO_GAIN), MIN_ELO_GAIN);
-
+    console.log('actual change', actualChange);
     return actualChange;
 };
 
@@ -91,6 +101,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
         loser: losingTeam,
         winnerRounds,
         loserRounds,
+        gameType: match.gameType,
     });
 
     const winnerPromises = getTeam(players, winner).map(p => {
@@ -113,7 +124,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                 }
             }
 
-            console.log(eloChange);
+            console.log('Default elo', eloChange);
             // let eloChange = K_FACTOR * (actualScore - expectedScoreForWinningTeam);
 
             const isUnranked = player.history.length < 10;
