@@ -3,44 +3,32 @@ import { IMatch } from '../models/match.schema';
 import { addWinLoss, get, idsToObjects } from '../services/player.service';
 import { IPlayer, MatchResultType } from '../models/player.schema';
 import { getTeam } from './players';
-import { getWinScore } from '../services/system.service';
 import { GameType, gameTypeRatingKeys } from '../types/queue';
-import { getMatchWinner } from './match';
+import { repeat } from 'lodash';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
-    const exponent = ratingDifference / 400;
+    const exponent = ratingDifference / 100;
     const expectedScore = 1 / (1 + 10 ** exponent);
     return expectedScore;
 };
 
-const calculateEloChange = (
-    kFactor: number,
-    playerRating: number,
-    actualScore: number,
-    expectedScore: number
-): number => {
-    const ratingDifference = actualScore - expectedScore;
-    const eloChange = kFactor * ratingDifference;
-    return eloChange;
-};
-
-const calculateTeamEloChange = ({
-    winner,
-    loser,
-    winnerRounds,
-    loserRounds,
+const calculateIndividualEloChange = ({
+    player,
+    enemyTeam,
+    teamRounds,
+    enemyRounds,
     gameType,
 }: {
-    winner: IPlayer[];
-    loser: IPlayer[];
-    winnerRounds: number;
-    loserRounds: number;
+    player: IPlayer;
+    enemyTeam: IPlayer[];
+    teamRounds: number;
+    enemyRounds: number;
     gameType: GameType;
 }) => {
-    const K_FACTOR = 30;
-    const MIN_ELO_GAIN = 10;
-    const MAX_ELO_GAIN = 35;
+    const K_FACTOR = 40;
+    const MIN_GAIN_FOR_WIN = 5;
+    let actualScore = teamRounds / (teamRounds + enemyRounds);
 
     const ratingKey: 'rating' | 'duelsRating' = (
         gameType === GameType.duels
@@ -48,145 +36,107 @@ const calculateTeamEloChange = ({
             : gameTypeRatingKeys.squads.rating
     ) as 'rating' | 'duelsRating';
 
-    const winnerRating = winner.reduce((sum, player) => sum + player[ratingKey], 0) / winner.length;
-    console.log('winner rating', winnerRating);
-    const loserRating = loser.reduce((sum, player) => sum + player[ratingKey], 0) / loser.length;
-    console.log('loser rating', loserRating);
+    console.log(repeat('=', 20));
+    const playerRating = player[ratingKey];
+    console.log('Player rating', playerRating);
+    const enemyRating =
+        enemyTeam.reduce((sum, player) => sum + player[ratingKey], 0) / enemyTeam.length;
+    console.log('enemy rating', enemyRating);
 
-    const winnerExpectedScore = calculateExpectedScore(winnerRating, loserRating);
-    const loserExpectedScore = calculateExpectedScore(loserRating, winnerRating);
+    const playerExpectedScore = calculateExpectedScore(playerRating, enemyRating);
 
-    console.log('rating diff', winnerRating - loserRating);
-    console.log('winner rating', winnerRating, winnerRounds);
-    console.log('winner expected', winnerExpectedScore);
-    console.log('loser rating', loserRating, loserRounds);
-    console.log('loser expected', loserExpectedScore);
-    // console.log('actual score', actualScore);
-    const winnerChange = K_FACTOR * (1 - winnerExpectedScore);
-    const loserChange = K_FACTOR * (1 - loserExpectedScore);
+    const newRating = K_FACTOR * (actualScore - playerExpectedScore);
 
-    const beforeCap = winnerChange * winnerRounds - loserChange * loserRounds;
-    console.log('before cap', beforeCap);
-    const actualChange = Math.max(Math.min(beforeCap, MAX_ELO_GAIN), MIN_ELO_GAIN);
-    console.log('actual change', actualChange);
-    return actualChange;
+    return teamRounds > enemyRounds ? Math.max(newRating, MIN_GAIN_FOR_WIN) : newRating;
 };
 
 export const calculateEloChanges = async (match: IMatch, client: Client): Promise<any> => {
     const { players } = match;
 
-    const winner = await getMatchWinner(match);
-    const loser = winner === 'a' ? 'b' : 'a';
-    const winnerHadAbandon = getTeam(players, winner).some(p => p.abandon);
-    const loserHadAbandon = getTeam(players, loser).some(p => p.abandon);
-    const winningTeam = await Promise.all(
+    const teamA = await Promise.all(
         idsToObjects(
-            getTeam(players, winner)
+            getTeam(players, 'a')
                 .filter(p => !p.abandon)
                 .map(p => p.id)
         )
     );
-    const losingTeam = await Promise.all(
+    const teamB = await Promise.all(
         idsToObjects(
-            getTeam(players, loser)
+            getTeam(players, 'b')
                 .filter(p => !p.abandon)
                 .map(p => p.id)
         )
     );
-    const winnerRounds = (winner === 'a' ? match.teamARounds : match.teamBRounds) || 0;
-    const loserRounds = (loser === 'a' ? match.teamARounds : match.teamBRounds) || 0;
 
-    const personChange = calculateTeamEloChange({
-        winner: winningTeam,
-        loser: losingTeam,
-        winnerRounds,
-        loserRounds,
-        gameType: match.gameType,
-    });
+    await Promise.all(
+        match.players.map(p => {
+            return new Promise(async resolve => {
+                const player = await get(p.id);
 
-    const winnerPromises = getTeam(players, winner).map(p => {
-        return new Promise(async resolve => {
-            const player = await get(p.id);
+                const teamHasAbandon = getTeam(players, p.team).some(p => p.abandon);
 
-            if (!player) return;
+                if (!player) throw new Error(`Player ${p} doesn't exist`);
 
-            // const expectedScore = calculateExpectedScore(player.rating, losingTeamAverageRating);
-            // const actualScore = expectedScoreWinningTeam / winningTeam.length;
+                const teamRounds = (p.team === 'a' ? match.teamARounds : match.teamBRounds) || 0;
+                const enemyRounds = (p.team === 'a' ? match.teamBRounds : match.teamARounds) || 0;
+                let eloChange = calculateIndividualEloChange({
+                    player,
+                    enemyTeam: p.team === 'a' ? teamB : teamA,
+                    teamRounds,
+                    enemyRounds,
+                    gameType: match.gameType,
+                });
+                console.log('eloChange', eloChange);
 
-            let eloChange = personChange;
-
-            let winStreak = 0;
-            for (let i = player.history.length - 1; i >= 0; i--) {
-                if (player.history[i].result === 'win') {
-                    winStreak++;
-                } else {
-                    break;
+                if (teamHasAbandon) {
+                    eloChange += 10;
                 }
-            }
+                console.log('eloChange after abandon', eloChange);
 
-            console.log('Default elo', eloChange);
-            // let eloChange = K_FACTOR * (actualScore - expectedScoreForWinningTeam);
+                let winStreak = 0;
+                for (let i = player.history.length - 1; i >= 0; i--) {
+                    if (player.history[i].result === 'win') {
+                        winStreak++;
+                    } else {
+                        break;
+                    }
+                }
 
-            const isUnranked = player.history.length < 10;
-            console.log(player.name, 'isUnranked', isUnranked);
-            console.log(player.name, 'elo before unranked', eloChange);
-            if (isUnranked) {
-                eloChange *= 1 + (10 - player.history.length + 2) / 10;
-            }
-            console.log(player.name, 'elo after unranked', eloChange);
+                const isWin = teamRounds > enemyRounds;
 
-            console.log(player.name, 'elo before multiplier', eloChange);
-            if (winStreak > 1) {
-                const multiplier = 1 + (winStreak - 1) * 0.05;
-                eloChange *= multiplier;
-            }
-            console.log(player.name, 'elo after multiplier', eloChange);
+                if (isWin && winStreak > 1) {
+                    const multiplier = 1 + (winStreak - 1) * 0.05;
+                    eloChange *= multiplier;
+                }
 
-            if (winnerHadAbandon) {
-                eloChange += 10;
-            }
+                console.log('eloChange after win streak', eloChange);
+                const historyKey = (
+                    match.gameType === GameType.duels
+                        ? gameTypeRatingKeys.duels.history
+                        : gameTypeRatingKeys.squads.history
+                ) as 'history' | 'duelsHistory';
 
-            addWinLoss({
-                playerId: p.id,
-                matchNumber: match.match_number,
-                ratingChange: eloChange,
-                result: MatchResultType.win,
-                client,
-                gameType: match.gameType,
+                const isUnranked = player[historyKey].length < 10;
+                console.log(player.name, 'isUnranked', isUnranked);
+                console.log(player.name, 'elo before unranked', eloChange);
+                if (isUnranked) {
+                    eloChange *= 1 + (10 - player[historyKey].length + 2) / 10;
+                }
+                console.log(player.name, 'elo after unranked', eloChange);
+
+                addWinLoss({
+                    playerId: p.id,
+                    matchNumber: match.match_number,
+                    ratingChange: eloChange,
+                    result: isWin ? MatchResultType.win : MatchResultType.loss,
+                    client,
+                    gameType: match.gameType,
+                });
+
+                console.log(`player ${player.name} elo change - ${eloChange}`);
             });
-            resolve(null);
-        });
-    });
-
-    const loserMap = getTeam(players, loser).map(p => {
-        return new Promise(async resolve => {
-            const player = await get(p.id);
-            if (!player) throw new Error(`Player ${p} doesn't exist`);
-
-            let eloChange = personChange * -1 * 0.95;
-            const isUnranked = player.history.length < 10;
-
-            if (isUnranked) {
-                eloChange *= 1 + (10 - player.history.length + 2) / 10;
-            }
-
-            if (loserHadAbandon) {
-                eloChange += 10;
-            }
-            console.log(player.name, 'elo after unranked', eloChange);
-            addWinLoss({
-                playerId: p.id,
-                matchNumber: match.match_number,
-                ratingChange: eloChange,
-                result: MatchResultType.loss,
-                client,
-                gameType: match.gameType,
-            });
-            resolve(null);
-        });
-    });
-
-    await Promise.all([...winnerPromises, ...loserMap]);
+        })
+    );
 
     return true;
 };
