@@ -46,7 +46,7 @@ export const calculateIndividualEloChange = ({
     const playerExpectedScore = calculateExpectedScore(teamRating, enemyRating);
     const scoreMargin = Math.abs(teamRounds - enemyRounds);
 
-    const scaledMargin = Math.log(scoreMargin + 1) / Math.log(3); // We use "+1" to handle the case when scoreMargin is 0
+    const scaledMargin = Math.log(scoreMargin + 1) / Math.log(2); // We use "+1" to handle the case when scoreMargin is 0
 
     const baseRating = K_FACTOR * (actualScore - playerExpectedScore);
     const newRating = baseRating * scaledMargin;
