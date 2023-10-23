@@ -8,12 +8,12 @@ import { repeat } from 'lodash';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
-    const exponent = ratingDifference / 100;
+    const exponent = ratingDifference / 400;
     const expectedScore = 1 / (1 + 10 ** exponent);
     return expectedScore;
 };
 
-const calculateIndividualEloChange = ({
+export const calculateIndividualEloChange = ({
     ownTeam,
     enemyTeam,
     teamRounds,
@@ -26,7 +26,7 @@ const calculateIndividualEloChange = ({
     enemyRounds: number;
     gameType: GameType;
 }) => {
-    const K_FACTOR = 40;
+    const K_FACTOR = 24;
     const MIN_GAIN_FOR_WIN = 5;
     let actualScore = teamRounds / (teamRounds + enemyRounds);
 
@@ -44,8 +44,12 @@ const calculateIndividualEloChange = ({
     console.log('enemy rating', enemyRating);
 
     const playerExpectedScore = calculateExpectedScore(teamRating, enemyRating);
+    const scoreMargin = Math.abs(teamRounds - enemyRounds);
 
-    const newRating = K_FACTOR * (actualScore - playerExpectedScore);
+    const scaledMargin = Math.log(scoreMargin + 1) / Math.log(3); // We use "+1" to handle the case when scoreMargin is 0
+
+    const baseRating = K_FACTOR * (actualScore - playerExpectedScore);
+    const newRating = baseRating * scaledMargin;
 
     return teamRounds > enemyRounds ? Math.max(newRating, MIN_GAIN_FOR_WIN) : newRating;
 };

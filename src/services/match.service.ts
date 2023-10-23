@@ -626,7 +626,7 @@ const createSideVotingChannel = async ({
 
         await sendMessage({
             channelId: teamAChannel.id,
-            messageContent: `As this is 1v1 game side doesn't matter, you will chose server region instead`,
+            messageContent: `Since this is 1v1, you will be choosing server host instead of starting side.`,
             client,
         });
         //Set timeout, and check which has more votes
