@@ -49,6 +49,7 @@ const DEBUG_MODE = false;
 
 const SECOND_IN_MS = 1000;
 const MINUTE_IN_MS = 60 * SECOND_IN_MS;
+const VOTE_SECONDS = 45;
 const getNewMatchNumber = async (): Promise<number> => {
     return new Promise(async resolve => {
         const latest = await Match.find({}, { _id: 0, match_number: 1 })
@@ -610,15 +611,24 @@ const createSideVotingChannel = async ({
             allowedIds: getTeam(match.players, 'a').map(p => p.id),
         });
 
-        const sideMessage = {
-            content: 'Pick a side to start on. Voting ends in 20 seconds',
-            components: [row],
-        };
         const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'a')
             .map(p => `<@${p.id}>`)
             .join(', ')}`;
         await sendMessage({ channelId: teamAChannel.id, messageContent: teammatesMessage, client });
-        await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
+        if (match.gameType === GameType.squads) {
+            const sideMessage = {
+                content: `Pick a side to start on. Voting ends in ${VOTE_SECONDS} seconds`,
+                components: [row],
+            };
+            await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
+            return resolve(teamAChannel.id);
+        }
+
+        await sendMessage({
+            channelId: teamAChannel.id,
+            messageContent: `As this is 1v1 game side doesn't matter, you will chose server region instead`,
+            client,
+        });
         //Set timeout, and check which has more votes
 
         resolve(teamAChannel.id);
@@ -652,7 +662,7 @@ const createMapVotingChannel = async ({
             allowedIds: getTeam(match.players, 'b').map(p => p.id),
         });
         const mapMessage = {
-            content: 'Pick a map to play. Voting ends in 20 seconds',
+            content: `Pick a map to play. Voting ends in ${VOTE_SECONDS} seconds`,
             components: [row],
         };
         const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'b')
@@ -708,7 +718,7 @@ const createVotingChannels = ({
             setTimeout(() => {
                 startGame({ client, matchNumber: match.match_number });
             }, 500);
-        }, 20000);
+        }, VOTE_SECONDS * SECOND_IN_MS);
 
         resolve();
     });
