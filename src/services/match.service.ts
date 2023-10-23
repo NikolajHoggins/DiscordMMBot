@@ -320,6 +320,12 @@ export const tryStart = (client: Client, gameType: GameType): Promise<void> => {
 
         const queueChannelId = await getChannelId(gameTypeQueueChannels[gameType]);
 
+        console.log('trying to start', gameType);
+        if (gameType === GameType.duels) {
+            tryStartDuels(client);
+            return;
+        }
+
         const queue = await Queue.find({ gameType }).sort({ signup_time: 1 });
         const count = gameTypePlayerCount[gameType];
         if (!regionQueueEnabled && queue.length >= count) {
@@ -389,6 +395,95 @@ export const tryStart = (client: Client, gameType: GameType): Promise<void> => {
         }
 
         resolve();
+    });
+};
+
+const tryStartDuels = (client: Client): Promise<void> => {
+    return new Promise(async resolve => {
+        if (!process.env.SERVER_ID) throw new Error('No server id');
+        const eloDiffCutOff = 50;
+        const queueChannelId = await getChannelId(ChannelsType['duels-queue']);
+        const minutesForPriority = 8;
+        const count = gameTypePlayerCount[GameType.duels];
+
+        const queue = await Queue.find({ gameType: GameType.duels }).sort({ signup_time: 1 });
+        console.log('queue', queue);
+        //Players who has been in queue for more than 10 minutes
+        const priorityQueue = queue.filter(
+            q => Date.now() - q.signup_time > minutesForPriority * MINUTE_IN_MS
+        );
+
+        const inMatch: IQueue[] = [];
+
+        priorityQueue.forEach(async q => {
+            //Find closest rated player in queue
+            let closestPlayer: IQueue | null = null;
+            console.log('running priority for player', q.name);
+            queue.forEach(q2 => {
+                if (q2.id === q.id) return;
+                if (closestPlayer === null) {
+                    closestPlayer = q2;
+                    return;
+                }
+                const diff = Math.abs(q2.rating - q.rating);
+                const closestDiff = Math.abs(closestPlayer.rating - q.rating);
+                if (diff < closestDiff) closestPlayer = q2;
+            });
+            if (!closestPlayer) return;
+            inMatch.push(q);
+            inMatch.push(closestPlayer);
+            await startMatch({
+                client,
+                queue: [q, closestPlayer],
+                count,
+                queueChannelId,
+                gameType: GameType.duels,
+            });
+        });
+
+        queue.forEach(async q => {
+            if (inMatch.includes(q.id)) return;
+
+            const closestPlayer = queue.find(q2 => {
+                if (q2.id === q.id) return false;
+                if (inMatch.includes(q2.id)) return false;
+                const diff = Math.abs(q2.rating - q.rating);
+                return diff < eloDiffCutOff;
+            });
+            if (!closestPlayer) return;
+            inMatch.push(q.id);
+            inMatch.push(closestPlayer.id);
+            await startMatch({
+                client,
+                queue: [q, closestPlayer],
+                count,
+                queueChannelId,
+                gameType: GameType.duels,
+            });
+        });
+
+        const remainingPlayers = queue.filter(q => !inMatch.includes(q.id));
+        if (remainingPlayers.length >= count) {
+            await sendMessage({
+                channelId: queueChannelId,
+                messageContent: `Players in queues rating are too far apart`,
+                client,
+            });
+            remainingPlayers.forEach(async q => {
+                //Send message saying how long till priority queue
+                const timeLeft = minutesForPriority * MINUTE_IN_MS - (Date.now() - q.signup_time);
+                const timeLeftInMinutes = Math.floor(timeLeft / MINUTE_IN_MS);
+                const timeLeftInSeconds = Math.floor(
+                    (timeLeft - timeLeftInMinutes * MINUTE_IN_MS) / SECOND_IN_MS
+                );
+                const timeLeftString = `${timeLeftInMinutes} minutes and ${timeLeftInSeconds} seconds`;
+                await sendMessage({
+                    channelId: queueChannelId,
+                    messageContent: `${q.name} you have ${timeLeftString} left until you get priority queue. This will ignore rating difference and ensure you a match`,
+                    client,
+                });
+            });
+        }
     });
 };
 
