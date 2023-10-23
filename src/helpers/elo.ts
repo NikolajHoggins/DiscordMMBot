@@ -14,13 +14,13 @@ const calculateExpectedScore = (playerRating: number, opponentRating: number): n
 };
 
 const calculateIndividualEloChange = ({
-    player,
+    ownTeam,
     enemyTeam,
     teamRounds,
     enemyRounds,
     gameType,
 }: {
-    player: IPlayer;
+    ownTeam: IPlayer[];
     enemyTeam: IPlayer[];
     teamRounds: number;
     enemyRounds: number;
@@ -37,13 +37,13 @@ const calculateIndividualEloChange = ({
     ) as 'rating' | 'duelsRating';
 
     console.log(repeat('=', 20));
-    const playerRating = player[ratingKey];
-    console.log('Player rating', playerRating);
+    const teamRating = ownTeam.reduce((sum, player) => sum + player[ratingKey], 0) / ownTeam.length;
+    console.log('teamRating', teamRating);
     const enemyRating =
         enemyTeam.reduce((sum, player) => sum + player[ratingKey], 0) / enemyTeam.length;
     console.log('enemy rating', enemyRating);
 
-    const playerExpectedScore = calculateExpectedScore(playerRating, enemyRating);
+    const playerExpectedScore = calculateExpectedScore(teamRating, enemyRating);
 
     const newRating = K_FACTOR * (actualScore - playerExpectedScore);
 
@@ -80,7 +80,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                 const teamRounds = (p.team === 'a' ? match.teamARounds : match.teamBRounds) || 0;
                 const enemyRounds = (p.team === 'a' ? match.teamBRounds : match.teamARounds) || 0;
                 let eloChange = calculateIndividualEloChange({
-                    player,
+                    ownTeam: p.team === 'a' ? teamA : teamB,
                     enemyTeam: p.team === 'a' ? teamB : teamA,
                     teamRounds,
                     enemyRounds,
