@@ -626,7 +626,7 @@ const createSideVotingChannel = async ({
 
         await sendMessage({
             channelId: teamAChannel.id,
-            messageContent: `Since this is 1v1, you will be choosing server host instead of starting side.`,
+            messageContent: `Since this is 1v1, you will be choosing server host instead of starting side. Your enemy is voting for map. Vote ends in ${VOTE_SECONDS} seconds`,
             client,
         });
         //Set timeout, and check which has more votes

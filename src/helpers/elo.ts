@@ -4,7 +4,6 @@ import { addWinLoss, get, idsToObjects } from '../services/player.service';
 import { IPlayer, MatchResultType } from '../models/player.schema';
 import { getTeam } from './players';
 import { GameType, gameTypeRatingKeys } from '../types/queue';
-import { repeat } from 'lodash';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
@@ -27,7 +26,7 @@ export const calculateIndividualEloChange = ({
     gameType: GameType;
 }) => {
     const K_FACTOR = 24;
-    const MIN_GAIN_FOR_WIN = 5;
+    const MIN_GAIN_FOR_WIN = 1;
     let actualScore = teamRounds / (teamRounds + enemyRounds);
 
     const ratingKey: 'rating' | 'duelsRating' = (
@@ -36,12 +35,10 @@ export const calculateIndividualEloChange = ({
             : gameTypeRatingKeys.squads.rating
     ) as 'rating' | 'duelsRating';
 
-    console.log(repeat('=', 20));
     const teamRating = ownTeam.reduce((sum, player) => sum + player[ratingKey], 0) / ownTeam.length;
-    console.log('teamRating', teamRating);
+
     const enemyRating =
         enemyTeam.reduce((sum, player) => sum + player[ratingKey], 0) / enemyTeam.length;
-    console.log('enemy rating', enemyRating);
 
     const playerExpectedScore = calculateExpectedScore(teamRating, enemyRating);
     const scoreMargin = Math.abs(teamRounds - enemyRounds);

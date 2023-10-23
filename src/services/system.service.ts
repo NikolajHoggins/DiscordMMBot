@@ -107,3 +107,11 @@ export const getRegionQueue = (): Promise<boolean> => {
         resolve(config.regionQueue);
     });
 };
+
+export const getDuelsEnabled = (): Promise<boolean> => {
+    return new Promise(async (resolve, reject) => {
+        const config = await getConfig();
+
+        resolve(config.duelsEnabled);
+    });
+};

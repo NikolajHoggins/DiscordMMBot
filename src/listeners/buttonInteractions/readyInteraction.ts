@@ -3,11 +3,23 @@ import { handleUnready } from '../../commands/Unready';
 import { handleReady } from '../../commands/Ready';
 import { GameType, RegionsType } from '../../types/queue';
 import Match from '../../models/match.schema';
+import { getDuelsEnabled } from '../../services/system.service';
 
 export const handleReadyInteraction = async (interaction: ButtonInteraction, client: Client) => {
     const action = interaction.customId.split('.')[1];
     const region = interaction.customId.split('.')[2] as RegionsType;
     const gameType = interaction.customId.split('.')[3] as GameType;
+
+    if (gameType === GameType.duels) {
+        const duelsEnabled = await getDuelsEnabled();
+        if (!duelsEnabled) {
+            interaction.reply({
+                content: `Duels is currently disabled`,
+                ephemeral: true,
+            });
+            return;
+        }
+    }
 
     const { user } = interaction;
 

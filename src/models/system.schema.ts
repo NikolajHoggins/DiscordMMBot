@@ -8,6 +8,7 @@ export interface ISystem {
     last_ping: number;
     channels: ChannelType[];
     regionQueue: boolean;
+    duelsEnabled: boolean;
     roles: RankType[];
     maps: MapType[];
     duelsMaps: MapType[];
@@ -23,6 +24,7 @@ const systemSchema = new Schema<ISystem>({
     channels: { type: [], required: true },
     roles: { type: [], required: true },
     maps: { type: [], required: true },
+    duelsEnabled: { type: Boolean, required: true },
     duelsMaps: { type: [], required: true },
     teams: { type: [], required: true },
     emotes: { type: {}, required: true },
