@@ -27,6 +27,8 @@ import { Untimeout } from './commands/mod/Untimeout';
 import { GetMatchInfo } from './commands/mod/GetMatchInfo';
 import { FetchAvatars } from './commands/admin/FetchAvatars';
 import { RankCurve } from './commands/admin/RankCurve';
+import { SetConfig } from './commands/admin/SetConfig';
+import { EnableDuels } from './commands/mod/EnableDuels';
 
 export const Commands: Command[] = [
     Stats,
@@ -56,7 +58,9 @@ export const Commands: Command[] = [
     GiveElo,
     ForceReady,
     GetMatchInfo,
+    EnableDuels,
     //Admin commands
     RankCurve,
     FetchAvatars,
+    SetConfig,
 ];
