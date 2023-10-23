@@ -401,7 +401,7 @@ export const tryStart = (client: Client, gameType: GameType): Promise<void> => {
 const tryStartDuels = (client: Client): Promise<void> => {
     return new Promise(async resolve => {
         if (!process.env.SERVER_ID) throw new Error('No server id');
-        const eloDiffCutOff = 50;
+        const eloDiffCutOff = 300;
         const queueChannelId = await getChannelId(ChannelsType['duels-queue']);
         const minutesForPriority = 8;
         const count = gameTypePlayerCount[GameType.duels];
