@@ -403,7 +403,7 @@ const tryStartDuels = (client: Client): Promise<void> => {
         if (!process.env.SERVER_ID) throw new Error('No server id');
         const eloDiffCutOff = 300;
         const queueChannelId = await getChannelId(ChannelsType['duels-queue']);
-        const minutesForPriority = 8;
+        const minutesForPriority = 5;
         const count = gameTypePlayerCount[GameType.duels];
 
         const queue = await Queue.find({ gameType: GameType.duels }).sort({ signup_time: 1 });
