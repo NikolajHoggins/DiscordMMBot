@@ -689,8 +689,14 @@ const createVotingChannels = ({
     return new Promise(async resolve => {
         if (!match) return;
 
-        const teamAChannel = await createSideVotingChannel({ client, match });
-        const teamBChannel = await createMapVotingChannel({ client, match });
+        // Randomly assign side and map voting to team A and B
+        const random = Math.random() < 0.5;
+        const teamAChannel = random
+            ? await createSideVotingChannel({ client, match })
+            : await createMapVotingChannel({ client, match });
+        const teamBChannel = random
+            ? await createMapVotingChannel({ client, match })
+            : await createSideVotingChannel({ client, match });
 
         const dbMatch = await Match.findOne({ match_number: match.match_number });
         if (!dbMatch) throw new Error('No match found');
