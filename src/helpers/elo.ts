@@ -4,6 +4,7 @@ import { addWinLoss, get, idsToObjects } from '../services/player.service';
 import { IPlayer, MatchResultType } from '../models/player.schema';
 import { getTeam } from './players';
 import { GameType, gameTypeRatingKeys } from '../types/queue';
+import { getWinScore } from '../services/system.service';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
@@ -18,15 +19,18 @@ export const calculateIndividualEloChange = ({
     teamRounds,
     enemyRounds,
     gameType,
+    maxScoreMargin,
 }: {
     ownTeam: IPlayer[];
     enemyTeam: IPlayer[];
     teamRounds: number;
     enemyRounds: number;
     gameType: GameType;
+    maxScoreMargin: number;
 }) => {
-    const K_FACTOR = 24;
-    const MIN_GAIN_FOR_WIN = 1;
+    const BASE_K_FACTOR = 10; // For close matches
+    const MAX_K_FACTOR = 75; // For dominant victories, ensures big gains for large score margins
+    const MIN_GAIN_FOR_WIN = 5; // Adjusted to your lowest expected change
     let actualScore = teamRounds / (teamRounds + enemyRounds);
 
     const ratingKey: 'rating' | 'duelsRating' = (
@@ -41,18 +45,28 @@ export const calculateIndividualEloChange = ({
         enemyTeam.reduce((sum, player) => sum + player[ratingKey], 0) / enemyTeam.length;
 
     const playerExpectedScore = calculateExpectedScore(teamRating, enemyRating);
+
     const scoreMargin = Math.abs(teamRounds - enemyRounds);
 
-    const scaledMargin = Math.log(scoreMargin + 1) / Math.log(2); // We use "+1" to handle the case when scoreMargin is 0
+    const scoreMarginFactor = scoreMargin / maxScoreMargin; // This will be a value between 0 and 1.
 
-    const baseRating = K_FACTOR * (actualScore - playerExpectedScore);
-    const newRating = baseRating * scaledMargin;
+    const dynamicKFactor = BASE_K_FACTOR + scoreMarginFactor * (MAX_K_FACTOR - BASE_K_FACTOR);
 
-    return teamRounds > enemyRounds ? Math.max(newRating, MIN_GAIN_FOR_WIN) : newRating;
+    // Calculate the potential change in rating, influenced by the dynamic K-factor.
+    let newRatingChange = dynamicKFactor * (actualScore - playerExpectedScore);
+
+    // Since actualScore is a value between 0 and 1, and playerExpectedScore is around 0.5 for equally strong teams,
+    // the product might be too small. We ensure that for victories, there's a meaningful minimum change.
+    if (teamRounds > enemyRounds) {
+        newRatingChange = Math.max(newRatingChange, dynamicKFactor * 0.5); // Minimum change for a win
+    }
+
+    return newRatingChange;
 };
 
 export const calculateEloChanges = async (match: IMatch, client: Client): Promise<any> => {
     const { players } = match;
+    const maxWinScore = match.gameType === GameType.squads ? await getWinScore() : 20;
 
     const teamA = await Promise.all(
         idsToObjects(
@@ -86,6 +100,7 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                     teamRounds,
                     enemyRounds,
                     gameType: match.gameType,
+                    maxScoreMargin: maxWinScore,
                 });
                 console.log('eloChange', eloChange);
 
