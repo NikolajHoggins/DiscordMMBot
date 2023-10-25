@@ -238,27 +238,7 @@ export const checkPlayersReady = ({
             );
 
             setTimeout(async () => {
-                end({ matchNumber: match.match_number, client });
-
-                // Put players that has reQueue back in queue
-                await Promise.all(
-                    match.players.map(async player => {
-                        return new Promise(async resolve => {
-                            if (player.reQueue && player.ready) {
-                                await Queue.create({
-                                    discordId: player.id,
-                                    expires: Date.now() + MINUTE_IN_MS * 5,
-                                    signup_time: player.queueTime,
-                                    name: player.name,
-                                    rating: player.rating,
-                                    region: 'requeue',
-                                    queueRegion: 'fill',
-                                });
-                            }
-                            resolve(true);
-                        });
-                    })
-                );
+                end({ matchNumber: match.match_number, client, requeuePlayers: true });
             }, 5000);
             return resolve(true);
         }
@@ -1017,13 +997,42 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
     });
 };
 
-export const end = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
+export const end = ({
+    matchNumber,
+    client,
+    requeuePlayers,
+}: {
+    matchNumber: number;
+    client: Client;
+    requeuePlayers?: boolean;
+}) => {
     return new Promise(async resolve => {
         botLog({
             messageContent: `Ending match ${matchNumber}`,
             client,
         });
         const matches = await Match.find({ match_number: matchNumber });
+        if (requeuePlayers) {
+            await Promise.all(
+                matches[0].players.map(async player => {
+                    return new Promise(async resolve => {
+                        if (player.reQueue && player.ready) {
+                            await Queue.create({
+                                discordId: player.id,
+                                expires: Date.now() + MINUTE_IN_MS * 5,
+                                signup_time: player.queueTime,
+                                name: player.name,
+                                rating: player.rating,
+                                region: 'requeue',
+                                queueRegion: 'fill',
+                                gameType: matches[0].gameType,
+                            });
+                        }
+                        resolve(true);
+                    });
+                })
+            );
+        }
         if (matches.length === 0) return;
         matches.forEach(async match => {
             match.status = 'ended';

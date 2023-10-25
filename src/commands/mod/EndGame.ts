@@ -54,6 +54,6 @@ export const EndGame: Command = {
             content,
         });
         if (!match) return;
-        await matchService.end({ matchNumber: match.match_number, client });
+        await matchService.end({ matchNumber: match.match_number, client, requeuePlayers: true });
     },
 };

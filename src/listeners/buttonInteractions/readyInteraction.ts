@@ -90,12 +90,6 @@ export const handleReadyInteraction = async (interaction: ButtonInteraction, cli
     });
 
     if (match) {
-        if (match.status === 'started') {
-            interaction.reply({
-                content: `You cannot queue while in a running match`,
-                ephemeral: true,
-            });
-        }
         if (action === 'unready') {
             await setPlayerRequeue({
                 interaction,
@@ -155,7 +149,7 @@ export const setPlayerRequeue = async ({
             { $set: { 'players.$.reQueue': reQueue }, $inc: { version: 1 } }
         );
         if (result.modifiedCount === 0) {
-            console.log('Verify score conflict, retrying', result);
+            console.log('requeue conflict, retrying', result);
             setTimeout(() => {
                 setPlayerRequeue({
                     interaction,
