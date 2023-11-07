@@ -54,7 +54,7 @@ export const Stats: Command = {
             { $group: { _id: null, count: { $sum: 1 } } },
         ]);
 
-        const { history } = player;
+        const { history, duelsHistory } = player;
         const isUnranked = history.length < 10;
         const ratingPosition = isUnranked ? '?' : playerList[0]?.count + 1 || 1;
 
@@ -108,6 +108,25 @@ export const Stats: Command = {
                       ]
                     : []),
             ]);
+
+        if (duelsHistory && duelsHistory.length > 0) {
+            statsEmbed.addFields([
+                {
+                    name: 'Duels',
+                    value: `${duelsHistory.length} matches`,
+                    inline: false,
+                },
+                {
+                    name: 'Duels History',
+                    value:
+                        duelsHistory
+                            .slice(-10)
+                            .map(h => `${getEmoji(h.result[0], emotes)}`)
+                            .join('') || 'No matches played',
+                    inline: false,
+                },
+            ]);
+        }
 
         await interaction.reply({
             ...(isBreachersServer && {
