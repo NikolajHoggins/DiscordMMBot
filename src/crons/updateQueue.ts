@@ -6,6 +6,7 @@ import { getChannelId } from '../services/system.service';
 import { VCType } from '../types/channel';
 import Match from '../models/match.schema';
 import { getGuild } from '../helpers/guild';
+import { botLog } from '../helpers/messages';
 
 export const updateStatus = async (client: Client) => {
     if (!client.user) return;
@@ -16,7 +17,14 @@ export const updateStatus = async (client: Client) => {
     for (const i in expired) {
         const user = await client.users?.fetch(expired[i].discordId);
 
-        await user.send('Your queue has expired');
+        try {
+            await user.send('Your queue has expired');
+        } catch (error) {
+            botLog({
+                messageContent: `Failed to send queue expired dm to <@${user.id}>`,
+                client,
+            });
+        }
         console.log('sent dm to user', user.username, 'queue expired');
     }
     await Queue.deleteMany({ expires: { $lt: now } });
