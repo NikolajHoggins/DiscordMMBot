@@ -935,6 +935,7 @@ export const setScore = async ({
 
 export const checkMatchMVP = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
     const MVP_GAIN = 5;
+    const VOTES_FOR_MVP = 3;
     return new Promise(async resolve => {
         botLog({ messageContent: `Checking MVPs for ${matchNumber}`, client });
 
@@ -946,7 +947,7 @@ export const checkMatchMVP = ({ matchNumber, client }: { matchNumber: number; cl
 
         const mvpVotes = groupBy(votes, v => v);
 
-        const mvpIds = Object.keys(mvpVotes).filter(key => mvpVotes[key].length >= 3);
+        const mvpIds = Object.keys(mvpVotes).filter(key => mvpVotes[key].length >= VOTES_FOR_MVP);
 
         if (mvpIds.length === 0) {
             botLog({ messageContent: `No MVPs found for ${matchNumber}`, client });
