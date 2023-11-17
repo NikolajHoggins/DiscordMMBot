@@ -6,6 +6,7 @@ import {
 } from 'discord.js';
 import { Command } from '../Command';
 import Match, { MatchStatus } from '../models/match.schema';
+import { botLog } from '../helpers/messages';
 
 export const VoteMVP: Command = {
     name: 'vote_mvp',
@@ -50,6 +51,11 @@ export const VoteMVP: Command = {
             interaction.reply({ content: 'User is not in your team', ephemeral: true });
             return;
         }
+
+        botLog({
+            messageContent: `<@${user.id}> voted <@${mention.id}> as MVP`,
+            client,
+        });
 
         setPlayerMvpVote({
             playerId: user.id,
