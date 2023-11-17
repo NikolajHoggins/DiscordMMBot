@@ -29,6 +29,7 @@ import { FetchAvatars } from './commands/admin/FetchAvatars';
 import { RankCurve } from './commands/admin/RankCurve';
 import { SetConfig } from './commands/admin/SetConfig';
 import { EnableDuels } from './commands/mod/EnableDuels';
+import { VoteMVP } from './commands/VoteMVP';
 
 export const Commands: Command[] = [
     Stats,
@@ -44,6 +45,7 @@ export const Commands: Command[] = [
     PlayingCommand,
     Countdown,
     PingMods,
+    VoteMVP,
     //mod commands
     EndGame,
     AddNote,
