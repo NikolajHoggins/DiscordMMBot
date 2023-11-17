@@ -23,6 +23,7 @@ export interface IMatchPlayer {
     abandon?: boolean;
     reQueue?: boolean; //Allows user to ready up while in a match
     queueTime: number;
+    mvpVoteId?: string;
 }
 
 export const MatchStatus = {

@@ -5,7 +5,6 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
-import { getConfig } from '../services/system.service';
 import Match, { MatchStatus } from '../models/match.schema';
 
 export const VoteMVP: Command = {
@@ -21,7 +20,6 @@ export const VoteMVP: Command = {
         },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
-        const config = await getConfig();
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
 
@@ -53,19 +51,51 @@ export const VoteMVP: Command = {
             return;
         }
 
-        // const response = await canPing();
-        // if (response === true) {
-        // await sendMessage({
-        //     channelId: interaction.channelId,
-        //     messageContent: 'content',
-        //     client,
-        // });
+        setPlayerMvpVote({
+            playerId: user.id,
+            matchNumber: match.match_number,
+            client,
+            mvpVoteId: mention.id,
+        });
+
         interaction.reply({ content: `Voted <@${mention.id}> as mvp`, ephemeral: true });
 
-        // await setPingCooldown();
         return;
-        // }
-
-        // interaction.reply('Cannot ping for another ' + response + 'minutes');
     },
+};
+
+export const setPlayerMvpVote = ({
+    playerId,
+    matchNumber,
+    client,
+    mvpVoteId,
+}: {
+    playerId: string;
+    matchNumber: number;
+    client: Client;
+    mvpVoteId: string;
+}) => {
+    return new Promise(async resolve => {
+        const match = await Match.findOne({ match_number: matchNumber });
+
+        if (!match) throw new Error('Match not found');
+
+        const result = await Match.updateOne(
+            {
+                match_number: match.match_number,
+                'players.id': playerId,
+                version: match.version,
+            },
+            { $set: { 'players.$.mvpVoteId': mvpVoteId }, $inc: { version: 1 } }
+        );
+        if (result.modifiedCount === 0) {
+            console.log('Player mvp vote conflict, retrying');
+            setTimeout(() => {
+                setPlayerMvpVote({ playerId, matchNumber, client, mvpVoteId });
+            }, 1000);
+            return;
+        }
+
+        resolve(true);
+    });
 };

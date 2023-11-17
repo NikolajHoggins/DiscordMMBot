@@ -4,6 +4,7 @@ import {
     ButtonStyle,
     ChannelType,
     Client,
+    EmbedBuilder,
     Guild,
     MessageActionRowComponentBuilder,
     TextChannel,
@@ -37,7 +38,7 @@ import { getVotes } from '../helpers/match';
 import { capitalize, groupBy, map, shuffle, upperCase } from 'lodash';
 import { getTeamBName } from '../helpers/team';
 import { addBan, addWinLoss } from './player.service';
-import { MatchResultType } from '../models/player.schema';
+import Player, { MatchResultType } from '../models/player.schema';
 import { BansType } from '../types/bans';
 import {
     GameType,
@@ -285,7 +286,8 @@ export const checkScoreVerified = ({
                 messageContent: 'All players have verified score',
                 client: client,
             });
-            await finishMatch({
+            checkMatchMVP({ matchNumber, client });
+            finishMatch({
                 matchNumber: match.match_number,
                 client: client,
             });
@@ -928,6 +930,69 @@ export const setScore = async ({
                 client,
             });
         }
+    });
+};
+
+export const checkMatchMVP = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
+    const MVP_GAIN = 5;
+    return new Promise(async resolve => {
+        botLog({ messageContent: `Checking MVPs for ${matchNumber}`, client });
+
+        const match = await Match.findOne({ match_number: matchNumber });
+        if (!match) throw new Error('No match found');
+
+        //Get all players MVP votes, and count total of vote for each player, if 3 votes, give MVP. There can be two MVPs
+        const votes = match.players.map(p => p.mvpVoteId).flat();
+
+        const mvpVotes = groupBy(votes, v => v);
+
+        const mvpIds = Object.keys(mvpVotes).filter(key => mvpVotes[key].length >= 3);
+
+        if (mvpIds.length === 0) {
+            botLog({ messageContent: `No MVPs found for ${matchNumber}`, client });
+            return resolve(true);
+        }
+
+        botLog({ messageContent: `MVPs found for ${matchNumber}`, client });
+
+        const mvpEmbed = new EmbedBuilder()
+            .setTitle(`MVPs for match #${matchNumber}`)
+            .setDescription(
+                mvpIds
+                    .map(id => {
+                        return `<@${id}>`;
+                    })
+                    .join('\n')
+            )
+            .setTimestamp();
+
+        //get queue channel id
+        const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
+        sendMessage({
+            channelId: queueChannelId,
+            messageContent: { embeds: [mvpEmbed] },
+            client,
+        });
+
+        mvpIds.forEach(async id => {
+            const player = await Player.findOne({ discordId: id });
+            if (!player) return;
+            await Player.updateOne(
+                { discordId: id },
+                {
+                    $inc: { rating: MVP_GAIN },
+                    $push: {
+                        ratingHistory: {
+                            rating: player.rating + MVP_GAIN,
+                            date: Date.now(),
+                            reason: `MVP for match #${matchNumber}`,
+                        },
+                    },
+                }
+            );
+        });
+
+        resolve(null);
     });
 };
 
