@@ -49,6 +49,10 @@ export const Stats: Command = {
 
         const userToCheck = mention || user;
         const player = await playerService.findOrCreate(userToCheck);
+        if (player.name !== userToCheck.username) {
+            await Player.updateOne({ discordId: userToCheck.id }, { name: userToCheck.username });
+            player.name = userToCheck.username;
+        }
         const playerList = await Player.aggregate([
             { $match: { 'history.9': { $exists: true }, rating: { $gt: player.rating } } },
             { $group: { _id: null, count: { $sum: 1 } } },
