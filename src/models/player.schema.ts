@@ -42,7 +42,9 @@ export interface IPlayer {
     banTickDown: number; //Ban will tick down at this time + 24 hours (or whatever number is chosen)
     banStart: number;
     banEnd: number;
-
+    s2Rating?: number;
+    s2History?: MatchHistory;
+    s2RatingHistory?: RatingHistory;
     notes: Notes;
     avatarUrl: string;
 }
