@@ -15,11 +15,18 @@ import { ChannelsType } from '../types/channel';
 import { EmotesType } from '../types/emotes';
 
 const BREACHERS_SERVER_ID = '1050486686028681247';
+const VAIL_SERVER_ID = '1150798517225398302';
 
 const getEmoji = (result: string, emojis: EmotesType) => {
     if (['w', 'l', 'd'].includes(result)) return `<:${emojis[result as 'w' | 'l' | 'd']}>`;
     return '';
 };
+
+const statsLinks = {
+    [BREACHERS_SERVER_ID]: 'https://breacherstracker.com/profile/',
+    [VAIL_SERVER_ID]: 'https://vailstats.com/profile/',
+};
+
 export const Stats: Command = {
     name: 'stats',
     description: 'Get player stats?',
@@ -37,7 +44,7 @@ export const Stats: Command = {
         const mention = interaction.options.get('user')?.user;
         const emotes = await getServerEmotes();
 
-        const isBreachersServer = interaction.guildId === BREACHERS_SERVER_ID;
+        const isStatsServer = Object.keys(statsLinks).includes(interaction.guildId || '');
 
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
@@ -133,8 +140,10 @@ export const Stats: Command = {
         }
 
         await interaction.reply({
-            ...(isBreachersServer && {
-                content: `View more stats at https://breacherstracker.com/profile/${userToCheck.id}`,
+            ...(isStatsServer && {
+                content: `View more stats at ${
+                    statsLinks[interaction.guildId as keyof typeof statsLinks]
+                }${userToCheck.id}`,
             }),
             embeds: [statsEmbed],
         });
