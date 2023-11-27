@@ -50,19 +50,24 @@ export const Notes: Command = {
         if (!player.notes || player.notes.length === 0)
             return interaction.reply({ content: 'no notes', ephemeral: true });
 
-        const embed = new EmbedBuilder()
-            .setTitle(`${mention.username} bans`)
-            .setColor('#0099ff')
-            .setThumbnail(mention.avatarURL())
-            .addFields({
-                name: `Notes - ${player.notes.length}`,
-                value: player.notes
-                    .map(note => `<t:${Math.floor(note.time / 1000)}:F> - ${note.note}`)
-                    .join('\n'),
-            });
+        const embeds = [];
+        for (let i = 0; i < player.notes.length; i += 25) {
+            const notesSlice = player.notes.slice(i, i + 25);
+            const embed = new EmbedBuilder()
+                .setTitle(`${mention.username} notes`)
+                .setColor('#0099ff')
+                .setThumbnail(mention.avatarURL())
+                .addFields({
+                    name: `Notes - ${notesSlice.length}`,
+                    value: notesSlice
+                        .map(note => `<t:${Math.floor(note.time / 1000)}:F> - ${note.note}`)
+                        .join('\n'),
+                });
+            embeds.push(embed);
+        }
 
         interaction.reply({
-            embeds: [embed],
+            embeds,
             ephemeral: true,
         });
     },
