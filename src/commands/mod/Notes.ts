@@ -51,8 +51,8 @@ export const Notes: Command = {
             return interaction.reply({ content: 'no notes', ephemeral: true });
 
         const embeds = [];
-        for (let i = 0; i < player.notes.length; i += 25) {
-            const notesSlice = player.notes.slice(i, i + 25);
+        for (let i = 0; i < player.notes.length; i += 10) {
+            const notesSlice = player.notes.slice(i, i + 10);
             const embed = new EmbedBuilder()
                 .setTitle(`${mention.username} notes`)
                 .setColor('#0099ff')
