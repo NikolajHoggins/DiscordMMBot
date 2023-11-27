@@ -60,7 +60,12 @@ export const Notes: Command = {
                 .addFields({
                     name: `Notes - ${notesSlice.length}`,
                     value: notesSlice
-                        .map(note => `<t:${Math.floor(note.time / 1000)}:F> - ${note.note}`)
+                        .map(
+                            note =>
+                                `<@${note.modId}> - <t:${Math.floor(note.time / 1000)}:F> - ${
+                                    note.note
+                                }`
+                        )
                         .join('\n'),
                 });
             embeds.push(embed);
