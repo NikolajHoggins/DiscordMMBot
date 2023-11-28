@@ -8,9 +8,6 @@ import {
 } from 'discord.js';
 import { Command } from '../../Command';
 import * as playerService from '../../services/player.service';
-import { getGuild } from '../../helpers/guild';
-import { getConfig } from '../../services/system.service';
-import { RanksType } from '../../types/channel';
 import { botLog } from '../../helpers/messages';
 import { isUserMod } from '../../helpers/permissions';
 
@@ -40,7 +37,8 @@ export const AddNote: Command = {
 
         if (!mention) return interaction.reply({ content: 'no mention' });
 
-        if (!isUserMod(client, interaction)) return;
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         await playerService.addNote({
             userId: mention.id,

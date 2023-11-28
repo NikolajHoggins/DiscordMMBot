@@ -11,6 +11,7 @@ import { getGuild } from '../../helpers/guild';
 import { getConfig } from '../../services/system.service';
 import { RanksType } from '../../types/channel';
 import { handleAbandon } from '../Abandon';
+import { isUserMod } from '../../helpers/permissions';
 
 export const ForceAbandon: Command = {
     name: 'force_abandon',
@@ -37,14 +38,8 @@ export const ForceAbandon: Command = {
         const config = await getConfig();
         const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
 
-        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
-        if (!isMod) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'no perms',
-            });
-            return;
-        }
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         //check if in match channel
         handleAbandon({ interaction, user: mention, channelId, client });

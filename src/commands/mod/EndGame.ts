@@ -39,10 +39,8 @@ export const EndGame: Command = {
 
         if (!member) return;
 
-        console.log('before usermod check');
         const isMod = await isUserMod(client, interaction);
         if (!isMod) return;
-        console.log('after usermod check');
 
         //find match with channelId
         const match = matchNumber

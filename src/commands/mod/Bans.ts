@@ -31,7 +31,8 @@ export const Bans: Command = {
 
         if (!mention) return interaction.reply({ content: 'no mention', ephemeral: true });
 
-        if (!isUserMod(client, interaction)) return;
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         const player = await Player.findOne({ discordId: mention.id });
         if (!player) return interaction.reply({ content: 'no player', ephemeral: true });

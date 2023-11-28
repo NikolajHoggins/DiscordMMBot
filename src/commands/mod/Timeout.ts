@@ -13,6 +13,7 @@ import { BansType } from '../../types/bans';
 import { getConfig } from '../../services/system.service';
 import { RanksType } from '../../types/channel';
 import { botLog } from '../../helpers/messages';
+import { isUserMod } from '../../helpers/permissions';
 
 export const Timeout: Command = {
     name: 'timeout',
@@ -56,19 +57,9 @@ export const Timeout: Command = {
         if (!durationValue) return interaction.reply({ content: 'provide timeout time' });
 
         if (!mention) return interaction.reply({ content: 'no mention' });
-        const guild = await getGuild(client);
-        const member = await guild?.members.fetch(user.id);
 
-        const config = await getConfig();
-        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
-        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
-        if (!isMod) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'no perms',
-            });
-            return;
-        }
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         await playerService.addBan({
             userId: mention.id,

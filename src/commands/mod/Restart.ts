@@ -8,6 +8,7 @@ import { Command } from '../../Command';
 import { getGuild } from '../../helpers/guild';
 import { getConfig } from '../../services/system.service';
 import { RanksType } from '../../types/channel';
+import { isUserMod } from '../../helpers/permissions';
 
 export const RestartBot: Command = {
     name: 'restart_bot',
@@ -23,16 +24,8 @@ export const RestartBot: Command = {
 
         if (!member) return;
 
-        const config = await getConfig();
-        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
-        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
-        if (!isMod) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'no perms',
-            });
-            return;
-        }
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         throw new Error('Restarting bot');
     },

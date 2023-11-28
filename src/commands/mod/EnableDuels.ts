@@ -27,7 +27,8 @@ export const EnableDuels: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
 
-        if (!isUserMod(client, interaction)) return;
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         const value = interaction.options.get('enabled')?.value;
 

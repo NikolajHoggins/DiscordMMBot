@@ -11,6 +11,7 @@ import { getGuild } from '../../helpers/guild';
 import { getConfig } from '../../services/system.service';
 import { RanksType } from '../../types/channel';
 import { botLog } from '../../helpers/messages';
+import { isUserMod } from '../../helpers/permissions';
 
 export const GiveElo: Command = {
     name: 'give_elo',
@@ -45,19 +46,9 @@ export const GiveElo: Command = {
 
         if (!elo) return interaction.reply({ content: 'no elo' });
         if (!mention) return interaction.reply({ content: 'no mention' });
-        const guild = await getGuild(client);
-        const member = await guild?.members.fetch(user.id);
 
-        const config = await getConfig();
-        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
-        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
-        if (!isMod) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'no perms',
-            });
-            return;
-        }
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         const player = await Player.findOne({ discordId: mention.id });
         if (!player) return interaction.reply({ content: `User not found` });

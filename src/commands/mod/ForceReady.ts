@@ -28,7 +28,8 @@ export const ForceReady: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user } = interaction;
 
-        if (!isUserMod(client, interaction)) return;
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         const player = interaction.options.getUser('player');
         if (!player) return interaction.reply({ content: 'Player not found', ephemeral: true });

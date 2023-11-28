@@ -10,9 +10,7 @@ import { Command } from '../../Command';
 import { findByChannelId, setScore } from '../../services/match.service';
 import { getTeamBName } from '../../helpers/team';
 import { MatchStatus } from '../../models/match.schema';
-import { getWinScore } from '../../services/system.service';
 import { isUserMod } from '../../helpers/permissions';
-import { GameType } from '../../types/queue';
 
 export const ForceSubmit: Command = {
     name: 'force_submit',
@@ -43,7 +41,8 @@ export const ForceSubmit: Command = {
 
         if (!mention) return interaction.reply({ content: 'no mention' });
 
-        if (!isUserMod(client, interaction)) return;
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         const match = await findByChannelId(channelId);
         if (!match) {

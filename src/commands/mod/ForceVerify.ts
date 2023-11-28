@@ -19,7 +19,8 @@ export const ForceVerify: Command = {
     run: async (client: Client, interaction: CommandInteraction) => {
         const { user, channelId } = interaction;
 
-        if (!isUserMod(client, interaction)) return;
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         const match = await findByChannelId(channelId);
         if (!match) {

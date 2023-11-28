@@ -8,9 +8,7 @@ import {
 } from 'discord.js';
 import { Command } from '../../Command';
 import Player from '../../models/player.schema';
-import { getGuild } from '../../helpers/guild';
-import { RanksType } from '../../types/channel';
-import { getConfig } from '../../services/system.service';
+import { isUserMod } from '../../helpers/permissions';
 
 export const Notes: Command = {
     name: 'notes',
@@ -26,25 +24,12 @@ export const Notes: Command = {
         },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
-        const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
 
         if (!mention) return interaction.reply({ content: 'no mention', ephemeral: true });
-        const guild = await getGuild(client);
 
-        const member = await guild.members.fetch(user.id);
-
-        const config = await getConfig();
-        const modRoleId = config.roles.find(({ name }) => name === RanksType.mod)?.id;
-        const isMod = await member.roles.cache.some(r => r.id === modRoleId);
-        if (!isMod) {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'no perms',
-            });
-            return;
-        }
-
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
         const player = await Player.findOne({ discordId: mention.id });
         if (!player) return interaction.reply({ content: 'no player', ephemeral: true });
         if (!player.notes || player.notes.length === 0)

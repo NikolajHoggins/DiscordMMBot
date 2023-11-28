@@ -24,7 +24,8 @@ export const GetMatchInfo: Command = {
         },
     ],
     run: async (client: Client, interaction: CommandInteraction) => {
-        if (!isUserMod(client, interaction)) return;
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
 
         const matchNumber = interaction.options.get('match_number')?.value as number;
         if (!matchNumber)
