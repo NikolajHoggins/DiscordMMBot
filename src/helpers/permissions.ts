@@ -13,11 +13,13 @@ export async function isUserMod(client: Client, interaction: CommandInteraction)
     if (!modRoleId) throw new Error('Mod role not found');
     const isMod = await member.roles.cache.some(r => r.id === modRoleId);
     if (!isMod) {
+        console.log('NOT MOD');
         await interaction.reply({
             ephemeral: true,
             content: 'no perms',
         });
         return false;
     }
+    console.log('IS MOD');
     return true;
 }
