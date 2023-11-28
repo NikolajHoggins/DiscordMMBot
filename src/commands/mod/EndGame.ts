@@ -39,7 +39,7 @@ export const EndGame: Command = {
 
         if (!member) return;
 
-        if (!isUserMod(client, interaction)) return;
+        if (await !isUserMod(client, interaction)) return;
 
         //find match with channelId
         const match = matchNumber
