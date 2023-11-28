@@ -40,7 +40,8 @@ export const EndGame: Command = {
         if (!member) return;
 
         console.log('before usermod check');
-        if (await !isUserMod(client, interaction)) return;
+        const isMod = await isUserMod(client, interaction);
+        if (!isMod) return;
         console.log('after usermod check');
 
         //find match with channelId
