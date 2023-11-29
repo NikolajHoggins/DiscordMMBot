@@ -4,6 +4,7 @@ import Player, { IPlayer } from '../models/player.schema';
 import { botLog } from '../helpers/messages';
 
 export const runEloDecay = async (client: Client) => {
+    console.log('Running elo decay cron');
     if (!client.user) return;
 
     const now = Date.now();
