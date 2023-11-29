@@ -47,6 +47,7 @@ export interface IPlayer {
     s2RatingHistory?: RatingHistory;
     notes: Notes;
     avatarUrl: string;
+    lastMatch?: number;
 }
 
 // 2. Create a Schema corresponding to the document interface.
@@ -66,6 +67,7 @@ const playerSchema = new Schema<IPlayer>({
     banEnd: { type: Number },
     notes: { type: [] },
     avatarUrl: { type: String, required: true },
+    lastMatch: { type: Number },
 });
 
 const Player = model<IPlayer>('Player', playerSchema);

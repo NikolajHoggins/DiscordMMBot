@@ -42,6 +42,7 @@ export const getChannelId = (type: ChannelsType | CategoriesType | VCType): Prom
 export const getConfig = (): Promise<ISystem> => {
     return new Promise(async (resolve, reject) => {
         const config = await System.findOne();
+
         if (!config) {
             await System.create({ last_ping: 0 });
             const newConf = await System.findOne();
