@@ -50,7 +50,7 @@ export const runEloDecay = async (client: Client) => {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
         sendMessage({
             channelId: queueChannelId,
-            messageContent: `${player.discordId} lost ${
+            messageContent: `<@${player.discordId}> lost ${
                 eloChange * -1
             } elo for being inactive for ${daysSinceLastMatch} days`,
             client,
