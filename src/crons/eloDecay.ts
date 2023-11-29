@@ -1,7 +1,9 @@
 import { Client } from 'discord.js';
 import cron from 'node-cron';
 import Player, { IPlayer } from '../models/player.schema';
-import { botLog } from '../helpers/messages';
+import { sendMessage } from '../helpers/messages';
+import { getChannelId } from '../services/system.service';
+import { ChannelsType } from '../types/channel';
 
 export const runEloDecay = async (client: Client) => {
     console.log('Running elo decay cron');
@@ -12,9 +14,9 @@ export const runEloDecay = async (client: Client) => {
     const HOURS_24 = 24 * 60 * 60 * 1000;
     const DAYS_10 = HOURS_24 * 10;
 
-    //Get all users with a ban multiplier
+    //Get all users afk for more than 10 days
     const players = await Player.find({
-        lastMatch: { $lt: now + DAYS_10 },
+        lastMatch: { $lt: now - DAYS_10 },
     });
 
     console.log(`removing elo from ${players.length} players`);
@@ -23,9 +25,11 @@ export const runEloDecay = async (client: Client) => {
 
         if (!player.lastMatch) continue;
 
-        const daysSinceLastMatch = (now - player.lastMatch) / HOURS_24;
+        const daysSinceLastMatch = Math.round((now - player.lastMatch) / HOURS_24);
 
-        const eloChange = daysSinceLastMatch * -1;
+        // Calculate elo loss as 5 + 0.1 for every day over 10
+        const daysOverTen = Math.max(0, daysSinceLastMatch - 10);
+        const eloChange = -1 * (5 + 0.1 * daysOverTen);
 
         // Tick down elo
         await Player.updateOne(
@@ -42,18 +46,15 @@ export const runEloDecay = async (client: Client) => {
             }
         );
 
-        const user = await client.users?.fetch(player.discordId);
-
-        try {
-            await user.send(
-                `You lost ${eloChange * -1} elo for being inactive for ${daysSinceLastMatch} days`
-            );
-        } catch (error) {
-            botLog({
-                messageContent: `Failed to send decay message to <@${user.id}>`,
-                client,
-            });
-        }
+        //get queue channel id
+        const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
+        sendMessage({
+            channelId: queueChannelId,
+            messageContent: `${player.discordId} lost ${
+                eloChange * -1
+            } elo for being inactive for ${daysSinceLastMatch} days`,
+            client,
+        });
     }
 };
 
