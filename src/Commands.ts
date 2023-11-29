@@ -30,6 +30,7 @@ import { RankCurve } from './commands/admin/RankCurve';
 import { SetConfig } from './commands/admin/SetConfig';
 import { EnableDuels } from './commands/mod/EnableDuels';
 import { VoteMVP } from './commands/VoteMVP';
+import { RunEloDecay } from './commands/admin/RunEloDecay';
 
 export const Commands: Command[] = [
     Stats,
@@ -65,4 +66,5 @@ export const Commands: Command[] = [
     RankCurve,
     FetchAvatars,
     SetConfig,
+    RunEloDecay,
 ];
