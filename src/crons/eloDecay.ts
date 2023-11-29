@@ -15,7 +15,7 @@ export const runEloDecay = async (client: Client) => {
     //Get all users with a ban multiplier
     const players = await Player.find({
         lastMatch: { $lt: now + DAYS_10 },
-    }).projection({ rating: 1, lastMatch: 1, discordId: 1 });
+    });
 
     console.log(`removing elo from ${players.length} players`);
     for (const i in players) {
