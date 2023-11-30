@@ -96,6 +96,7 @@ export const addWinLoss = async ({
                         reason: `Match ${matchNumber} ${result}`,
                     },
                 ],
+                lastMatch: Date.now(),
             }
         );
         botLog({ messageContent: `${player.name} Updated succesfully`, client });
