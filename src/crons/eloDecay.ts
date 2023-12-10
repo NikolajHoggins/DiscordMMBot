@@ -6,6 +6,7 @@ import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 
 export const runEloDecay = async (client: Client) => {
+    return;
     console.log('Running elo decay cron');
     if (!client.user) return;
 
