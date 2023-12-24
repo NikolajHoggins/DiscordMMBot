@@ -125,7 +125,7 @@ const createMatchChannel = ({
         const matchCategoryId = await getChannelId(CategoriesType.matches);
         const matchChannel = await createChannel({
             client,
-            name: `Match-${matchNumber}`,
+            name: `match-${matchNumber}`,
             parentId: matchCategoryId,
             allowedIds: [newRole],
         });
@@ -588,7 +588,7 @@ const createSideVotingChannel = async ({
 
         const teamAChannel = await createChannel({
             client,
-            name: `Match-${match.match_number} Team A`,
+            name: `match-${match.match_number} Team A`,
             parentId: matchCategoryId,
             allowedIds: getTeam(match.players, 'a').map(p => p.id),
         });
@@ -639,7 +639,7 @@ const createMapVotingChannel = async ({
         });
         const teamBChannel = await createChannel({
             client,
-            name: `Match-${match.match_number} Team B`,
+            name: `match-${match.match_number} Team B`,
             parentId: matchCategoryId,
             allowedIds: getTeam(match.players, 'b').map(p => p.id),
         });
@@ -753,7 +753,7 @@ export const startGame = ({
         const matchCategoryId = await getChannelId(CategoriesType.matches);
         const matchChannel = await createChannel({
             client,
-            name: `Match-${match.match_number}`,
+            name: `match-${match.match_number}`,
             parentId: matchCategoryId,
             allowedIds: match.players.map(p => p.id),
         });
