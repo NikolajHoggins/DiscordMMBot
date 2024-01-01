@@ -15,7 +15,7 @@ export const runBanTickDown = async (client: Client) => {
     //Get all users with a ban multiplier
     const players = await Player.find({
         banMultiplier: { $gt: 0 },
-        banTickDown: { $lt: now + DAYS_3 },
+        banTickDown: { $lt: now - DAYS_3 },
     });
 
     for (const i in players) {
