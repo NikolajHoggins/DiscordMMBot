@@ -8,7 +8,7 @@ import { getWinScore } from '../services/system.service';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
-    const exponent = ratingDifference / 400;
+    const exponent = ratingDifference / 1000;
     const expectedScore = 1 / (1 + 10 ** exponent);
     return expectedScore;
 };
@@ -28,9 +28,9 @@ export const calculateIndividualEloChange = ({
     gameType: GameType;
     maxScoreMargin: number;
 }) => {
-    const BASE_K_FACTOR = 10; // For close matches
-    const MAX_K_FACTOR = 75; // For dominant victories, ensures big gains for large score margins
-    const MIN_GAIN_FOR_WIN = 5; // Adjusted to your lowest expected change
+    const BASE_K_FACTOR = 60; // For close matches
+    const MAX_K_FACTOR = 90; // For dominant victories, ensures big gains for large score margins
+    const MIN_GAIN_FOR_WIN = 2; // Adjusted to your lowest expected change
     let actualScore = teamRounds / (teamRounds + enemyRounds);
 
     const ratingKey: 'rating' | 'duelsRating' = (
@@ -57,11 +57,12 @@ export const calculateIndividualEloChange = ({
 
     // Since actualScore is a value between 0 and 1, and playerExpectedScore is around 0.5 for equally strong teams,
     // the product might be too small. We ensure that for victories, there's a meaningful minimum change.
+
     if (teamRounds > enemyRounds) {
-        newRatingChange = Math.max(newRatingChange, dynamicKFactor * 0.5); // Minimum change for a win
+        return Math.max(newRatingChange, MIN_GAIN_FOR_WIN); // Minimum change for a win
     }
 
-    return newRatingChange;
+    return Math.min(newRatingChange, -MIN_GAIN_FOR_WIN); // Minimum change for a loss
 };
 
 export const calculateEloChanges = async (match: IMatch, client: Client): Promise<any> => {
