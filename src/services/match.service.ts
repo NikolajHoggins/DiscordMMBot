@@ -1082,7 +1082,7 @@ export const end = ({
             await Promise.all(
                 matches[0].players.map(async player => {
                     return new Promise(async resolve => {
-                        if (player.reQueue && player.ready) {
+                        if (player.reQueue && player.ready && !player.abandon) {
                             await Queue.create({
                                 discordId: player.id,
                                 expires: Date.now() + MINUTE_IN_MS * 5,
