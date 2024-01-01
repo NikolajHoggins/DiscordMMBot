@@ -1,6 +1,7 @@
 import { Client } from 'discord.js';
 import cron from 'node-cron';
 import Player from '../models/player.schema';
+import { botLog } from '../helpers/messages';
 
 export const runBanTickDown = async (client: Client) => {
     if (!client.user) return;
@@ -19,6 +20,12 @@ export const runBanTickDown = async (client: Client) => {
 
     for (const i in players) {
         const player = players[i];
+        botLog({
+            client,
+            messageContent: `Tick down ban for <@${player.discordId}> from ${
+                player.banMultiplier
+            } to ${player.banMultiplier - 1}`,
+        });
 
         //Cowboy fix for having first ban tickdown happen after 3 days and then all following be after 24 hours
         const NEXT_BAN_TICK_DOWN = now - DAYS_2;
