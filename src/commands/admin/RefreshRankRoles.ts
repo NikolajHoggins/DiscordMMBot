@@ -7,7 +7,6 @@ import {
 
 import { Command } from '../../Command';
 import { checkRank } from '../../helpers/rank';
-import { botLog } from '../../helpers/messages';
 
 export const RefreshRankRoles: Command = {
     name: 'refresh_rank_roles',
@@ -36,7 +35,6 @@ export const RefreshRankRoles: Command = {
 
                 return checkRank({ client, playerId: member.user.id }).then(r => {
                     console.log('done for', member.user.id);
-                    botLog({ client, messageContent: `Refreshed rank for ${member.user.id}` });
                     return r;
                 });
             })
