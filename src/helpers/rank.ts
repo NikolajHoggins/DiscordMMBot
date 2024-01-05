@@ -49,11 +49,7 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
 
         const { history } = player;
         const historyNoAbandon = history.filter(match => match.result !== 'abandon');
-
-        if (historyNoAbandon.length < 10) {
-            resolve(true);
-            return;
-        }
+        const isUnranked = historyNoAbandon.length < 10;
 
         const config = await getConfig();
 
@@ -63,10 +59,11 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
         );
 
         const currentRankRole: RanksType = rankCutoffs[closestEloCutoff];
-
-        const roleId = config.roles.find(({ name }) => name === currentRankRole)?.id;
-
         const unrankedId = config.roles.find(({ name }) => name === RanksType.unranked)?.id;
+
+        const roleId = isUnranked
+            ? unrankedId
+            : config.roles.find(({ name }) => name === currentRankRole)?.id;
 
         if (!roleId || !unrankedId) throw new Error('Role not found');
 
@@ -76,22 +73,24 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
         if (!member) throw new Error('Member not found');
         const currentRoles = await member.roles.cache.map(r => r.id);
 
-        await Promise.all(
-            currentRoles.map(r => {
-                return new Promise(async resolve => {
-                    const currentRankName = config.roles.find(({ id }) => id === r)?.name;
-                    if (!currentRankName) return resolve(true);
+        if (!isUnranked) {
+            await Promise.all(
+                currentRoles.map(r => {
+                    return new Promise(async resolve => {
+                        const currentRankName = config.roles.find(({ id }) => id === r)?.name;
+                        if (!currentRankName) return resolve(true);
 
-                    if (Object.values(rankCutoffs).includes(currentRankName as RanksType)) {
-                        await member.roles.remove(r);
-                        return resolve(true);
-                    }
-                    resolve(true);
-                });
-            })
-        );
+                        if (Object.values(rankCutoffs).includes(currentRankName as RanksType)) {
+                            await member.roles.remove(r);
+                            return resolve(true);
+                        }
+                        resolve(true);
+                    });
+                })
+            );
+            await member.roles.remove(unrankedId);
+        }
 
-        await member.roles.remove(unrankedId);
         await member.roles.add(roleId);
 
         resolve(true);
