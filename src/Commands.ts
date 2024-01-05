@@ -31,6 +31,7 @@ import { SetConfig } from './commands/admin/SetConfig';
 import { EnableDuels } from './commands/mod/EnableDuels';
 import { VoteMVP } from './commands/VoteMVP';
 import { RunEloDecay } from './commands/admin/RunEloDecay';
+import { RefreshRankRoles } from './commands/admin/RefreshRankRoles';
 
 export const Commands: Command[] = [
     Stats,
@@ -67,4 +68,5 @@ export const Commands: Command[] = [
     FetchAvatars,
     SetConfig,
     RunEloDecay,
+    RefreshRankRoles,
 ];

@@ -3,7 +3,6 @@ import {
     Client,
     ApplicationCommandType,
     PermissionFlagsBits,
-    ApplicationCommandOptionType,
 } from 'discord.js';
 
 import { Command } from '../../Command';

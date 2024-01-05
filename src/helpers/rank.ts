@@ -1,9 +1,9 @@
 import { Client } from 'discord.js';
+import Player from '../models/player.schema';
 import { RanksType } from '../types/channel';
-import Player, { IPlayer } from '../models/player.schema';
 import { getGuild } from './guild';
 import { getConfig } from '../services/system.service';
-import { capitalize } from 'lodash';
+import { capitalize, reject } from 'lodash';
 
 export const rankCutoffs: Record<number, RanksType> = {
     0: RanksType.plastic,
@@ -45,7 +45,7 @@ const getClosestLowerNumber = (numbers: number[], targetNumber: number): number 
 export const checkRank = ({ client, playerId }: { client: Client; playerId: string }) => {
     return new Promise(async resolve => {
         const player = await Player.findOne({ discordId: playerId });
-        if (!player) throw new Error('Player not found');
+        if (!player) return reject('Player not found');
 
         const { history } = player;
         const historyNoAbandon = history.filter(match => match.result !== 'abandon');
