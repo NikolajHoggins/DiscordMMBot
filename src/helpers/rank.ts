@@ -73,21 +73,21 @@ export const checkRank = ({ client, playerId }: { client: Client; playerId: stri
         if (!member) throw new Error('Member not found');
         const currentRoles = await member.roles.cache.map(r => r.id);
 
-        if (!isUnranked) {
-            await Promise.all(
-                currentRoles.map(r => {
-                    return new Promise(async resolve => {
-                        const currentRankName = config.roles.find(({ id }) => id === r)?.name;
-                        if (!currentRankName) return resolve(true);
+        await Promise.all(
+            currentRoles.map(r => {
+                return new Promise(async resolve => {
+                    const currentRankName = config.roles.find(({ id }) => id === r)?.name;
+                    if (!currentRankName) return resolve(true);
 
-                        if (Object.values(rankCutoffs).includes(currentRankName as RanksType)) {
-                            await member.roles.remove(r);
-                            return resolve(true);
-                        }
-                        resolve(true);
-                    });
-                })
-            );
+                    if (Object.values(rankCutoffs).includes(currentRankName as RanksType)) {
+                        await member.roles.remove(r);
+                        return resolve(true);
+                    }
+                    resolve(true);
+                });
+            })
+        );
+        if (!isUnranked) {
             await member.roles.remove(unrankedId);
         }
 
