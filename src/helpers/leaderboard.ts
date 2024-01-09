@@ -6,6 +6,7 @@ import { ChannelsType } from '../types/channel';
 import { getGuild } from './guild';
 import { sendMessage } from './messages';
 import { GameType, gameTypeLeaderboardChannels, gameTypeRatingKeys } from '../types/queue';
+import { trackingLinks } from './tracking';
 
 const getPretty = ({ value, slotLength }: { value: string; slotLength: number }) => {
     const valueLength = value.length;
@@ -29,10 +30,18 @@ export const updateLeaderboard = async ({
         const leaderboardChannelId = await getChannelId(gameTypeLeaderboardChannels[gameType]);
 
         const guild = await getGuild(client);
+
         const channel = await guild?.channels.fetch(leaderboardChannelId);
         const messages = await (channel as TextChannel).messages.fetch();
 
         let message = messages.first() as Message<boolean>;
+        const isStatsServer = Object.keys(trackingLinks).includes(guild.id || '');
+        if (!isStatsServer)
+            message.edit(
+                `Leaderboards are available through the bot's website: ${
+                    trackingLinks[guild.id as keyof typeof trackingLinks]
+                }/leaderboard`
+            );
 
         if (!message) {
             message = await sendMessage({
