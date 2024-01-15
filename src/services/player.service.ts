@@ -145,7 +145,7 @@ export const addBan = ({
 
         await Queue.deleteOne({ discordId: userId });
 
-        const BAN_SCALER = 3; //Each time offense is committed, ban duration is multiplied by this number
+        const BAN_SCALER = 2.5; //Each time offense is committed, ban duration is multiplied by this number
         const actualDuration =
             duration || banTimes[type] * BAN_SCALER ** (player.banMultiplier || 0);
 
