@@ -945,7 +945,7 @@ export const checkMatchMVP = ({ matchNumber, client }: { matchNumber: number; cl
         if (!match) throw new Error('No match found');
 
         //Get all players MVP votes, and count total of vote for each player, if 3 votes, give MVP. There can be two MVPs
-        const votes = match.players.map(p => p.mvpVoteId).filter(id => id !== 'undefined');
+        const votes = match.players.map(p => p.mvpVoteId).filter(voteId => voteId !== undefined);
 
         const mvpVotes = groupBy(votes, v => v);
 
