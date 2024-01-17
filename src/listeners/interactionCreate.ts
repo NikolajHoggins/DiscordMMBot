@@ -1,4 +1,10 @@
-import { CommandInteraction, Client, Interaction, ButtonInteraction } from 'discord.js';
+import {
+    CommandInteraction,
+    Client,
+    Interaction,
+    ButtonInteraction,
+    StringSelectMenuInteraction,
+} from 'discord.js';
 import { Commands } from '../Commands';
 import { findByChannelId } from '../services/match.service';
 import Match, { IMatch, MatchStatus } from '../models/match.schema';
@@ -19,7 +25,17 @@ export default (client: Client): void => {
         if (interaction.isButton()) {
             await handleButtonInteraction(client, interaction);
         }
+        if (interaction.isStringSelectMenu()) {
+            await handleSelectMenuInteraction(client, interaction);
+        }
     });
+};
+
+const handleSelectMenuInteraction = async (
+    client: Client,
+    interaction: StringSelectMenuInteraction
+) => {
+    console.log('select menu interaction', interaction.customId);
 };
 
 const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
