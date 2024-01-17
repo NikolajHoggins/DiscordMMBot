@@ -758,6 +758,7 @@ export const startGame = ({
             name: `match-${match.match_number}`,
             parentId: matchCategoryId,
             allowedIds: match.players.map(p => p.id),
+            rateLimitPerUser: 5,
         });
 
         await Match.updateOne(

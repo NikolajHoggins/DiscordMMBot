@@ -9,12 +9,14 @@ export const createChannel = ({
     parentId,
     allowedIds,
     type = ChannelType.GuildText,
+    rateLimitPerUser,
 }: {
     client: Client;
     name: string;
     allowedIds: string[];
     parentId?: string;
     type?: ChannelType.GuildText | ChannelType.GuildVoice;
+    rateLimitPerUser?: number;
 }): Promise<Channel> => {
     return new Promise(async resolve => {
         const guild = await getGuild(client);
@@ -26,6 +28,7 @@ export const createChannel = ({
         const channel = await guild.channels.create({
             name: name,
             type: type,
+
             permissionOverwrites: [
                 {
                     id: everyoneRole.id,
@@ -54,6 +57,7 @@ export const createChannel = ({
                     : []),
             ],
             ...(parentId ? { parent: parentId } : {}),
+            ...(rateLimitPerUser ? { rateLimitPerUser: rateLimitPerUser } : {}),
         });
         if (!channel) throw new Error("Couldn't create channel");
 
