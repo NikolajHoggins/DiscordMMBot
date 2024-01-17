@@ -3,10 +3,12 @@ import {
     ButtonBuilder,
     ButtonStyle,
     Client,
+    EmbedBuilder,
     Message,
     MessageActionRowComponentBuilder,
     MessageCreateOptions,
     MessagePayload,
+    StringSelectMenuBuilder,
     TextChannel,
 } from 'discord.js';
 import { getChannelId } from '../services/system.service';
@@ -94,5 +96,55 @@ export const sendMatchFoundMessage = ({ client, match }: { client: Client; match
                 client,
             });
         }
+    });
+};
+
+export const sendMvpVoteMessage = async ({ client, match }: { client: Client; match: IMatch }) => {
+    const mvpEmbed = new EmbedBuilder()
+        .setTitle(`MVP Voting for match #${match.match_number}`)
+        .setDescription(
+            'Select the MVP from the dropdown below. You can only vote for one person, and on your own team.'
+        )
+        .setTimestamp();
+
+    const teamADropDown = new StringSelectMenuBuilder()
+        .setCustomId('mvp-team-a')
+        .setPlaceholder('Team A')
+        .addOptions(
+            match.players
+                .filter(player => player.team === 'a')
+                .map(player => ({
+                    label: player.name,
+                    value: player.id,
+                }))
+        );
+
+    const teamBDropDown = new StringSelectMenuBuilder()
+        .setCustomId('mvp-team-b')
+        .setPlaceholder('Team B')
+        .addOptions(
+            match.players
+                .filter(player => player.team === 'b')
+                .map(player => ({
+                    label: player.name,
+                    value: player.id,
+                }))
+        );
+
+    const mvpRowTeamA = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+    mvpRowTeamA.addComponents(teamADropDown);
+
+    const mvpRowTeamB = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+    mvpRowTeamB.addComponents(teamBDropDown);
+
+    const mvpContent = {
+        embeds: [mvpEmbed],
+        components: [mvpRowTeamA, mvpRowTeamB],
+    };
+
+    await sendMessage({
+        channelId: match.channels.matchChannel,
+        messageContent: mvpContent,
+        client,
     });
 };

@@ -16,6 +16,7 @@ import {
     createReadyMessage,
     sendMatchFoundMessage,
     sendMessage,
+    sendMvpVoteMessage,
 } from '../helpers/messages';
 import Match, { IMatch, IMatchChannels, MatchStatus } from '../models/match.schema';
 import Queue, { IQueue } from '../models/queue.schema';
@@ -928,11 +929,13 @@ export const setScore = async ({
                         .join(' '),
             });
 
-            await sendMessage({
+            sendMessage({
                 channelId: match.channels.matchChannel,
                 messageContent: verifyContent,
                 client,
             });
+
+            sendMvpVoteMessage({ match, client });
         }
     });
 };
