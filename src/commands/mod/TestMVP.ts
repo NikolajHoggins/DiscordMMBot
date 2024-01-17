@@ -95,7 +95,6 @@ export const TestMVP: Command = {
         mvpRowTeamB.addComponents(teamBDropDown);
 
         const mvpContent = {
-            content: 'This is work in progress',
             embeds: [mvpEmbed],
             components: [mvpRowTeamA, mvpRowTeamB],
         };
