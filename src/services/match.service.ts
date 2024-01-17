@@ -127,9 +127,10 @@ const createMatchChannel = ({
         const matchCategoryId = await getChannelId(CategoriesType.matches);
         const matchChannel = await createChannel({
             client,
-            name: `match-${matchNumber}`,
+            name: `match-${matchNumber}-ready`,
             parentId: matchCategoryId,
             allowedIds: [newRole],
+            rateLimitPerUser: 30,
         });
 
         resolve({ channelId: matchChannel.id, roleId: newRole });
