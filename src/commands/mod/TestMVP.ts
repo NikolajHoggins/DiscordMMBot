@@ -5,18 +5,16 @@ import {
     ApplicationCommandOptionType,
     PermissionFlagsBits,
     EmbedBuilder,
-    SelectMenuBuilder,
     ActionRowBuilder,
     MessageActionRowComponentBuilder,
+    StringSelectMenuBuilder,
 } from 'discord.js';
 import { Command } from '../../Command';
 import { getGuild } from '../../helpers/guild';
-import { botLog, sendMessage } from '../../helpers/messages';
+import { sendMessage } from '../../helpers/messages';
 
 import * as matchService from '../../services/match.service';
 import Match from '../../models/match.schema';
-import { RanksType } from '../../types/channel';
-import { getConfig } from '../../services/system.service';
 import { isUserMod } from '../../helpers/permissions';
 
 export const TestMVP: Command = {
@@ -66,7 +64,7 @@ export const TestMVP: Command = {
             )
             .setTimestamp();
 
-        const teamADropDown = new SelectMenuBuilder()
+        const teamADropDown = new StringSelectMenuBuilder()
             .setCustomId('mvp-team-a')
             .setPlaceholder('Team A')
             .addOptions(
@@ -78,7 +76,7 @@ export const TestMVP: Command = {
                     }))
             );
 
-        const teamBDropDown = new SelectMenuBuilder()
+        const teamBDropDown = new StringSelectMenuBuilder()
             .setCustomId('mvp-team-b')
             .setPlaceholder('Team B')
             .addOptions(
