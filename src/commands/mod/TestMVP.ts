@@ -88,13 +88,16 @@ export const TestMVP: Command = {
                     }))
             );
 
-        const mvpRow = new ActionRowBuilder<MessageActionRowComponentBuilder>();
-        mvpRow.addComponents(teamADropDown, teamBDropDown);
+        const mvpRowTeamA = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+        mvpRowTeamA.addComponents(teamADropDown);
+
+        const mvpRowTeamB = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+        mvpRowTeamB.addComponents(teamBDropDown);
 
         const mvpContent = {
             content: 'This is work in progress',
             embeds: [mvpEmbed],
-            components: [mvpRow],
+            components: [mvpRowTeamA, mvpRowTeamB],
         };
 
         await sendMessage({
