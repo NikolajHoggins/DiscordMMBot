@@ -15,6 +15,8 @@ import { handleRegionInteraction } from './buttonInteractions/regionInteraction'
 import { handleMatchInteraction } from './buttonInteractions/handleMatchInteraction';
 import { respondWithQueue } from '../commands/Queue';
 import { GameType } from '../types/queue';
+import { setPlayerMvpVote } from '../commands/VoteMVP';
+import { botLog } from '../helpers/messages';
 
 export default (client: Client): void => {
     client.on('interactionCreate', async (interaction: Interaction) => {
@@ -46,11 +48,41 @@ const handleSelectMenuInteraction = async (
     //Check if discord user is in match
     const players = match.players.map(p => p.id);
     if (!players.includes(interaction.user.id)) {
-        interaction.reply({ content: 'Not in match', ephemeral: true });
+        interaction.reply({ content: 'You are not a player in this match', ephemeral: true });
         return;
     }
 
-    interaction.reply({ content: 'Not implemented yet', ephemeral: true });
+    const votedPlayerId = interaction.values[0];
+
+    // Check if voted player is on same team as the player voting
+    const votedPlayer = match.players.find(p => p.id === votedPlayerId);
+    const votingPlayer = match.players.find(p => p.id === interaction.user.id);
+    if (!votedPlayer || !votingPlayer) {
+        interaction.reply({ content: 'Player not found', ephemeral: true });
+        return;
+    }
+
+    if (votedPlayer.team !== votingPlayer.team) {
+        interaction.reply({
+            content: 'You can only vote for players on your team',
+            ephemeral: true,
+        });
+        return;
+    }
+
+    botLog({
+        messageContent: `<@${interaction.user.id}> voted <@${votedPlayerId}> as MVP`,
+        client,
+    });
+
+    setPlayerMvpVote({
+        playerId: interaction.user.id,
+        matchNumber: match.match_number,
+        client,
+        mvpVoteId: votedPlayerId,
+    });
+
+    interaction.reply({ content: `Voted <@${votedPlayerId}> as mvp`, ephemeral: true });
 };
 
 const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
