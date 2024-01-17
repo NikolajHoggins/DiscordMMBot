@@ -64,18 +64,32 @@ export const TestMVP: Command = {
             .setDescription('Select the MVP from the dropdown below.')
             .setTimestamp();
 
-        const mvpDropdown = new SelectMenuBuilder()
+        const teamADropDown = new SelectMenuBuilder()
             .setCustomId('mvp-vote')
-            .setPlaceholder('Select MVP')
+            .setPlaceholder('Team A')
             .addOptions(
-                match.players.map(player => ({
-                    label: player.name,
-                    value: player.id,
-                }))
+                match.players
+                    .filter(player => player.team === 'a')
+                    .map(player => ({
+                        label: player.name,
+                        value: player.id,
+                    }))
+            );
+
+        const teamBDropDown = new SelectMenuBuilder()
+            .setCustomId('mvp-vote')
+            .setPlaceholder('Team B')
+            .addOptions(
+                match.players
+                    .filter(player => player.team === 'b')
+                    .map(player => ({
+                        label: player.name,
+                        value: player.id,
+                    }))
             );
 
         const mvpRow = new ActionRowBuilder<MessageActionRowComponentBuilder>();
-        mvpRow.addComponents(mvpDropdown);
+        mvpRow.addComponents(teamADropDown, teamBDropDown);
 
         const mvpContent = {
             content: 'This is work in progress',
