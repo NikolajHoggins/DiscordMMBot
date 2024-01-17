@@ -37,7 +37,7 @@ export const updateLeaderboard = async ({
         let message = messages.first() as Message<boolean>;
         const isStatsServer = Object.keys(trackingLinks).includes(guild.id || '');
         if (isStatsServer)
-            message.edit(
+            return message.edit(
                 `Leaderboards are available through the bot's website: ${
                     trackingLinks[guild.id as keyof typeof trackingLinks]
                 }/leaderboard`
