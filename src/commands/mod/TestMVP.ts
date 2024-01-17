@@ -61,7 +61,9 @@ export const TestMVP: Command = {
 
         const mvpEmbed = new EmbedBuilder()
             .setTitle(`MVP Voting for match #${match.match_number}`)
-            .setDescription('Select the MVP from the dropdown below.')
+            .setDescription(
+                'Select the MVP from the dropdown below. You can only vote for one person, and on your own team.'
+            )
             .setTimestamp();
 
         const teamADropDown = new SelectMenuBuilder()

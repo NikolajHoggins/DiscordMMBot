@@ -6,6 +6,7 @@ import Match from '../../models/match.schema';
 import { getDuelsEnabled } from '../../services/system.service';
 
 export const handleReadyInteraction = async (interaction: ButtonInteraction, client: Client) => {
+    console.log('ready interaction', interaction.customId);
     const action = interaction.customId.split('.')[1];
     const region = interaction.customId.split('.')[2] as RegionsType;
     const gameType = interaction.customId.split('.')[3] as GameType;
