@@ -36,6 +36,21 @@ const handleSelectMenuInteraction = async (
     interaction: StringSelectMenuInteraction
 ) => {
     console.log('select menu interaction', interaction.customId);
+    console.log(interaction);
+    const channelId = interaction.channelId;
+    const match = await findByChannelId(channelId);
+    if (!match) {
+        interaction.reply({ content: 'Not in match channel', ephemeral: true });
+        return;
+    }
+    //Check if discord user is in match
+    const players = match.players.map(p => p.id);
+    if (!players.includes(interaction.user.id)) {
+        interaction.reply({ content: 'Not in match', ephemeral: true });
+        return;
+    }
+
+    interaction.reply({ content: 'Not implemented yet', ephemeral: true });
 };
 
 const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
