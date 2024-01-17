@@ -32,6 +32,7 @@ import { EnableDuels } from './commands/mod/EnableDuels';
 import { VoteMVP } from './commands/VoteMVP';
 import { RunEloDecay } from './commands/admin/RunEloDecay';
 import { RefreshRankRoles } from './commands/admin/RefreshRankRoles';
+import { TestMVP } from './commands/mod/TestMVP';
 
 export const Commands: Command[] = [
     Stats,
@@ -63,6 +64,7 @@ export const Commands: Command[] = [
     ForceReady,
     GetMatchInfo,
     EnableDuels,
+    TestMVP,
     //Admin commands
     RankCurve,
     FetchAvatars,
