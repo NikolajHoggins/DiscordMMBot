@@ -70,6 +70,12 @@ const handleSelectMenuInteraction = async (
         return;
     }
 
+    // Don't allow voting for yourself
+    if (votedPlayer.id === votingPlayer.id) {
+        interaction.reply({ content: 'You cannot vote for yourself', ephemeral: true });
+        return;
+    }
+
     botLog({
         messageContent: `<@${interaction.user.id}> voted <@${votedPlayerId}> as MVP`,
         client,
