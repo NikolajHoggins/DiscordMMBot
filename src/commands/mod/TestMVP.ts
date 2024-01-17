@@ -65,7 +65,7 @@ export const TestMVP: Command = {
             .setTimestamp();
 
         const teamADropDown = new SelectMenuBuilder()
-            .setCustomId('mvp-vote')
+            .setCustomId('mvp-team-a')
             .setPlaceholder('Team A')
             .addOptions(
                 match.players
@@ -77,7 +77,7 @@ export const TestMVP: Command = {
             );
 
         const teamBDropDown = new SelectMenuBuilder()
-            .setCustomId('mvp-vote')
+            .setCustomId('mvp-team-b')
             .setPlaceholder('Team B')
             .addOptions(
                 match.players
