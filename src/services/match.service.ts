@@ -7,6 +7,7 @@ import {
     EmbedBuilder,
     Guild,
     MessageActionRowComponentBuilder,
+    SelectMenuBuilder,
     TextChannel,
 } from 'discord.js';
 import { updateStatus } from '../crons/updateQueue';
@@ -46,6 +47,7 @@ import {
     gameTypeQueueChannels,
     gameTypeResultsChannels,
 } from '../types/queue';
+import { ButtonInteractionsType } from '../types/interactions';
 const DEBUG_MODE = false;
 
 const SECOND_IN_MS = 1000;
@@ -904,7 +906,7 @@ export const setScore = async ({
 
             row.addComponents(
                 new ButtonBuilder()
-                    .setCustomId('verify')
+                    .setCustomId(ButtonInteractionsType.verify)
                     .setLabel('Verify')
                     .setStyle(ButtonStyle.Success)
             );
@@ -927,6 +929,36 @@ export const setScore = async ({
             await sendMessage({
                 channelId: match.channels.matchChannel,
                 messageContent: verifyContent,
+                client,
+            });
+
+            const mvpEmbed = new EmbedBuilder()
+                .setTitle(`MVP Voting for match #${match.match_number}`)
+                .setDescription('Select the MVP from the dropdown below.')
+                .setTimestamp();
+
+            const mvpDropdown = new SelectMenuBuilder()
+                .setCustomId('mvp-vote')
+                .setPlaceholder('Select MVP')
+                .addOptions(
+                    match.players.map(player => ({
+                        label: player.name,
+                        value: player.id,
+                    }))
+                );
+
+            const mvpRow = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+            mvpRow.addComponents(mvpDropdown);
+
+            const mvpContent = {
+                content: 'This is work in progress',
+                embeds: [mvpEmbed],
+                components: [mvpRow],
+            };
+
+            await sendMessage({
+                channelId: match.channels.matchChannel,
+                messageContent: mvpContent,
                 client,
             });
         }
