@@ -136,7 +136,7 @@ export const Stats: Command = {
             ...(isStatsServer && {
                 content: `View more stats at ${
                     trackingLinks[interaction.guildId as keyof typeof trackingLinks]
-                }profile/${userToCheck.id}`,
+                }`,
             }),
             embeds: [statsEmbed],
         });
