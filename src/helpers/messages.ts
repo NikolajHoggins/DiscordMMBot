@@ -89,7 +89,7 @@ export const sendMatchFoundMessage = ({ client, match }: { client: Client; match
 
         if (!user) return;
         try {
-            user.send(`Your match was found, go ready in <#${readyChannel}>`);
+            await user.send(`Your match was found, go ready in <#${readyChannel}>`);
         } catch (error) {
             botLog({
                 messageContent: `Failed to send match found dm to <@${user.id}>`,
