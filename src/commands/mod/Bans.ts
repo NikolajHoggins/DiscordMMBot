@@ -38,8 +38,10 @@ export const Bans: Command = {
         if (!player) return interaction.reply({ content: 'no player', ephemeral: true });
         if (!player.bans || player.bans.length === 0)
             return interaction.reply({ content: 'no bans', ephemeral: true });
-
         //shit code had to be fast
+        const inc = 24;
+        var low = 0;
+        var top = low + inc;
         const embeds = [];
         embeds.push(
             new EmbedBuilder()
@@ -55,7 +57,7 @@ export const Bans: Command = {
                                 : 'Not banned'
                         }`,
                     },
-                    ...player.bans.slice(0, 24).map(ban => ({
+                    ...player.bans.slice(low, top).map(ban => ({
                         name: `${ban.type} - ${ban.reason}`,
                         value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
                             ban.timeoutInMinutes
@@ -63,14 +65,16 @@ export const Bans: Command = {
                     })),
                 ])
         );
-        if (player.bans.length > 24) {
+        if (player.bans.length > top) {
+            low += inc;
+            top += inc;
             embeds.push(
                 new EmbedBuilder()
                     .setTitle(`${mention.username} bans`)
                     .setColor('#0099ff')
                     .setThumbnail(mention.avatarURL())
                     .addFields(
-                        player.bans.slice(24, 24 + 25).map(ban => ({
+                        player.bans.slice(low, top).map(ban => ({
                             name: `${ban.type} - ${ban.reason}`,
                             value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
                                 ban.timeoutInMinutes
@@ -79,14 +83,16 @@ export const Bans: Command = {
                     )
             );
         }
-        if (player.bans.length > 24 + 25) {
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
             embeds.push(
                 new EmbedBuilder()
                     .setTitle(`${mention.username} bans`)
                     .setColor('#0099ff')
                     .setThumbnail(mention.avatarURL())
                     .addFields(
-                        player.bans.slice(24 + 25, 24 + 25 + 25).map(ban => ({
+                        player.bans.slice(low, top).map(ban => ({
                             name: `${ban.type} - ${ban.reason}`,
                             value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
                                 ban.timeoutInMinutes
@@ -95,6 +101,151 @@ export const Bans: Command = {
                     )
             );
         }
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(low, top).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(low, top).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(low, top).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(low, top).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(low, top).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(low, top).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(low, top).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+        if (player.bans.length > top ) {
+            low += inc;
+            top += inc;
+            embeds.push(
+                new EmbedBuilder()
+                    .setTitle(`${mention.username} bans`)
+                    .setColor('#0099ff')
+                    .setThumbnail(mention.avatarURL())
+                    .addFields(
+                        player.bans.slice(low, top).map(ban => ({
+                            name: `${ban.type} - ${ban.reason}`,
+                            value: `Start: <t:${Math.floor(ban.startTime / 1000)}:F> - ${
+                                ban.timeoutInMinutes
+                            } minutes${ban.modId ? ` - By <@${ban.modId}>` : ''}`,
+                        }))
+                    )
+            );
+        }
+
 
         interaction.reply({
             embeds,
