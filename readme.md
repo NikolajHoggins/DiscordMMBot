@@ -1,16 +1,17 @@
 #Node version
 v18.12.1
 
-# BreachersBot
+# Discord Matchmaking Bot
 
 ## About
 
-BreachersBot is a powerful Discord bot designed to manage competitive gaming communities. It has successfully served **6,000+ members** across **3 Discord servers**, facilitating **over 20,000 matches** in various games.
+This Discord Matchmaking Bot is a powerful tool designed to manage competitive gaming communities across multiple games. It has successfully served **6,000+ members** across **3 Discord servers**, facilitating **over 20,000 matches** in various competitive games.
 
 > **Note on Code Quality**: This project was developed rapidly to meet immediate community needs. The code prioritizes functionality over perfect architecture. It was built in short, intense development cycles with a "make it work" philosophy. While not the most elegant codebase, it gets the job done reliably. Contributions to improve code quality are very welcome!
 
 ## Features
 
+-   **Multi-Game Support**: Configurable for different competitive games
 -   **Matchmaking System**: Automated queue and team balancing
 -   **ELO Rating System**: Sophisticated player ranking with performance tracking
 -   **Match History**: Comprehensive record of all matches played
