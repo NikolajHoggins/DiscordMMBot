@@ -43,8 +43,8 @@ This bot has become an essential tool for competitive gaming communities, helpin
 1. Clone this repository
 
 ```
-git clone https://github.com/YourUsername/BreachersBot.git
-cd BreachersBot
+git clone https://github.com/YourUsername/Discord-Matchmaking-Bot.git
+cd Discord-Matchmaking-Bot
 ```
 
 2. Install dependencies
@@ -94,7 +94,7 @@ This project is licensed under the GNU General Public License v3.0 - see the LIC
 
 ## Support My Work
 
-If you find this bot useful and would like to support my work, please consider becoming a patron:
+If you find this matchmaking bot useful and would like to support my work, please consider becoming a patron:
 
 [![Support on Patreon](https://img.shields.io/badge/Support-Patreon-orange.svg)](https://www.patreon.com/c/VRTracker)
 
@@ -102,7 +102,7 @@ Your support helps me maintain and improve this project, as well as create new t
 
 ## Acknowledgements
 
--   Thanks to all the communities that have used and tested this bot
+-   Thanks to all the gaming communities that have used and tested this bot
 -   Special thanks to all contributors and supporters
 -   Thanks to the Discord.js team for their excellent library
 
