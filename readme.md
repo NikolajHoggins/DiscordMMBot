@@ -100,6 +100,13 @@ If you find this matchmaking bot useful and would like to support my work, pleas
 
 Your support helps me maintain and improve this project, as well as create new tools for gaming communities.
 
+## Connect With Me
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Nikolaj_Hoggins-blue?style=flat&logo=linkedin)](https://www.linkedin.com/in/nikolajhoggins/)
+[![Twitter](https://img.shields.io/badge/Twitter-@NikolajHoggins-blue?style=flat&logo=twitter)](https://x.com/NikolajHoggins)
+
+Feel free to connect with me on social media for updates on this project and my other work!
+
 ## Acknowledgements
 
 -   Thanks to all the gaming communities that have used and tested this bot
