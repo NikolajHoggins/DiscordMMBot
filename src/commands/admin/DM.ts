@@ -7,6 +7,7 @@ import {
 } from 'discord.js';
 
 import { Command } from '../../Command';
+import { sendDirectMessage } from '../../helpers/messages';
 
 export const SendDM: Command = {
     name: 'dm',
@@ -37,7 +38,7 @@ export const SendDM: Command = {
 
         try {
             const user = await client.users.fetch(userId);
-            await user.send(message);
+            await sendDirectMessage({ client, userId, message });
             await interaction.reply({ content: `Sent DM to <@${userId}>`, ephemeral: true });
         } catch (error) {
             await interaction.reply({

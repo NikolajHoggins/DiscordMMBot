@@ -81,21 +81,17 @@ export const createReadyMessage = ({
 };
 
 export const sendMatchFoundMessage = ({ client, match }: { client: Client; match: IMatch }) => {
-    const guild = getGuild(client);
     match.players.forEach(async p => {
         //find guild member
         const user = await client.users?.fetch(p.id);
         const readyChannel = match.channels.ready;
 
         if (!user) return;
-        try {
-            user.send(`Your match was found, go ready in <#${readyChannel}>`);
-        } catch (error) {
-            botLog({
-                messageContent: `Failed to send match found dm to <@${user.id}>`,
-                client,
-            });
-        }
+        await sendDirectMessage({
+            client,
+            userId: user.id,
+            message: `Your match was found, go ready in <#${readyChannel}>`,
+        });
     });
 };
 
@@ -164,7 +160,7 @@ export const sendDirectMessage = async ({
         await user.send(message);
     } catch (error) {
         botLog({
-            messageContent: `Failed to send direct message to <@${userId}>`,
+            messageContent: `Failed to send direct message to <@${userId}> \n${message}`,
             client,
         });
     }
