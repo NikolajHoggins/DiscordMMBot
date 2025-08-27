@@ -25,17 +25,15 @@ export const sendMessageInChannel = async ({
     client: Client;
     messageContent: string | MessagePayload | MessageCreateOptions;
 }): Promise<Message> => {
-    return new Promise(async resolve => {
-        if (!channelId) {
-            throw new Error('No channel id for message ' + messageContent);
-        }
-        const channel = await client.channels.fetch(channelId).then(resp => resp);
-        if (!channel) throw new Error(`Couldn't fetch channel ${channelId} for sending message: `);
-        const message = await (channel as TextChannel).send(messageContent);
-        if (!message) throw new Error("Couldn't send message");
+    if (!channelId) {
+        throw new Error('No channel id for message ' + messageContent);
+    }
+    const channel = await client.channels.fetch(channelId).then(resp => resp);
+    if (!channel) throw new Error(`Couldn't fetch channel ${channelId} for sending message: `);
+    const message = await (channel as TextChannel).send(messageContent);
+    if (!message) throw new Error("Couldn't send message");
 
-        resolve(message);
-    });
+    return message;
 };
 
 export const botLog = async ({
@@ -45,39 +43,32 @@ export const botLog = async ({
     messageContent: string | any;
     client: Client;
 }): Promise<void> => {
-    return new Promise(async resolve => {
-        const logChannelId = await getChannelId(ChannelsType['bot-log']);
-        sendMessageInChannel({ channelId: logChannelId, messageContent, client });
-
-        resolve();
-    });
+    const logChannelId = await getChannelId(ChannelsType['bot-log']);
+    sendMessageInChannel({ channelId: logChannelId, messageContent, client });
 };
 
-export const createReadyMessage = ({
+export const createReadyMessage = async ({
     matchNumber,
 }: {
     matchNumber: number;
 }): Promise<MessageCreateOptions> => {
-    return new Promise(async resolve => {
-        const match = await Match.findOne({ match_number: matchNumber });
-        if (!match) throw new Error('Match not found');
+    const match = await Match.findOne({ match_number: matchNumber });
+    if (!match) throw new Error('Match not found');
 
-        const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+    const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
 
-        row.addComponents(
-            new ButtonBuilder()
-                .setCustomId('match.confirm')
-                .setLabel('Ready')
-                .setStyle(ButtonStyle.Success)
-        );
+    row.addComponents(
+        new ButtonBuilder()
+            .setCustomId('match.confirm')
+            .setLabel('Ready')
+            .setStyle(ButtonStyle.Success)
+    );
 
-        const confirmMessageContent = {
-            content: `Confirm you are ready to play with the button below. If you cannot play do /abandon`,
-            components: [row],
-        };
-
-        resolve(confirmMessageContent);
-    });
+    const confirmMessageContent = {
+        content: `Confirm you are ready to play with the button below. If you cannot play do /abandon`,
+        components: [row],
+    };
+    return confirmMessageContent;
 };
 
 export const sendMatchFoundMessage = ({ client, match }: { client: Client; match: IMatch }) => {
