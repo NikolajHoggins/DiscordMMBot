@@ -34,6 +34,7 @@ import { RunEloDecay } from './commands/admin/RunEloDecay';
 import { RefreshRankRoles } from './commands/admin/RefreshRankRoles';
 import { TestMVP } from './commands/mod/TestMVP';
 import { SendDM } from './commands/admin/DM';
+import { ResendReady } from './commands/mod/ResendReady';
 
 export const Commands: Command[] = [
     Stats,
@@ -66,6 +67,7 @@ export const Commands: Command[] = [
     GetMatchInfo,
     EnableDuels,
     TestMVP,
+    ResendReady,
     //Admin commands
     RankCurve,
     FetchAvatars,
