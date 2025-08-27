@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import { Command } from '../../Command';
 import { isUserMod } from '../../helpers/permissions';
-import { createReadyMessage, sendMessage, botLog } from '../../helpers/messages';
+import { createReadyMessage, sendMessageInChannel, botLog } from '../../helpers/messages';
 import { findByChannelId } from '../../services/match.service';
 
 export const ResendReady: Command = {
@@ -26,7 +26,7 @@ export const ResendReady: Command = {
 
         const readyContent = await createReadyMessage({ matchNumber: match.match_number });
 
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: match.channels.ready,
             client,
             messageContent:
@@ -37,7 +37,7 @@ export const ResendReady: Command = {
                     .join(' '),
         });
 
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: match.channels.ready,
             client,
             messageContent: readyContent,

@@ -1,6 +1,6 @@
 import { Client } from 'discord.js';
 import { IMatch } from '../models/match.schema';
-import { botLog, sendMessage } from './messages';
+import { botLog, sendMessageInChannel } from './messages';
 import { getTeam } from './players';
 import { createMatchLogEmbed } from './embed';
 

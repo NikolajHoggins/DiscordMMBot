@@ -11,7 +11,7 @@ import * as playerService from '../services/player.service';
 import { ready } from '../services/queue.service';
 import { getConfig } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
-import { sendMessage } from '../helpers/messages';
+import { sendMessageInChannel } from '../helpers/messages';
 import { ceil } from 'lodash';
 import { GameType, RegionsType, gameTypeQueueChannels } from '../types/queue';
 
@@ -74,7 +74,7 @@ export const handleReady = async ({
         config => config.channels.find(c => c.name === channelsType)?.id
     );
     if (!queueChannelId) throw new Error('Queue channel not found');
-    await sendMessage({
+    await sendMessageInChannel({
         channelId: queueChannelId,
         messageContent: `${player.name} readied up!`,
         client,

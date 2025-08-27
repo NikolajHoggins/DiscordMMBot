@@ -5,7 +5,7 @@ import { BansType, banTimes } from '../types/bans';
 import Queue from '../models/queue.schema';
 import { getChannelId } from './system.service';
 import { ChannelsType } from '../types/channel';
-import { botLog, sendMessage } from '../helpers/messages';
+import { botLog, sendMessageInChannel } from '../helpers/messages';
 import { GameType, gameTypeRatingKeys } from '../types/queue';
 
 export const findOrCreate = (user: User): Promise<IPlayer> => {
@@ -179,7 +179,7 @@ export const addBan = ({
             const message = `<@${userId}> has been timed out for ${actualDuration} minutes due to "${reason}"`;
 
             const queueChannel = await getChannelId(ChannelsType['ranked-queue']);
-            await sendMessage({
+            await sendMessageInChannel({
                 channelId: queueChannel,
                 messageContent: message,
                 client,

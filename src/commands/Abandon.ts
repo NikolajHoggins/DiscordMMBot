@@ -2,7 +2,7 @@ import { CommandInteraction, Client, ApplicationCommandType, User } from 'discor
 import { Command } from '../Command';
 import { end, findByChannelId } from '../services/match.service';
 import Player from '../models/player.schema';
-import { sendMessage } from '../helpers/messages';
+import { sendMessageInChannel } from '../helpers/messages';
 import { addBan } from '../services/player.service';
 import { BansType } from '../types/bans';
 import Match from '../models/match.schema';
@@ -92,7 +92,7 @@ export const handleAbandon = async ({
         }
     );
 
-    await sendMessage({
+    await sendMessageInChannel({
         channelId: channelId,
         messageContent: `<@&${match.roleId}> <@${user.id}> has abandoned the match. They are not allowed to join the game again, and has been given a timeout from playing. \nYou will keep playing with the remaining players. \nSince one team is at a disadvantage, the team with a missing player will lose less elo for a loss, and win more from a win.`,
         client,

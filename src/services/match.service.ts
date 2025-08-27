@@ -15,7 +15,7 @@ import {
     botLog,
     createReadyMessage,
     sendMatchFoundMessage,
-    sendMessage,
+    sendMessageInChannel,
     sendMvpVoteMessage,
 } from '../helpers/messages';
 import Match, { IMatch, IMatchChannels, MatchStatus } from '../models/match.schema';
@@ -152,7 +152,7 @@ const sendReadyMessage = async ({
     return new Promise(async resolve => {
         const timeToReadyInMs = 3 * MINUTE_IN_MS;
 
-        const readyMessage = await sendMessage({
+        const readyMessage = await sendMessageInChannel({
             channelId,
             messageContent: `Game has been found, you have ${
                 timeToReadyInMs / 1000
@@ -166,14 +166,14 @@ const sendReadyMessage = async ({
             matchNumber: match.match_number,
         });
 
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: match.channels.ready,
             client,
             messageContent:
                 'Missing players: ' +
                 shuffle(match.players.filter(p => !p.ready).map(p => `<@${p.id}>`)).join(' '),
         });
-        const confirmMessage = await sendMessage({
+        const confirmMessage = await sendMessageInChannel({
             channelId: match.channels.ready,
             client,
             messageContent: readyMessageContent,
@@ -208,7 +208,7 @@ export const checkPlayersReady = ({
 
         //if it's been more than 3 minutes since the match started, end game
         if (Date.now() - match.start > 3 * 60 * SECOND_IN_MS) {
-            sendMessage({
+            sendMessageInChannel({
                 channelId: match.channels.ready,
                 messageContent: `${unreadyPlayers.map(
                     player => `<@${player.id}>,`
@@ -218,7 +218,7 @@ export const checkPlayersReady = ({
 
             //get queue channel id
             const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
-            sendMessage({
+            sendMessageInChannel({
                 channelId: queueChannelId,
                 messageContent: `${unreadyPlayers.map(
                     player => `<@${player.id}>,`
@@ -255,7 +255,7 @@ export const checkPlayersReady = ({
             const timeLeft = endTime - Date.now();
             const channelId = match.channels.ready;
             const q = match.players.filter(p => p.ready !== true).map(p => p.id);
-            sendMessage({
+            sendMessageInChannel({
                 channelId,
                 messageContent: `${q.map(player => `<@${player}>,`)} you have ${Math.floor(
                     timeLeft / SECOND_IN_MS
@@ -285,7 +285,7 @@ export const checkScoreVerified = ({
         const totalNeeded = match.players.length / 2 + 1;
 
         if (verifiedPlayersCount >= totalNeeded) {
-            sendMessage({
+            sendMessageInChannel({
                 channelId: match.channels.matchChannel,
                 messageContent: 'All players have verified score',
                 client: client,
@@ -374,7 +374,7 @@ export const tryStart = (client: Client, gameType: GameType): Promise<void> => {
         }
 
         if (queue.length >= count) {
-            await sendMessage({
+            await sendMessageInChannel({
                 channelId: queueChannelId,
                 messageContent: `${queue.length} players in queue, couldn't create a game with servers of players wishes`,
                 client,
@@ -451,7 +451,7 @@ const tryStartDuels = (client: Client): Promise<void> => {
 
         const remainingPlayers = queue.filter(q => !inMatch.includes(q.id));
         if (remainingPlayers.length >= count) {
-            await sendMessage({
+            await sendMessageInChannel({
                 channelId: queueChannelId,
                 messageContent: `Players in queues rating are too far apart`,
                 client,
@@ -464,7 +464,7 @@ const tryStartDuels = (client: Client): Promise<void> => {
                     (timeLeft - timeLeftInMinutes * MINUTE_IN_MS) / SECOND_IN_MS
                 );
                 const timeLeftString = `${timeLeftInMinutes} minutes and ${timeLeftInSeconds} seconds`;
-                await sendMessage({
+                await sendMessageInChannel({
                     channelId: queueChannelId,
                     messageContent: `${q.name} you have ${timeLeftString} left until you get priority queue. This will ignore rating difference and ensure you a match`,
                     client,
@@ -520,7 +520,7 @@ const startMatch = ({
         // console.log('closest team', closestPossible);
         // console.log('rating diff', closestRatingDiff);
         // console.log('====================================================');
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: queueChannelId,
             messageContent:
                 count +
@@ -600,17 +600,25 @@ const createSideVotingChannel = async ({
         const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'a')
             .map(p => `<@${p.id}>`)
             .join(', ')}`;
-        await sendMessage({ channelId: teamAChannel.id, messageContent: teammatesMessage, client });
+        await sendMessageInChannel({
+            channelId: teamAChannel.id,
+            messageContent: teammatesMessage,
+            client,
+        });
         if (match.gameType === GameType.squads) {
             const sideMessage = {
                 content: `Pick a side to start on. Voting ends in ${VOTE_SECONDS} seconds`,
                 components: [row],
             };
-            await sendMessage({ channelId: teamAChannel.id, messageContent: sideMessage, client });
+            await sendMessageInChannel({
+                channelId: teamAChannel.id,
+                messageContent: sideMessage,
+                client,
+            });
             return resolve(teamAChannel.id);
         }
 
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: teamAChannel.id,
             messageContent: `Since this is 1v1, you will be choosing server host instead of starting side. Your enemy is voting for map. Vote ends in ${VOTE_SECONDS} seconds`,
             client,
@@ -654,8 +662,12 @@ const createMapVotingChannel = async ({
         const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'b')
             .map(p => `<@${p.id}>`)
             .join(', ')}`;
-        await sendMessage({ channelId: teamBChannel.id, messageContent: teammatesMessage, client });
-        await sendMessage({
+        await sendMessageInChannel({
+            channelId: teamBChannel.id,
+            messageContent: teammatesMessage,
+            client,
+        });
+        await sendMessageInChannel({
             channelId: teamBChannel.id,
             messageContent: mapMessage,
             client,
@@ -697,12 +709,12 @@ const createVotingChannels = ({
         );
 
         setTimeout(async () => {
-            await sendMessage({
+            await sendMessageInChannel({
                 channelId: teamAChannel,
                 messageContent: "Time's up! Starting game",
                 client,
             });
-            await sendMessage({
+            await sendMessageInChannel({
                 channelId: teamBChannel,
                 messageContent: "Time's up! Starting game",
                 client,
@@ -793,12 +805,12 @@ export const startGame = ({
             regionString = `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
         }
 
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: matchChannel.id,
             messageContent: { embeds: [teamsEmbed] },
             client,
         });
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: matchChannel.id,
             messageContent: regionString,
             client,
@@ -918,7 +930,7 @@ export const setScore = async ({
                 embeds: [scoreEmbed],
                 components: [row],
             };
-            await sendMessage({
+            await sendMessageInChannel({
                 channelId: match.channels.matchChannel,
                 client,
                 messageContent:
@@ -929,7 +941,7 @@ export const setScore = async ({
                         .join(' '),
             });
 
-            sendMessage({
+            sendMessageInChannel({
                 channelId: match.channels.matchChannel,
                 messageContent: verifyContent,
                 client,
@@ -976,7 +988,7 @@ export const checkMatchMVP = ({ matchNumber, client }: { matchNumber: number; cl
 
         //get queue channel id
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
-        sendMessage({
+        sendMessageInChannel({
             channelId: queueChannelId,
             messageContent: { embeds: [mvpEmbed] },
             client,
@@ -1021,7 +1033,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
         if (isDraw) {
             botLog({ messageContent: `Match is a draw ${matchNumber}`, client });
             //handle draw
-            sendMessage({
+            sendMessageInChannel({
                 channelId: match.channels.matchChannel,
                 messageContent: 'Match is a draw, L',
                 client,
@@ -1053,7 +1065,7 @@ export const finishMatch = ({ matchNumber, client }: { matchNumber: number; clie
                     ? capitalize(match.teamASide)
                     : capitalize(await getTeamBName(match.teamASide));
             botLog({ messageContent: `Match winner ${matchNumber}: ${winner}`, client });
-            sendMessage({
+            sendMessageInChannel({
                 channelId: match.channels.matchChannel,
                 messageContent: winner + ' wins!',
                 client,
@@ -1168,7 +1180,7 @@ export const end = ({
                     messageContent: `Got embed`,
                     client,
                 });
-                await sendMessage({
+                await sendMessageInChannel({
                     channelId: matchResultsChannel,
                     messageContent: { embeds: [embed] },
                     client,

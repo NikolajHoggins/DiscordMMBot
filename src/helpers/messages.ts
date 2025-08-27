@@ -16,7 +16,7 @@ import { ChannelsType } from '../types/channel';
 import Match, { IMatch } from '../models/match.schema';
 import { getGuild } from './guild';
 
-export const sendMessage = async ({
+export const sendMessageInChannel = async ({
     channelId,
     messageContent,
     client,
@@ -47,7 +47,7 @@ export const botLog = async ({
 }): Promise<void> => {
     return new Promise(async resolve => {
         const logChannelId = await getChannelId(ChannelsType['bot-log']);
-        sendMessage({ channelId: logChannelId, messageContent, client });
+        sendMessageInChannel({ channelId: logChannelId, messageContent, client });
 
         resolve();
     });
@@ -142,9 +142,30 @@ export const sendMvpVoteMessage = async ({ client, match }: { client: Client; ma
         components: [mvpRowTeamA, mvpRowTeamB],
     };
 
-    await sendMessage({
+    await sendMessageInChannel({
         channelId: match.channels.matchChannel,
         messageContent: mvpContent,
         client,
     });
+};
+
+export const sendDirectMessage = async ({
+    client,
+    userId,
+    message,
+}: {
+    client: Client;
+    userId: string;
+    message: string;
+}) => {
+    const user = await client.users.fetch(userId);
+    if (!user) return;
+    try {
+        await user.send(message);
+    } catch (error) {
+        botLog({
+            messageContent: `Failed to send direct message to <@${userId}>`,
+            client,
+        });
+    }
 };

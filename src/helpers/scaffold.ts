@@ -11,7 +11,7 @@ import { ISystem } from '../models/system.schema';
 import { getConfig, getRegionQueue, updateConfig } from '../services/system.service';
 import { CategoriesType, ChannelsType, ChannelType, RanksType, VCType } from '../types/channel';
 import { getEveryoneRole, getGuild } from './guild';
-import { sendMessage } from './messages';
+import { sendMessageInChannel } from './messages';
 import { createRole } from './role';
 import { GameType, RegionsType, gameTypeName, gameTypeReadyChannels } from '../types/queue';
 
@@ -119,7 +119,7 @@ const addPingToPlayMessage = async ({ config, client }: { config: ISystem; clien
     const roleChannel = config.channels.find(t => t.name === ChannelsType.roles);
     if (!roleChannel) throw new Error('no role channel found');
 
-    const pingToPlayMessage = await sendMessage({
+    const pingToPlayMessage = await sendMessageInChannel({
         channelId: roleChannel.id,
         messageContent: 'React to get ping to play role',
         client,
@@ -141,7 +141,7 @@ const addRegionMessage = async ({ config, client }: { config: ISystem; client: C
         new ButtonBuilder().setCustomId('region.eu').setLabel('EU').setStyle(ButtonStyle.Success),
         new ButtonBuilder().setCustomId('region.oce').setLabel('OCE').setStyle(ButtonStyle.Success)
     );
-    const regionMessage = await sendMessage({
+    const regionMessage = await sendMessageInChannel({
         channelId: regionChannel.id,
         messageContent: { content: 'Select your region', components: [row] },
         client,
@@ -214,7 +214,7 @@ const addReadyUpMessage = async ({
         content: text,
         components: [row],
     };
-    const readyUpMessage = await sendMessage({
+    const readyUpMessage = await sendMessageInChannel({
         channelId: channelId,
         messageContent: readyContent,
         client,
@@ -245,7 +245,7 @@ const addSeeQueueMessage = async ({
         content: text,
         components: [row],
     };
-    const readyUpMessage = await sendMessage({
+    const readyUpMessage = await sendMessageInChannel({
         channelId: channelId,
         messageContent: readyContent,
         client,

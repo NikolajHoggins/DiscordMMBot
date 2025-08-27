@@ -1,6 +1,6 @@
 import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
-import { sendMessage } from '../helpers/messages';
+import { sendMessageInChannel } from '../helpers/messages';
 import { canPing, getChannelId, getConfig, setPingCooldown } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
 
@@ -17,7 +17,7 @@ export const PingPlayers: Command = {
         const queueChannelId = await getChannelId(ChannelsType['ranked-queue']);
         const response = await canPing();
         if (response === true) {
-            await sendMessage({
+            await sendMessageInChannel({
                 channelId: queueChannelId,
                 messageContent: content,
                 client,

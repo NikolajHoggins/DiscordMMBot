@@ -4,7 +4,7 @@ import Player from '../models/player.schema';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import { getGuild } from './guild';
-import { sendMessage } from './messages';
+import { sendMessageInChannel } from './messages';
 import { GameType, gameTypeLeaderboardChannels, gameTypeRatingKeys } from '../types/queue';
 import { trackingLinks } from './tracking';
 
@@ -44,7 +44,7 @@ export const updateLeaderboard = async ({
             );
 
         if (!message) {
-            message = await sendMessage({
+            message = await sendMessageInChannel({
                 channelId: leaderboardChannelId,
                 messageContent: 'Loading...',
                 client,

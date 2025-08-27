@@ -11,7 +11,7 @@ import {
 } from 'discord.js';
 import { Command } from '../../Command';
 import { getGuild } from '../../helpers/guild';
-import { sendMessage } from '../../helpers/messages';
+import { sendMessageInChannel } from '../../helpers/messages';
 
 import * as matchService from '../../services/match.service';
 import Match from '../../models/match.schema';
@@ -99,7 +99,7 @@ export const TestMVP: Command = {
             components: [mvpRowTeamA, mvpRowTeamB],
         };
 
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: match.channels.matchChannel,
             messageContent: mvpContent,
             client,

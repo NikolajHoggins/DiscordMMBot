@@ -1,7 +1,7 @@
 import { Client } from 'discord.js';
 import cron from 'node-cron';
 import Player, { IPlayer } from '../models/player.schema';
-import { sendMessage } from '../helpers/messages';
+import { sendMessageInChannel } from '../helpers/messages';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 

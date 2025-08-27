@@ -5,7 +5,7 @@ import {
     ApplicationCommandOptionType,
 } from 'discord.js';
 import { Command } from '../Command';
-import { sendMessage } from '../helpers/messages';
+import { sendMessageInChannel } from '../helpers/messages';
 import { canPing, getChannelId, getConfig, setPingCooldown } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
 
@@ -33,7 +33,7 @@ export const PingMods: Command = {
 
         // const response = await canPing();
         // if (response === true) {
-        await sendMessage({
+        await sendMessageInChannel({
             channelId: interaction.channelId,
             messageContent: content,
             client,
