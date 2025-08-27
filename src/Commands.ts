@@ -35,6 +35,7 @@ import { RefreshRankRoles } from './commands/admin/RefreshRankRoles';
 import { TestMVP } from './commands/mod/TestMVP';
 import { SendDM } from './commands/admin/DM';
 import { ResendReady } from './commands/mod/ResendReady';
+import { StartGame } from './commands/mod/StartGame';
 
 export const Commands: Command[] = [
     Stats,
@@ -68,6 +69,7 @@ export const Commands: Command[] = [
     EnableDuels,
     TestMVP,
     ResendReady,
+    StartGame,
     //Admin commands
     RankCurve,
     FetchAvatars,
