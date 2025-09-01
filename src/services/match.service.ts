@@ -84,30 +84,6 @@ const setPermissions = async ({
         resolve(role.id);
     });
 };
-//Disabled as ingame comms is better for quest players
-const createVCs = ({ client, match }: { client: Client; match: IMatch }) => {
-    return new Promise(async resolve => {
-        const matchCategoryId = await getChannelId(CategoriesType.matches);
-        const teamVC = await createChannel({
-            client,
-            name: `Match-${match.match_number} Voice`,
-            parentId: matchCategoryId,
-            type: ChannelType.GuildVoice,
-            allowedIds: match.players.map(p => p.id),
-        });
-
-        await Match.updateOne(
-            { match_number: match.match_number },
-            {
-                $set: {
-                    channels: { ...match.channels, voice: teamVC.id },
-                },
-            }
-        );
-
-        resolve(true);
-    });
-};
 
 const createMatchChannel = ({
     client,
