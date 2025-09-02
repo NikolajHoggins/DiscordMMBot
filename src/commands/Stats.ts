@@ -13,7 +13,6 @@ import Player from '../models/player.schema';
 import { getChannelId, getServerEmotes } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import { EmotesType } from '../types/emotes';
-import { trackingLinks } from '../helpers/tracking';
 
 const getEmoji = (result: string, emojis: EmotesType) => {
     if (['w', 'l', 'd'].includes(result)) return `<:${emojis[result as 'w' | 'l' | 'd']}>`;
@@ -36,8 +35,6 @@ export const Stats: Command = {
         const { user } = interaction;
         const mention = interaction.options.get('user')?.user;
         const emotes = await getServerEmotes();
-
-        const isStatsServer = Object.keys(trackingLinks).includes(interaction.guildId || '');
 
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
@@ -133,11 +130,6 @@ export const Stats: Command = {
         }
 
         await interaction.reply({
-            ...(isStatsServer && {
-                content: `View more stats at ${
-                    trackingLinks[interaction.guildId as keyof typeof trackingLinks]
-                }`,
-            }),
             embeds: [statsEmbed],
         });
     },
