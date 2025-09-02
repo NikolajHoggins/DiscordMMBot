@@ -4,7 +4,9 @@ import { addWinLoss, get, idsToObjects } from '../services/player.service';
 import { IPlayer, MatchResultType } from '../models/player.schema';
 import { getTeam } from './players';
 import { GameType, gameTypeRatingKeys } from '../types/queue';
-import { getWinScore } from '../services/system.service';
+import { getConfig, getWinScore } from '../services/system.service';
+import { getGuild } from './guild';
+import { RanksType } from '../types/channel';
 
 const calculateExpectedScore = (playerRating: number, opponentRating: number): number => {
     const ratingDifference = opponentRating - playerRating;
@@ -69,6 +71,11 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
     const { players } = match;
     const maxWinScore = match.gameType === GameType.squads ? await getWinScore() : 20;
 
+    // Fetch context needed for ping role bonus once
+    const config = await getConfig();
+    const pingRoleId = config.roles.find(({ name }) => name === RanksType.ping)?.id;
+    const guild = await getGuild(client);
+
     const teamA = await Promise.all(
         idsToObjects(
             getTeam(players, 'a')
@@ -127,6 +134,18 @@ export const calculateEloChanges = async (match: IMatch, client: Client): Promis
                 }
 
                 console.log('eloChange after win streak', eloChange);
+                // Apply +0.5 bonus for winners with ping-to-play role
+                if (isWin && pingRoleId) {
+                    try {
+                        const member = await guild.members.fetch(p.id);
+                        if (member.roles.cache.has(pingRoleId)) {
+                            eloChange += 0.5;
+                            console.log('Applied ping role bonus +0.5');
+                        }
+                    } catch (e) {
+                        console.error('Failed to fetch member for ping role bonus', e);
+                    }
+                }
                 const historyKey = (
                     match.gameType === GameType.duels
                         ? gameTypeRatingKeys.duels.history
