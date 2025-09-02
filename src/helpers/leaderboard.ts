@@ -1,12 +1,10 @@
 import { Client, Message, TextChannel } from 'discord.js';
-import { ceil, floor, isEqual, repeat, toInteger } from 'lodash';
+import { ceil, floor, repeat, toInteger } from 'lodash';
 import Player from '../models/player.schema';
 import { getChannelId } from '../services/system.service';
-import { ChannelsType } from '../types/channel';
 import { getGuild } from './guild';
 import { sendMessageInChannel } from './messages';
 import { GameType, gameTypeLeaderboardChannels, gameTypeRatingKeys } from '../types/queue';
-import { trackingLinks } from './tracking';
 
 const getPretty = ({ value, slotLength }: { value: string; slotLength: number }) => {
     const valueLength = value.length;
@@ -35,14 +33,6 @@ export const updateLeaderboard = async ({
         const messages = await (channel as TextChannel).messages.fetch();
 
         let message = messages.first() as Message<boolean>;
-        const isStatsServer = Object.keys(trackingLinks).includes(guild.id || '');
-        if (isStatsServer)
-            return message.edit(
-                `Leaderboards are available through the bots website: ${
-                    trackingLinks[guild.id as keyof typeof trackingLinks]
-                }/leaderboard`
-            );
-
         if (!message) {
             message = await sendMessageInChannel({
                 channelId: leaderboardChannelId,
