@@ -6,13 +6,14 @@ import { EmotesType } from '../types/emotes.js';
 import { GameType } from '../types/queue';
 
 const ONE_MINUTE = 60000;
+const MINUTES_BETWEEN_PINGS = 30;
 
 export const canPing = (): Promise<true | string> => {
     return new Promise(async (resolve, reject) => {
         const config = await getConfig();
 
-        if (config.last_ping + ONE_MINUTE * 30 < Date.now()) resolve(true);
-        const remainingTime = config.last_ping + ONE_MINUTE * 30 - Date.now();
+        if (config.last_ping + ONE_MINUTE * MINUTES_BETWEEN_PINGS < Date.now()) resolve(true);
+        const remainingTime = config.last_ping + ONE_MINUTE * MINUTES_BETWEEN_PINGS - Date.now();
         resolve((remainingTime / ONE_MINUTE).toFixed(1));
     });
 };
