@@ -52,8 +52,15 @@ export const respondWithQueue = async (
         }] - ${normalPlayersString}`;
     }
 
-    await interaction.reply({
-        content,
-        ephemeral: ephemeral,
-    });
+    try {
+        await interaction.reply({
+            content,
+            ephemeral: ephemeral,
+        });
+    } catch (error) {
+        botLog({
+            messageContent: `Error responding with queue: ${error}`,
+            client: interaction.client,
+        });
+    }
 };

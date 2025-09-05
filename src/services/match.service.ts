@@ -117,12 +117,10 @@ const createMatchChannel = ({
 const sendReadyMessage = async ({
     channelId,
     client,
-    queuePlayers,
     match,
 }: {
     channelId: string;
     client: Client;
-    queuePlayers: IQueue[];
     match: IMatch;
 }): Promise<void> => {
     return new Promise(async resolve => {
@@ -539,7 +537,7 @@ const startMatch = ({
         await removePlayersFromQueue(queuePlayers);
         updateStatus(client);
         sendMatchFoundMessage({ client, match: newMatch });
-        await sendReadyMessage({ client, channelId, queuePlayers, match: newMatch });
+        await sendReadyMessage({ client, channelId, match: newMatch });
 
         resolve(true);
     });
