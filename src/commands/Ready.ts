@@ -1,18 +1,19 @@
 import {
-    CommandInteraction,
-    Client,
-    ApplicationCommandType,
     ApplicationCommandOptionType,
+    ApplicationCommandType,
     ButtonInteraction,
+    Client,
+    CommandInteraction,
 } from 'discord.js';
+import { ceil } from 'lodash';
 import { Command } from '../Command';
 import { updateStatus } from '../crons/updateQueue';
+import { safelyReplyToInteraction } from '../helpers/interactions';
+import { sendMessageInChannel } from '../helpers/messages';
 import * as playerService from '../services/player.service';
 import { ready } from '../services/queue.service';
 import { getConfig } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
-import { sendMessageInChannel } from '../helpers/messages';
-import { ceil } from 'lodash';
 import { GameType, RegionsType, gameTypeQueueChannels } from '../types/queue';
 
 export const handleReady = async ({
@@ -63,11 +64,7 @@ export const handleReady = async ({
 
     const content = `You have been set to be ready for a match for ${time} minutes.`;
 
-    console.log('Responding to ready message');
-    await interaction.reply({
-        ephemeral: true,
-        content,
-    });
+    await safelyReplyToInteraction({ interaction, content, ephemeral: true });
 
     const channelsType = gameTypeQueueChannels[gameType];
     const queueChannelId = await getConfig().then(

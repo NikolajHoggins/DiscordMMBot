@@ -5,6 +5,7 @@ import { groupBy, map, upperCase } from 'lodash';
 import { getChannelId, getRegionQueue } from '../services/system.service';
 import { GameType, gameTypeName, gameTypeQueueChannels } from '../types/queue';
 import { botLog } from '../helpers/messages';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export const QueueCommand: Command = {
     name: 'queue',
@@ -53,15 +54,5 @@ export const respondWithQueue = async (
         }] - ${normalPlayersString}`;
     }
 
-    try {
-        await interaction.reply({
-            content,
-            ephemeral: ephemeral,
-        });
-    } catch (error) {
-        botLog({
-            messageContent: `Error responding with queue: ${error}`,
-            client: interaction.client,
-        });
-    }
+    await safelyReplyToInteraction({ interaction, content, ephemeral });
 };
