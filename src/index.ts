@@ -11,6 +11,7 @@ import initTryStartCron from './crons/tryStart';
 import initBanTickDownCron from './crons/banTickDown';
 import { runTests } from './tests/elo';
 import initEloDecayCron from './crons/eloDecay';
+import initPostAimHeroCron from './crons/postAimHero';
 
 console.log('Bot is starting...');
 dotenv.config();
@@ -33,4 +34,5 @@ initStatusCron(client);
 initTryStartCron(client);
 initBanTickDownCron(client);
 initEloDecayCron(client);
+initPostAimHeroCron(client);
 // runTests();
