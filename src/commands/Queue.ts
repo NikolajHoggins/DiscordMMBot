@@ -4,6 +4,7 @@ import Queue from '../models/queue.schema';
 import { groupBy, map, upperCase } from 'lodash';
 import { getChannelId, getRegionQueue } from '../services/system.service';
 import { GameType, gameTypeName, gameTypeQueueChannels } from '../types/queue';
+import { botLog } from '../helpers/messages';
 
 export const QueueCommand: Command = {
     name: 'queue',
