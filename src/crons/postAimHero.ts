@@ -5,17 +5,17 @@ import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import path from 'path';
 
-const postAimHero = async (client: Client) => {
+export const postAimHero = async (client: Client) => {
     try {
         const rankedQueueChannelId = await getChannelId(ChannelsType['ranked-queue']);
-        const imagePath = path.resolve(process.cwd(), 'src', 'images', 'vr-aim-hero.jpeg');
+        const imagePath = path.resolve(process.cwd(), 'src', 'images', 'vr-aim-ad.png');
         const attachment = new AttachmentBuilder(imagePath);
 
         await sendMessageInChannel({
             channelId: rankedQueueChannelId,
             messageContent: {
                 content:
-                    "# I'm making a VR Aim Trainer\nThe first Aim Trainer actually tailored for VR.\n\nCheck it out at https://vr-aim.com?utm_source=vailranked",
+                    "# I'm making a VR Aim Trainer\nThe first Aim Trainer actually tailored for VR.\n\nCheck it out at https://vr-aim.com?utm_source=vailranked\n\n Or join the discord\nhttps://discord.gg/5uHFmM6sWH",
                 files: [attachment],
             },
             client,
