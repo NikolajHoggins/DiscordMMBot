@@ -8,6 +8,7 @@ import {
 
 import { Command } from '../../Command';
 import { sendDirectMessage } from '../../helpers/messages';
+import { safelyReplyToInteraction } from '../../helpers/interactions';
 
 export const SendDM: Command = {
     name: 'dm',
@@ -34,14 +35,22 @@ export const SendDM: Command = {
         const message = interaction.options.get('message')?.value;
 
         if (typeof userId !== 'string' || typeof message !== 'string')
-            return interaction.reply({ content: 'Invalid input', ephemeral: true });
+            return safelyReplyToInteraction({
+                interaction,
+                content: 'Invalid input',
+                ephemeral: true,
+            });
 
         try {
-            const user = await client.users.fetch(userId);
             await sendDirectMessage({ client, userId, message });
-            await interaction.reply({ content: `Sent DM to <@${userId}>`, ephemeral: true });
+            await safelyReplyToInteraction({
+                interaction,
+                content: `Sent DM to <@${userId}>`,
+                ephemeral: true,
+            });
         } catch (error) {
-            await interaction.reply({
+            await safelyReplyToInteraction({
+                interaction,
                 content: 'Failed to send DM. The user may have DMs disabled.',
                 ephemeral: true,
             });

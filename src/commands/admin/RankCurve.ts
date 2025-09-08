@@ -13,7 +13,7 @@ import Player from '../../models/player.schema';
 import { rankColors, rankCutoffs } from '../../helpers/rank';
 import { Command } from '../../Command';
 import { RanksType } from '../../types/channel';
-import { repeat } from 'lodash';
+import { safelyReplyToInteraction } from '../../helpers/interactions';
 
 const up = (ctx: ScriptableLineSegmentContext, value: string) =>
     ctx.p0.parsed.y < ctx.p1.parsed.y ? value : undefined;
@@ -33,7 +33,8 @@ export const RankCurve: Command = {
 
         const HOGGINS_DISCORD_ID = '241759050155425803';
         if (user.id !== HOGGINS_DISCORD_ID)
-            return interaction.reply({
+            return safelyReplyToInteraction({
+                interaction,
                 content: 'You are not authorized to use this command',
                 ephemeral: true,
             });
@@ -87,11 +88,6 @@ export const RankCurve: Command = {
         const image = await chartJSNodeCanvas.renderToBuffer(chartConfig);
         const attachment = new AttachmentBuilder(image);
 
-        // await interaction.reply({
-        //     content: 'hello',
-        // });
-        await interaction.reply({
-            files: [attachment],
-        });
+        await safelyReplyToInteraction({ interaction, files: [attachment] });
     },
 };
