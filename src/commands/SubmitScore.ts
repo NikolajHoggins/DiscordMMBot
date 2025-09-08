@@ -11,6 +11,7 @@ import { getTeamBName } from '../helpers/team';
 import { MatchStatus } from '../models/match.schema';
 import { getWinScore } from '../services/system.service';
 import { GameType } from '../types/queue';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export const SubmitScore: Command = {
     name: 'submit_score',
@@ -33,7 +34,8 @@ export const SubmitScore: Command = {
 
         const match = await matchService.findByChannelId(channelId);
         if (!match) {
-            await interaction.reply({
+            await safelyReplyToInteraction({
+                interaction,
                 ephemeral: true,
                 content: 'Command only works in match thread',
             });
@@ -42,7 +44,8 @@ export const SubmitScore: Command = {
         const winScore = match.gameType === GameType.squads ? await getWinScore() : 20;
 
         if (score > winScore) {
-            await interaction.reply({
+            await safelyReplyToInteraction({
+                interaction,
                 ephemeral: true,
                 content: `Score can be a maximum of ${winScore}`,
             });
@@ -50,7 +53,8 @@ export const SubmitScore: Command = {
         }
 
         if (match.status !== MatchStatus.started) {
-            await interaction.reply({
+            await safelyReplyToInteraction({
+                interaction,
                 ephemeral: true,
                 content: 'Match not in started state',
             });
@@ -58,14 +62,16 @@ export const SubmitScore: Command = {
         }
         const matchPlayer = match.players.find(p => p.id === user.id);
         if (!matchPlayer) {
-            await interaction.reply({
+            await safelyReplyToInteraction({
+                interaction,
                 ephemeral: true,
                 content: 'You are not in this match',
             });
             return;
         }
         if (!matchPlayer.captain) {
-            await interaction.reply({
+            await safelyReplyToInteraction({
+                interaction,
                 ephemeral: true,
                 content: 'You are not the captain',
             });
@@ -86,7 +92,8 @@ export const SubmitScore: Command = {
 
         const content = `Submitted score ${score} for team ${teamName}`;
 
-        await interaction.reply({
+        await safelyReplyToInteraction({
+            interaction,
             content,
         });
     },

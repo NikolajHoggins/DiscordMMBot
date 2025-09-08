@@ -3,6 +3,7 @@ import { Command } from '../Command';
 import { sendMessageInChannel } from '../helpers/messages';
 import { canPing, getChannelId, getConfig, setPingCooldown } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export const PingPlayers: Command = {
     name: 'pingplayers',
@@ -22,12 +23,16 @@ export const PingPlayers: Command = {
                 messageContent: content,
                 client,
             });
-            interaction.reply('Pinging players');
+            safelyReplyToInteraction({ interaction, content: 'Pinging players', ephemeral: true });
 
             await setPingCooldown();
             return;
         }
 
-        interaction.reply('Cannot ping for another ' + response + 'minutes');
+        safelyReplyToInteraction({
+            interaction,
+            content: 'Cannot ping for another ' + response + 'minutes',
+            ephemeral: true,
+        });
     },
 };

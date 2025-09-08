@@ -8,6 +8,7 @@ import { Command } from '../Command';
 import { sendMessageInChannel } from '../helpers/messages';
 import { canPing, getChannelId, getConfig, setPingCooldown } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export const PingMods: Command = {
     name: 'mods',
@@ -38,12 +39,9 @@ export const PingMods: Command = {
             messageContent: content,
             client,
         });
-        interaction.reply({ content: 'Pinged mods', ephemeral: true });
+        safelyReplyToInteraction({ interaction, content: 'Pinged mods', ephemeral: true });
 
         // await setPingCooldown();
         return;
-        // }
-
-        // interaction.reply('Cannot ping for another ' + response + 'minutes');
     },
 };

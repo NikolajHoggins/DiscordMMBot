@@ -1,12 +1,5 @@
-import {
-    ApplicationCommandOptionType,
-    ApplicationCommandType,
-    ButtonInteraction,
-    Client,
-    CommandInteraction,
-} from 'discord.js';
+import { ButtonInteraction, Client, CommandInteraction } from 'discord.js';
 import { ceil } from 'lodash';
-import { Command } from '../Command';
 import { updateStatus } from '../crons/updateQueue';
 import { safelyReplyToInteraction } from '../helpers/interactions';
 import { sendMessageInChannel } from '../helpers/messages';
@@ -42,14 +35,16 @@ export const handleReady = async ({
     // console.log(userRoles, RanksType.nae);
     if (!regionRanks || regionRanks.length === 0) {
         const regionChannel = config.channels.find(c => c.name === ChannelsType.region);
-        return interaction.reply({
+        return safelyReplyToInteraction({
+            interaction,
             content: `You need to select a region first in <#${regionChannel?.id}>`,
             ephemeral: true,
         });
     }
 
     if (player.banEnd > Date.now()) {
-        interaction.reply({
+        safelyReplyToInteraction({
+            interaction,
             content: `You are banned from queue for ${ceil(
                 (player.banEnd - Date.now()) / 1000 / 60
             )} minutes`,
@@ -76,63 +71,4 @@ export const handleReady = async ({
         messageContent: `${player.name} readied up!`,
         client,
     });
-};
-
-export const Ready: Command = {
-    name: 'ready',
-    description: 'Ready up for a game',
-    options: [
-        {
-            name: 'time',
-            description: 'set how many minutes you want to be in queue',
-            type: ApplicationCommandOptionType.Number,
-            required: false,
-            min_value: 5,
-            max_value: 120,
-        },
-        {
-            name: 'region',
-            description: 'NA | EU | FILL',
-            type: ApplicationCommandOptionType.String,
-        },
-    ],
-    type: ApplicationCommandType.ChatInput,
-    run: async (client: Client, interaction: CommandInteraction) => {
-        const config = await getConfig();
-        await interaction.reply({
-            ephemeral: true,
-            content: 'Command disabled, use ready up buttons',
-        });
-        return;
-        // const TESTING_CHANNEL = '1063592233779073105';
-        // if (
-        //     interaction.channelId !== TESTING_CHANNEL &&
-        //     interaction.channelId !==
-        //         config.channels.filter((c: any) => c.name === ChannelsType['ranked-queue'])[0].id
-        // ) {
-        //     await interaction.reply({
-        //         ephemeral: true,
-        //         content: 'Keep queue commands in queue',
-        //     });
-        //     return;
-        // }
-        // const option = interaction.options.get('time');
-        // const isNumber = typeof option?.value == 'number';
-        // const readyTime = isNumber ? (option.value as number) : 30;
-        // const region = interaction.options.get('region');
-        // if (region && !['na', 'eu', 'fill'].includes((region.value as string)?.toLowerCase())) {
-        //     return interaction.reply({
-        //         content: 'Region must be NA, EU, or FILL',
-        //     });
-        // }
-
-        // handleReady({
-        //     interaction,
-        //     time: readyTime,
-        //     client,
-        //     region: ((region?.value as string)?.toLowerCase() as RegionsType) || 'fill',
-        // });
-
-        //If all players are in queue, send a "stratingw within the next minute message" maybe even seconds (in x seconds)
-    },
 };

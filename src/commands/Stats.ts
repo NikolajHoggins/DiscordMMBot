@@ -13,6 +13,7 @@ import Player from '../models/player.schema';
 import { getChannelId, getServerEmotes } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import { EmotesType } from '../types/emotes';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 const getEmoji = (result: string, emojis: EmotesType) => {
     if (['w', 'l', 'd'].includes(result)) return `<:${emojis[result as 'w' | 'l' | 'd']}>`;
@@ -38,7 +39,8 @@ export const Stats: Command = {
 
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
-            return interaction.reply({
+            return safelyReplyToInteraction({
+                interaction,
                 content: `Keep messages in <#${queueChannel}> channel`,
                 ephemeral: true,
             });
@@ -129,7 +131,8 @@ export const Stats: Command = {
             ]);
         }
 
-        await interaction.reply({
+        await safelyReplyToInteraction({
+            interaction,
             embeds: [statsEmbed],
         });
     },

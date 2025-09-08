@@ -15,7 +15,6 @@ import { PingPlayers } from './commands/PingPlayers';
 import { PlayingCommand } from './commands/Playing';
 import { QueueCommand } from './commands/Queue';
 import { RatingChange } from './commands/RatingChange';
-import { Ready } from './commands/Ready';
 import { RestartBot } from './commands/mod/Restart';
 import { Stats } from './commands/Stats';
 import { SubmitScore } from './commands/SubmitScore';
@@ -28,7 +27,6 @@ import { FetchAvatars } from './commands/admin/FetchAvatars';
 import { RankCurve } from './commands/admin/RankCurve';
 import { SetConfig } from './commands/admin/SetConfig';
 import { EnableDuels } from './commands/mod/EnableDuels';
-import { VoteMVP } from './commands/VoteMVP';
 import { RunEloDecay } from './commands/admin/RunEloDecay';
 import { RefreshRankRoles } from './commands/admin/RefreshRankRoles';
 import { TestMVP } from './commands/mod/TestMVP';
@@ -39,7 +37,6 @@ import { StartGame } from './commands/mod/StartGame';
 
 export const Commands: Command[] = [
     Stats,
-    Ready,
     Top,
     QueueCommand,
     Unready,
@@ -50,7 +47,6 @@ export const Commands: Command[] = [
     Graph,
     PlayingCommand,
     PingMods,
-    VoteMVP,
     //mod commands
     EndGame,
     AddNote,

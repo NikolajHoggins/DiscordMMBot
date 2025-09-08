@@ -2,6 +2,7 @@ import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { Command } from '../Command';
 import Match from '../models/match.schema';
 import { createMatchListEmbed } from '../helpers/embed';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export const PlayingCommand: Command = {
     name: 'playing',
@@ -11,11 +12,15 @@ export const PlayingCommand: Command = {
         const matches = await Match.find({ status: 'started' });
 
         if (!matches.length)
-            return await interaction.reply({ content: 'No matches are currently being played' });
+            return await safelyReplyToInteraction({
+                interaction,
+                content: 'No matches are currently being played',
+            });
 
         const embed = await createMatchListEmbed({ matches });
 
-        await interaction.reply({
+        await safelyReplyToInteraction({
+            interaction,
             embeds: [embed],
         });
     },

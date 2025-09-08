@@ -3,6 +3,7 @@ import { Command } from '../Command';
 import { updateStatus } from '../crons/updateQueue';
 import * as playerService from '../services/player.service';
 import { unReady } from '../services/queue.service';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export const handleUnready = async (
     client: Client,
@@ -16,7 +17,8 @@ export const handleUnready = async (
 
     const content = `You are no longer in queue`;
 
-    interaction.reply({
+    safelyReplyToInteraction({
+        interaction,
         ephemeral: true,
         content,
     });

@@ -5,6 +5,7 @@ import Player, { IPlayer } from '../models/player.schema';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import { addToSortedSet, getFromSortedSetDesc } from '../services/redis.service';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export const Top: Command = {
     name: 'top',
@@ -14,7 +15,8 @@ export const Top: Command = {
         //Fetch user from database
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
-            return interaction.reply({
+            return safelyReplyToInteraction({
+                interaction,
                 content: `Keep messages in <#${queueChannel}> channel`,
                 ephemeral: true,
             });
@@ -49,7 +51,8 @@ export const Top: Command = {
 
         content = content + '```';
 
-        await interaction.reply({
+        await safelyReplyToInteraction({
+            interaction,
             ephemeral: true,
             content,
         });
