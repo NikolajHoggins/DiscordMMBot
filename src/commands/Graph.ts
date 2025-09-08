@@ -12,8 +12,8 @@ import { ChannelsType, RanksType } from '../types/channel';
 import { getGuild } from '../helpers/guild';
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas';
 import { ChartConfiguration, ScriptableLineSegmentContext } from 'chart.js';
-import { MatchResultType } from '../models/player.schema';
 import { Chart } from 'chart.js';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 const up = (ctx: ScriptableLineSegmentContext, value: string) =>
     ctx.p0.parsed.y < ctx.p1.parsed.y ? value : undefined;
@@ -54,7 +54,8 @@ export const Graph: Command = {
         const isMod = await member.roles.cache.some(r => r.id === modRoleId);
 
         if (!isMod && mention) {
-            return await interaction.reply({
+            return await safelyReplyToInteraction({
+                interaction,
                 ephemeral: true,
                 content: 'You can only see your own graph',
             });
@@ -62,7 +63,8 @@ export const Graph: Command = {
 
         const queueChannel = await getChannelId(ChannelsType['bot-commands']);
         if (interaction.channelId !== queueChannel) {
-            return interaction.reply({
+            return safelyReplyToInteraction({
+                interaction,
                 content: `Keep messages in <#${queueChannel}> channel`,
                 ephemeral: true,
             });
@@ -73,20 +75,6 @@ export const Graph: Command = {
         const player = await playerService.findOrCreate(userToCheck);
         const { ratingHistory } = player;
 
-        // const isUnranked = player.history.length < 10;
-
-        // if (isUnranked) {
-        //     return interaction.reply({
-        //         content: 'Command is only available for ranked users',
-        //     });
-        // }
-
-        const ratings: {
-            match: string;
-            rating: number;
-            result: MatchResultType;
-            change: number;
-        }[] = [];
         const graphHistory = ratingHistory.slice(length * -1);
 
         const labels = graphHistory.map(({ reason }) => reason);
@@ -121,7 +109,8 @@ export const Graph: Command = {
         const image = await chartJSNodeCanvas.renderToBuffer(chartConfig);
         const attachment = new AttachmentBuilder(image);
 
-        await interaction.reply({
+        await safelyReplyToInteraction({
+            interaction,
             files: [attachment],
         });
     },

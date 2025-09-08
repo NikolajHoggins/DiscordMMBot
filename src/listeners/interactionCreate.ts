@@ -17,6 +17,7 @@ import { respondWithQueue } from '../commands/Queue';
 import { GameType } from '../types/queue';
 import { setPlayerMvpVote } from '../commands/VoteMVP';
 import { botLog } from '../helpers/messages';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export default (client: Client): void => {
     client.on('interactionCreate', async (interaction: Interaction) => {
@@ -37,18 +38,20 @@ const handleSelectMenuInteraction = async (
     client: Client,
     interaction: StringSelectMenuInteraction
 ) => {
-    console.log('select menu interaction', interaction.customId);
-    console.log(interaction);
     const channelId = interaction.channelId;
     const match = await findByChannelId(channelId);
     if (!match) {
-        interaction.reply({ content: 'Not in match channel', ephemeral: true });
+        safelyReplyToInteraction({ interaction, content: 'Not in match channel', ephemeral: true });
         return;
     }
     //Check if discord user is in match
     const players = match.players.map(p => p.id);
     if (!players.includes(interaction.user.id)) {
-        interaction.reply({ content: 'You are not a player in this match', ephemeral: true });
+        safelyReplyToInteraction({
+            interaction,
+            content: 'You are not a player in this match',
+            ephemeral: true,
+        });
         return;
     }
 
@@ -58,12 +61,13 @@ const handleSelectMenuInteraction = async (
     const votedPlayer = match.players.find(p => p.id === votedPlayerId);
     const votingPlayer = match.players.find(p => p.id === interaction.user.id);
     if (!votedPlayer || !votingPlayer) {
-        interaction.reply({ content: 'Player not found', ephemeral: true });
+        safelyReplyToInteraction({ interaction, content: 'Player not found', ephemeral: true });
         return;
     }
 
     if (votedPlayer.team !== votingPlayer.team) {
-        interaction.reply({
+        safelyReplyToInteraction({
+            interaction,
             content: 'You can only vote for players on your team',
             ephemeral: true,
         });
@@ -72,7 +76,11 @@ const handleSelectMenuInteraction = async (
 
     // Don't allow voting for yourself
     if (votedPlayer.id === votingPlayer.id) {
-        interaction.reply({ content: 'You cannot vote for yourself', ephemeral: true });
+        safelyReplyToInteraction({
+            interaction,
+            content: 'You cannot vote for yourself',
+            ephemeral: true,
+        });
         return;
     }
 
@@ -88,7 +96,11 @@ const handleSelectMenuInteraction = async (
         mvpVoteId: votedPlayerId,
     });
 
-    interaction.reply({ content: `Voted <@${votedPlayerId}> as mvp`, ephemeral: true });
+    safelyReplyToInteraction({
+        interaction,
+        content: `Voted <@${votedPlayerId}> as mvp`,
+        ephemeral: true,
+    });
 };
 
 const handleButtonInteraction = async (client: Client, interaction: ButtonInteraction) => {
@@ -112,7 +124,7 @@ const handleButtonInteraction = async (client: Client, interaction: ButtonIntera
     }
 
     if (!match) {
-        interaction.reply({ content: 'Not in match channel', ephemeral: true });
+        safelyReplyToInteraction({ interaction, content: 'Not in match channel', ephemeral: true });
         return;
     }
 
@@ -122,7 +134,11 @@ const handleButtonInteraction = async (client: Client, interaction: ButtonIntera
     }
 
     if (!match || match.status !== MatchStatus.voting) {
-        interaction.reply({ content: 'Not in pending match channel', ephemeral: true });
+        safelyReplyToInteraction({
+            interaction,
+            content: 'Not in pending match channel',
+            ephemeral: true,
+        });
         return;
     }
 
@@ -137,7 +153,7 @@ const handleButtonInteraction = async (client: Client, interaction: ButtonIntera
     }
 
     //Check if on correct team
-    interaction.reply({ content: `You cannot vote here`, ephemeral: true });
+    safelyReplyToInteraction({ interaction, content: `You cannot vote here`, ephemeral: true });
 };
 
 const handleMatchVote = async ({
@@ -159,7 +175,11 @@ const handleMatchVote = async ({
             matchNumber: match.match_number,
         });
 
-        interaction.reply({ content: `You voted ${interaction.customId}`, ephemeral: true });
+        safelyReplyToInteraction({
+            interaction,
+            content: `You voted ${interaction.customId}`,
+            ephemeral: true,
+        });
 
         resolve(true);
     });
@@ -199,7 +219,7 @@ const handleSlashCommand = async (
 ): Promise<void> => {
     const slashCommand = Commands.find(c => c.name === interaction.commandName);
     if (!slashCommand) {
-        interaction.reply({ content: 'An error has occurred' });
+        safelyReplyToInteraction({ interaction, content: 'An error has occurred' });
         return;
     }
 

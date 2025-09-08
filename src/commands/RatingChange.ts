@@ -2,6 +2,7 @@ import { CommandInteraction, Client, ApplicationCommandType } from 'discord.js';
 import { last } from 'lodash';
 import { Command } from '../Command';
 import * as playerService from '../services/player.service';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 // const emojis = {
 //     w: '<:BR_W:1095827374655934604>',
@@ -23,17 +24,25 @@ export const RatingChange: Command = {
         const player = await playerService.findOrCreate(user);
         const { history } = player;
         if (history.length < 10)
-            return interaction.reply({
+            return safelyReplyToInteraction({
+                interaction,
                 content: `You need to play at least 10 matches to use this command`,
                 ephemeral: true,
             });
         const lastMatch = last(history);
-        if (!lastMatch) return interaction.reply({ content: `You have no matches played` });
+        if (!lastMatch)
+            return safelyReplyToInteraction({
+                interaction,
+                content: `You have no matches played`,
+                ephemeral: true,
+            });
 
-        interaction.reply({
+        safelyReplyToInteraction({
+            interaction,
             content: `Your last match rating change from match ${lastMatch.matchNumber} was a ${
                 lastMatch.result
             } and resulted in ${Math.floor(lastMatch.change)} elo`,
+            ephemeral: true,
         });
     },
 };

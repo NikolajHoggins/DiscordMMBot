@@ -2,7 +2,6 @@ import { Command } from './Command';
 import { Abandon } from './commands/Abandon';
 import { AddNote } from './commands/mod/AddNote';
 import { Bans } from './commands/mod/Bans';
-import { Countdown } from './commands/Countdown';
 import { EndGame } from './commands/mod/EndGame';
 import { ForceAbandon } from './commands/mod/ForceAbandon';
 import { ForceReady } from './commands/mod/ForceReady';
@@ -50,7 +49,6 @@ export const Commands: Command[] = [
     RatingChange,
     Graph,
     PlayingCommand,
-    Countdown,
     PingMods,
     VoteMVP,
     //mod commands

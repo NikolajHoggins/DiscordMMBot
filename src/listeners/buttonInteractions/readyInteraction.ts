@@ -4,6 +4,7 @@ import { handleReady } from '../../commands/Ready';
 import { GameType, RegionsType } from '../../types/queue';
 import Match from '../../models/match.schema';
 import { getDuelsEnabled } from '../../services/system.service';
+import { safelyReplyToInteraction } from '../../helpers/interactions';
 
 export const handleReadyInteraction = async (interaction: ButtonInteraction, client: Client) => {
     console.log('ready interaction', interaction.customId);
@@ -14,7 +15,8 @@ export const handleReadyInteraction = async (interaction: ButtonInteraction, cli
     if (gameType === GameType.duels) {
         const duelsEnabled = await getDuelsEnabled();
         if (!duelsEnabled) {
-            interaction.reply({
+            safelyReplyToInteraction({
+                interaction,
                 content: `Duels is currently disabled`,
                 ephemeral: true,
             });
@@ -38,7 +40,8 @@ export const handleReadyInteraction = async (interaction: ButtonInteraction, cli
                 matchNumber: match.match_number,
                 reQueue: false,
             });
-            interaction.reply({
+            safelyReplyToInteraction({
+                interaction,
                 content: `You will no longer auto requeue`,
                 ephemeral: true,
             });
@@ -49,7 +52,8 @@ export const handleReadyInteraction = async (interaction: ButtonInteraction, cli
             matchNumber: match.match_number,
             reQueue: true,
         });
-        interaction.reply({
+        safelyReplyToInteraction({
+            interaction,
             content: `If your current match doesn't get accepted, you will be added to queue in fill for 5 minutes. Unqueue now if you don't want to be automatically added to queue.`,
             ephemeral: true,
         });

@@ -6,6 +6,7 @@ import { sendMessageInChannel } from '../helpers/messages';
 import { addBan } from '../services/player.service';
 import { BansType } from '../types/bans';
 import Match from '../models/match.schema';
+import { safelyReplyToInteraction } from '../helpers/interactions';
 
 export const handleAbandon = async ({
     client,
@@ -20,16 +21,25 @@ export const handleAbandon = async ({
 }) => {
     const match = await findByChannelId(channelId);
     if (!match) {
-        return interaction.reply({
+        return safelyReplyToInteraction({
+            interaction,
             content: 'Command only works in match thread',
+            ephemeral: true,
         });
     }
     if (match.status === 'pending') {
-        await interaction.reply({
+        safelyReplyToInteraction({
+            interaction,
             content: `<@${user.id}> has denied the match. Match has been cancelled. Player has been given a timeout from queueing.`,
+            ephemeral: false,
         });
         const player = await Player.findOne({ discordId: user.id });
-        if (!player) return interaction.reply({ content: `User not found` });
+        if (!player)
+            return safelyReplyToInteraction({
+                interaction,
+                content: `User not found`,
+                ephemeral: true,
+            });
 
         const reason = `Denied match ${match.match_number} before it started`;
 
@@ -59,7 +69,12 @@ export const handleAbandon = async ({
 
     //set a timeout on player, and add a timeout history
     const player = await Player.findOne({ discordId: user.id });
-    if (!player) return interaction.reply({ content: `User not found` });
+    if (!player)
+        return safelyReplyToInteraction({
+            interaction,
+            content: `User not found`,
+            ephemeral: true,
+        });
 
     const reason = `Abandoned match ${match.match_number}`;
 
@@ -98,7 +113,8 @@ export const handleAbandon = async ({
         client,
     });
 
-    await interaction.reply({
+    await safelyReplyToInteraction({
+        interaction,
         ephemeral: true,
         content:
             'You have abandoned the match. You are not allowed to join the game again, and have been timed out.',
