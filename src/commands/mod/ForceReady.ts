@@ -11,6 +11,7 @@ import { botLog } from '../../helpers/messages';
 import { Command } from '../../Command';
 import { isUserMod } from '../../helpers/permissions';
 import Match from '../../models/match.schema';
+import { safelyReplyToInteraction } from '../../helpers/interactions';
 
 export const ForceReady: Command = {
     name: 'force_ready',
@@ -45,7 +46,12 @@ export const ForceReady: Command = {
 
         const messages = await interaction.channel?.messages.fetch();
 
-        if (!messages) throw new Error('No messages found');
+        if (!messages)
+            return safelyReplyToInteraction({
+                interaction,
+                content: 'No messages found, try again later',
+                ephemeral: true,
+            });
 
         for (const message of messages) {
             if (message[1].author.id === client.user?.id) {

@@ -2,12 +2,18 @@ import { ButtonInteraction, Client, Interaction } from 'discord.js';
 
 import Match from '../../models/match.schema';
 import { findByChannelId } from '../../services/match.service';
+import { safelyReplyToInteraction } from '../../helpers/interactions';
 
 export const handleMatchInteraction = async (interaction: ButtonInteraction, client: Client) => {
     const action = interaction.customId.split('.')[1];
     if (action === 'confirm') {
         const match = await findByChannelId(interaction.channelId);
-        if (!match) return interaction.reply({ content: 'Not in match channel', ephemeral: true });
+        if (!match)
+            return safelyReplyToInteraction({
+                interaction,
+                content: 'Not in match channel',
+                ephemeral: true,
+            });
 
         await setPlayerReady({
             playerId: interaction.user.id,
@@ -17,7 +23,12 @@ export const handleMatchInteraction = async (interaction: ButtonInteraction, cli
 
         const messages = await interaction.channel?.messages.fetch();
 
-        if (!messages) throw new Error('No messages found');
+        if (!messages)
+            return safelyReplyToInteraction({
+                interaction,
+                content: 'No messages found, try again later',
+                ephemeral: true,
+            });
 
         for (const message of messages) {
             if (message[1].author.id === client.user?.id) {

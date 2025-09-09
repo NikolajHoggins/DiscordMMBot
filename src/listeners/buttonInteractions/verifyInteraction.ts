@@ -2,6 +2,7 @@ import { ButtonInteraction, Client } from 'discord.js';
 import Match, { IMatch } from '../../models/match.schema';
 import { GameType } from '../../types/queue';
 import { botLog } from '../../helpers/messages';
+import { safelyReplyToInteraction } from '../../helpers/interactions';
 
 export const handleVerifyInteraction = ({
     interaction,
@@ -60,7 +61,12 @@ const setPlayerVerified = async ({
 
         const messages = await interaction.channel?.messages.fetch();
 
-        if (!messages) throw new Error('No messages found');
+        if (!messages)
+            return safelyReplyToInteraction({
+                interaction,
+                content: 'No messages found, try again later',
+                ephemeral: true,
+            });
 
         for (const message of messages) {
             if (message[1].author.id === interaction.client.user?.id) {
