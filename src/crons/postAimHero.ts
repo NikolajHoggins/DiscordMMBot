@@ -27,7 +27,7 @@ export const postAimHero = async (client: Client) => {
 
 const initPostAimHeroCron = async (client: Client) => {
     // Every hour at minute 0
-    cron.schedule('0 */2 * * *', async () => {
+    cron.schedule('0 */6 * * *', async () => {
         postAimHero(client);
     });
 };
