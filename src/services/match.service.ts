@@ -745,7 +745,7 @@ export const startGame = ({
             client,
             name: `match-${match.match_number}`,
             parentId: matchCategoryId,
-            allowedIds: match.players.map(p => p.id),
+            allowedIds: [match.roleId],
             rateLimitPerUser: 5,
         });
 
