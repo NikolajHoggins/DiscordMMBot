@@ -50,14 +50,11 @@ export const handleMatchInteraction = async (interaction: ButtonInteraction, cli
             }
         }
 
-        try {
-            interaction.reply({
-                content: 'You are ready, game will take around 30 seconds to start',
-                ephemeral: true,
-            });
-        } catch (error) {
-            console.log(error);
-        }
+        safelyReplyToInteraction({
+            interaction,
+            content: 'You are ready, game will take around 30 seconds to start',
+            ephemeral: true,
+        });
     }
 };
 
