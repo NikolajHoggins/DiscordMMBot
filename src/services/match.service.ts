@@ -59,7 +59,12 @@ const getNewMatchNumber = async (): Promise<number> => {
         const latest = await Match.find({}, { _id: 0, match_number: 1 })
             .sort({ match_number: -1 })
             .then(matches => matches[0]);
-        resolve(latest ? latest.match_number + 1 : 1);
+        let nextNumber = latest ? latest.match_number + 1 : 1;
+        // Skip match number 1488 discord blocks it
+        if (nextNumber === 1488) {
+            nextNumber = 1489;
+        }
+        resolve(nextNumber);
     });
 };
 
