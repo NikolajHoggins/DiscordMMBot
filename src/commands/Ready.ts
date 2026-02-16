@@ -8,6 +8,48 @@ import { ready } from '../services/queue.service';
 import { getConfig } from '../services/system.service';
 import { ChannelsType, RanksType } from '../types/channel';
 import { GameType, RegionsType, gameTypeQueueChannels } from '../types/queue';
+import { getGame } from '../helpers/game';
+
+type WeightedMessage = { message: (name: string) => string; weight: number };
+
+const readyMessages: Record<string, WeightedMessage[]> = {
+    vail: [
+        { message: (name) => `${name} readied up!`, weight: 90 },
+        { message: (name) => `${name} picked up his mk!`, weight: 2 },
+        { message: (name) => `${name} took out the scanner!`, weight: 2 },
+        { message: (name) => `${name} is ready to win elo!`, weight: 2 },
+        { message: (name) => `${name} is ready to lose!`, weight: 2 },
+        { message: (name) => `${name} joined queue.. maybe dodge this one`, weight: 2 },
+    ],
+    breachers: [
+        { message: (name) => `${name} readied up!`, weight: 90 },
+        { message: (name) => `${name} is ready!`, weight: 2 },
+        { message: (name) => `${name} joined the queue!`, weight: 2 },
+        { message: (name) => `${name} is looking for a game!`, weight: 2 },
+        { message: (name) => `${name} wants to play!`, weight: 2 },
+        { message: (name) => `${name} hopped in the queue!`, weight: 2 },
+    ],
+    x8: [
+        { message: (name) => `${name} readied up!`, weight: 90 },
+        { message: (name) => `${name} is ready!`, weight: 2 },
+        { message: (name) => `${name} joined the queue!`, weight: 2 },
+        { message: (name) => `${name} is looking for a game!`, weight: 2 },
+        { message: (name) => `${name} wants to play!`, weight: 2 },
+        { message: (name) => `${name} hopped in the queue!`, weight: 2 },
+    ],
+};
+
+const getReadyMessage = (name: string) => {
+    const game = getGame();
+    const messages = readyMessages[game];
+    const totalWeight = messages.reduce((sum, m) => sum + m.weight, 0);
+    let roll = Math.random() * totalWeight;
+    for (const m of messages) {
+        roll -= m.weight;
+        if (roll <= 0) return m.message(name);
+    }
+    return messages[0].message(name);
+};
 
 export const handleReady = async ({
     interaction,
@@ -68,7 +110,7 @@ export const handleReady = async ({
     if (!queueChannelId) throw new Error('Queue channel not found');
     await sendMessageInChannel({
         channelId: queueChannelId,
-        messageContent: `${player.name} readied up!`,
+        messageContent: getReadyMessage(player.name),
         client,
     });
 };

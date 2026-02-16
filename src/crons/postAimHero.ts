@@ -4,6 +4,7 @@ import { sendMessageInChannel } from '../helpers/messages';
 import { getChannelId } from '../services/system.service';
 import { ChannelsType } from '../types/channel';
 import path from 'path';
+import { getGame } from '../helpers/game';
 
 export const postAimHero = async (client: Client) => {
     try {
@@ -17,7 +18,7 @@ export const postAimHero = async (client: Client) => {
             if (hasRecentAd) return;
         }
 
-        const game = process.env.DB_NAME === 'breachers' ? 'breachers' : 'vail';
+        const game = getGame();
         const imagePath = path.resolve(process.cwd(), 'src', 'images', 'vr-aim-ad.jpg');
         const attachment = new AttachmentBuilder(imagePath);
 
