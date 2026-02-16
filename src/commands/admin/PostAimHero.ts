@@ -9,7 +9,7 @@ import { postAimHero } from '../../crons/postAimHero';
 
 export const PostAimHero: Command = {
     name: 'post_aim_hero',
-    description: 'Post the VR Aim Trainer promo in ranked queue',
+    description: 'Post the VR AIM promo in ranked queue',
     type: ApplicationCommandType.ChatInput,
     defaultMemberPermissions: [PermissionFlagsBits.Administrator],
     run: async (client: Client, interaction: CommandInteraction) => {
