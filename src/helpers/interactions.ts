@@ -21,7 +21,8 @@ export const safelyReplyToInteraction = async ({
     embeds?: EmbedBuilder[];
 }) => {
     try {
-        await interaction.reply({ content, ephemeral, files, embeds });
+        const message = await interaction.reply({ content, ephemeral, files, embeds });
+        return message;
     } catch (error) {
         botLog({
             messageContent: `Error responding with interaction: ${content} ${error}`,

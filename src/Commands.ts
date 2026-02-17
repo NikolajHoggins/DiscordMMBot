@@ -1,5 +1,6 @@
 import { Command } from './Command';
 import { Abandon } from './commands/Abandon';
+import { CodeCommand } from './commands/Code';
 import { AddNote } from './commands/mod/AddNote';
 import { Bans } from './commands/mod/Bans';
 import { EndGame } from './commands/mod/EndGame';
@@ -42,6 +43,7 @@ export const Commands: Command[] = [
     Unready,
     PingPlayers,
     SubmitScore,
+    CodeCommand,
     Abandon,
     RatingChange,
     Graph,
