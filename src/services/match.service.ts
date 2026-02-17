@@ -933,19 +933,32 @@ export const setScore = async ({
 
 export const checkMatchMVP = ({ matchNumber, client }: { matchNumber: number; client: Client }) => {
     const MVP_GAIN = 5;
-    const VOTES_FOR_MVP = 3;
+    const VOTES_FOR_MVP = 2;
     return new Promise(async resolve => {
         botLog({ messageContent: `Checking MVPs for ${matchNumber}`, client });
 
         const match = await Match.findOne({ match_number: matchNumber });
         if (!match) throw new Error('No match found');
 
-        //Get all players MVP votes, and count total of vote for each player, if 3 votes, give MVP. There can be two MVPs
+        //Get all players MVP votes per team, player with most votes (min 2) gets MVP. Ties = no MVP.
         const votes = match.players.map(p => p.mvpVoteId).filter(voteId => voteId !== undefined);
 
         const mvpVotes = groupBy(votes, v => v);
 
-        const mvpIds = Object.keys(mvpVotes).filter(key => mvpVotes[key].length >= VOTES_FOR_MVP);
+        const candidates = Object.keys(mvpVotes).filter(key => mvpVotes[key].length >= VOTES_FOR_MVP);
+
+        // Tiebreak: if multiple candidates have the same vote count, no MVP is awarded
+        const mvpIds: string[] = [];
+        if (candidates.length === 1) {
+            mvpIds.push(candidates[0]);
+        } else if (candidates.length > 1) {
+            const maxVotes = Math.max(...candidates.map(id => mvpVotes[id].length));
+            const topCandidates = candidates.filter(id => mvpVotes[id].length === maxVotes);
+            if (topCandidates.length === 1) {
+                mvpIds.push(topCandidates[0]);
+            }
+            // If tied at the top, no MVP is awarded
+        }
 
         if (mvpIds.length === 0) {
             botLog({ messageContent: `No MVPs found for ${matchNumber}`, client });
