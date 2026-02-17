@@ -89,6 +89,9 @@ export const createMatchResultEmbed = async ({
 
         const mapImage = gameMaps.filter(m => m.name === match.map)[0].image;
 
+        const teamAAvg = Math.round(teamA.reduce((acc, p) => acc + p.rating, 0) / teamA.length);
+        const teamBAvg = Math.round(teamB.reduce((acc, p) => acc + p.rating, 0) / teamB.length);
+
         const description = isDraw
             ? 'Match ended in a draw'
             : `${winner} won! Score was ${match.teamARounds} - ${match.teamBRounds}`;
@@ -101,7 +104,7 @@ export const createMatchResultEmbed = async ({
                 .addFields(
                     {
                         name: `Team A - ${capitalize(match.teamASide)} - [${match.teamARounds}]`,
-                        value: `${
+                        value: `Average ELO: ${teamAAvg}\n${
                             teamA.length > 0
                                 ? teamA
                                       .map(p => `<@${p.id}>${p.captain ? ' - Captain' : ''}\n`)
@@ -112,7 +115,7 @@ export const createMatchResultEmbed = async ({
                     },
                     {
                         name: `Team B - ${capitalize(teamBSide)} - [${match.teamBRounds}]`,
-                        value: `${
+                        value: `Average ELO: ${teamBAvg}\n${
                             teamB.length > 0
                                 ? teamB
                                       .map(p => `<@${p.id}>${p.captain ? ' - Captain' : ''}\n`)
