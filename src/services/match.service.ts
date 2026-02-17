@@ -772,14 +772,31 @@ export const startGame = ({
 
         const teamsEmbed = await createMatchEmbed({ matchNumber: match.match_number });
         const regionQueueEnabled = await getRegionQueue();
-        const regions = groupBy(match.players.map(p => p.region));
 
         let regionString;
         if (!regionQueueEnabled) {
+            const nonRequeuePlayers = match.players.filter(p => p.region !== 'requeue');
+            const regions = groupBy(nonRequeuePlayers.map(p => p.region));
+
+            const regionCounts = map(regions, (value, key) => ({
+                region: key,
+                count: value.length,
+            }));
+            const majority = regionCounts.reduce((a, b) => (b.count > a.count ? b : a));
+
+            let gameRegion = majority.region;
+            const euCount = regions['eu']?.length || 0;
+            const nawCount = regions['naw']?.length || 0;
+            if (majority.region === 'naw' && euCount >= 2) {
+                gameRegion = 'nae';
+            } else if (majority.region === 'eu' && nawCount >= 2) {
+                gameRegion = 'nae';
+            }
+
             regionString =
-                map(regions, (value, key) => {
-                    return `${upperCase(key)} - ${value.length}\n`;
-                }).join('') + `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
+                regionCounts
+                    .map(r => `${upperCase(r.region)} - ${r.count}\n`)
+                    .join('') + `\n\nGame should be played on ${upperCase(gameRegion)} region`;
         } else {
             regionString = `\n\nGame should be played on ${match.region?.toUpperCase()} region`;
         }
