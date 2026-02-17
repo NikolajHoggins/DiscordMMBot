@@ -30,10 +30,10 @@ export const calculateIndividualEloChange = ({
     gameType: GameType;
     maxScoreMargin: number;
 }) => {
-    const BASE_K_FACTOR = 60; // For close matches
+    const BASE_K_FACTOR = 12; // For close matches
     const MAX_K_FACTOR = 90; // For dominant victories, ensures big gains for large score margins
     const MIN_GAIN_FOR_WIN = 2; // Adjusted to your lowest expected change
-    let actualScore = teamRounds / (teamRounds + enemyRounds);
+    let actualScore = teamRounds > enemyRounds ? 1 : 0;
 
     const ratingKey: 'rating' | 'duelsRating' = (
         gameType === GameType.duels
