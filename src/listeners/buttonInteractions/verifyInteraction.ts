@@ -54,7 +54,8 @@ const setPlayerVerified = async ({
             match.players.filter(p => p.verifiedScore && p.id !== interaction.user.id).length + 1;
         const totalNeeded = match.gameType === GameType.squads ? match.players.length / 2 + 1 : 2;
 
-        interaction.reply({
+        safelyReplyToInteraction({
+            interaction,
             content: `Verified (${verifiedPlayersCount} / ${totalNeeded})`,
             ephemeral: true,
         });
