@@ -617,17 +617,22 @@ const createMapVotingChannel = async ({
     return new Promise(async resolve => {
         const matchCategoryId = await getChannelId(CategoriesType.matches);
 
-        const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
         const gameMaps = await getGameMaps(match.gameType);
+        const rows: ActionRowBuilder<MessageActionRowComponentBuilder>[] = [];
 
-        gameMaps.forEach(map => {
-            row.addComponents(
-                new ButtonBuilder()
-                    .setCustomId(map.name)
-                    .setLabel(capitalize(map.name))
-                    .setStyle(ButtonStyle.Primary)
-            );
-        });
+        for (let i = 0; i < gameMaps.length; i += 5) {
+            const row = new ActionRowBuilder<MessageActionRowComponentBuilder>();
+            gameMaps.slice(i, i + 5).forEach(map => {
+                row.addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(map.name)
+                        .setLabel(capitalize(map.name))
+                        .setStyle(ButtonStyle.Primary)
+                );
+            });
+            rows.push(row);
+        }
+
         const teamBChannel = await createChannel({
             client,
             name: `match-${match.match_number} Team B`,
@@ -636,7 +641,7 @@ const createMapVotingChannel = async ({
         });
         const mapMessage = {
             content: `Pick a map to play. Voting ends in ${VOTE_SECONDS} seconds`,
-            components: [row],
+            components: rows,
         };
         const teammatesMessage = `Your teammates are: ${getTeam(match.players, 'b')
             .map(p => `<@${p.id}>`)
