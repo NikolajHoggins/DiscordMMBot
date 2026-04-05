@@ -13,6 +13,11 @@ import { handleVerifyInteraction } from './buttonInteractions/verifyInteraction'
 import { handleReadyInteraction } from './buttonInteractions/readyInteraction';
 import { handleRegionInteraction } from './buttonInteractions/regionInteraction';
 import { handleMatchInteraction } from './buttonInteractions/handleMatchInteraction';
+import {
+    handleTimeoutInteraction,
+    handleTimeoutModalSubmit,
+} from './buttonInteractions/timeoutInteraction';
+import { handleModConfirmInteraction } from './buttonInteractions/modConfirmInteraction';
 import { respondWithQueue } from '../commands/Queue';
 import { GameType } from '../types/queue';
 import { setPlayerMvpVote } from '../commands/VoteMVP';
@@ -30,6 +35,9 @@ export default (client: Client): void => {
         }
         if (interaction.isStringSelectMenu()) {
             await handleSelectMenuInteraction(client, interaction);
+        }
+        if (interaction.isModalSubmit()) {
+            await handleModalSubmit(client, interaction);
         }
     });
 };
@@ -121,6 +129,17 @@ const handleButtonInteraction = async (client: Client, interaction: ButtonIntera
 
     if (interaction.customId.split('.')[0] === 'match') {
         return handleMatchInteraction(interaction, client);
+    }
+
+    if (interaction.customId.split('.')[0] === 'timeout') {
+        return handleTimeoutInteraction(interaction, client);
+    }
+
+    if (
+        interaction.customId.split('.')[0] === 'endgame' ||
+        interaction.customId.split('.')[0] === 'restart'
+    ) {
+        return handleModConfirmInteraction(interaction, client);
     }
 
     if (!match) {
@@ -224,4 +243,10 @@ const handleSlashCommand = async (
     }
 
     slashCommand.run(client, interaction);
+};
+
+const handleModalSubmit = async (client: Client, interaction: any): Promise<void> => {
+    if (interaction.customId.split('.')[0] === 'timeout') {
+        await handleTimeoutModalSubmit(interaction, client);
+    }
 };

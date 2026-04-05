@@ -1,6 +1,7 @@
 import { Command } from './Command';
 import { Abandon } from './commands/Abandon';
 import { CodeCommand } from './commands/Code';
+import { Lookup } from './commands/Lookup';
 import { AddNote } from './commands/mod/AddNote';
 import { Bans } from './commands/mod/Bans';
 import { EndGame } from './commands/mod/EndGame';
@@ -33,11 +34,16 @@ import { RefreshRankRoles } from './commands/admin/RefreshRankRoles';
 import { TestMVP } from './commands/mod/TestMVP';
 import { SendDM } from './commands/admin/DM';
 import { PostAimHero } from './commands/admin/PostAimHero';
+import { PartyConfiguration } from './commands/admin/PartyConfiguration';
 import { ResendReady } from './commands/mod/ResendReady';
 import { StartGame } from './commands/mod/StartGame';
+import { MatchScoreOverride } from './commands/mod/MatchScoreOverride';
+import { UserProfile } from './commands/mod/UserProfile';
+import { QKick } from './commands/mod/QKick';
 
 export const Commands: Command[] = [
     Stats,
+    Lookup,
     Top,
     QueueCommand,
     Unready,
@@ -67,6 +73,9 @@ export const Commands: Command[] = [
     TestMVP,
     ResendReady,
     StartGame,
+    MatchScoreOverride,
+    UserProfile,
+    QKick,
     //Admin commands
     RankCurve,
     FetchAvatars,
@@ -75,4 +84,5 @@ export const Commands: Command[] = [
     RefreshRankRoles,
     SendDM,
     PostAimHero,
+    PartyConfiguration,
 ];

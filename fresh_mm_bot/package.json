@@ -1,0 +1,45 @@
+{
+    "name": "breachersbot",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "npx nodemon",
+        "build": "rimraf ./build && tsc",
+        "start": "npm run build && node build/index.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/NikolajHoggins/BreachersBot.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/NikolajHoggins/BreachersBot/issues"
+    },
+    "homepage": "https://github.com/NikolajHoggins/BreachersBot#readme",
+    "devDependencies": {
+        "@types/chart.js": "^2.9.37",
+        "@types/lodash": "^4.14.191",
+        "@types/node": "^18.11.18",
+        "@types/node-cron": "^3.0.7",
+        "nodemon": "^2.0.20",
+        "rimraf": "^4.0.4",
+        "ts-node": "^10.9.1",
+        "typescript": "^4.9.4"
+    },
+    "dependencies": {
+        "chart.js": "^3.5.1",
+        "chartjs-node-canvas": "^4.1.6",
+        "discord.js": "^14.9.0",
+        "dotenv": "^16.0.3",
+        "ioredis": "^5.3.2",
+        "lodash": "^4.17.21",
+        "mongoose": "^6.8.3",
+        "node-cron": "^3.0.2"
+    }
+}
